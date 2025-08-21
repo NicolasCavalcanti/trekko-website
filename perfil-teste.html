@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TESTE PERFIL - Trekko</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8">Meu Perfil</h1>
+        
+        <!-- Profile Info -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                    <span id="avatarInitials">UT</span>
+                </div>
+                <div>
+                    <h2 id="profileName" class="text-xl font-semibold">Usuário Teste</h2>
+                    <p id="profileEmail" class="text-gray-600">teste@exemplo.com</p>
+                </div>
+                <button id="editProfileBtn" class="ml-auto bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    ✏️ Editar Perfil
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Editar Perfil</h3>
+                <button id="closeEditModal" class="text-gray-500 hover:text-gray-700">×</button>
+            </div>
+            
+            <form id="editProfileForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                        <input type="text" id="editName" class="w-full border border-gray-300 rounded px-3 py-2" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" id="editEmail" class="w-full border border-gray-300 rounded px-3 py-2" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                        <input type="tel" id="editPhone" class="w-full border border-gray-300 rounded px-3 py-2">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Localização</label>
+                        <input type="text" id="editLocation" class="w-full border border-gray-300 rounded px-3 py-2">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Biografia</label>
+                        <textarea id="editBio" rows="3" class="w-full border border-gray-300 rounded px-3 py-2"></textarea>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3 mt-6">
+                    <button type="button" id="cancelEditBtn" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // User data
+        let currentUser = {
+            id: 'user_test',
+            name: 'Usuário Teste',
+            email: 'teste@exemplo.com',
+            phone: '',
+            location: '',
+            bio: ''
+        };
+
+        // DOM Elements
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        const editProfileModal = document.getElementById('editProfileModal');
+        const closeEditModal = document.getElementById('closeEditModal');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const editProfileForm = document.getElementById('editProfileForm');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Página de perfil carregada!');
+            
+            // Event listeners
+            editProfileBtn.addEventListener('click', openEditModal);
+            closeEditModal.addEventListener('click', closeEditModalHandler);
+            cancelEditBtn.addEventListener('click', closeEditModalHandler);
+            editProfileForm.addEventListener('submit', saveProfile);
+        });
+
+        function openEditModal() {
+            console.log('Abrindo modal de editar perfil...');
+            
+            // Populate form with current user data
+            document.getElementById('editName').value = currentUser.name || '';
+            document.getElementById('editEmail').value = currentUser.email || '';
+            document.getElementById('editPhone').value = currentUser.phone || '';
+            document.getElementById('editLocation').value = currentUser.location || '';
+            document.getElementById('editBio').value = currentUser.bio || '';
+            
+            editProfileModal.classList.remove('hidden');
+        }
+
+        function closeEditModalHandler() {
+            console.log('Fechando modal de editar perfil...');
+            editProfileModal.classList.add('hidden');
+        }
+
+        function saveProfile(e) {
+            e.preventDefault();
+            console.log('Salvando perfil...');
+            
+            // Update user data
+            currentUser.name = document.getElementById('editName').value;
+            currentUser.email = document.getElementById('editEmail').value;
+            currentUser.phone = document.getElementById('editPhone').value;
+            currentUser.location = document.getElementById('editLocation').value;
+            currentUser.bio = document.getElementById('editBio').value;
+            
+            // Update profile display
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profileEmail').textContent = currentUser.email;
+            
+            // Update avatar initials
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            document.getElementById('avatarInitials').textContent = initials;
+            
+            // Save to localStorage
+            localStorage.setItem('userData', JSON.stringify(currentUser));
+            
+            alert('Perfil atualizado com sucesso!');
+            closeEditModalHandler();
+        }
+    </script>
+</body>
+</html>
+

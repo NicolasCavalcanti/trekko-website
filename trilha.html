@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Trilha - Trekko</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-green-600">Trekko</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="index.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Início</a>
+                        <a href="trilhas.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Trilhas</a>
+                        <a href="guias.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Guias</a>
+                        <a href="#" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Sobre</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Botões de autenticação serão inseridos aqui pelo auth.js -->
+                    <div id="authButtons">
+                        <button id="loginBtn" class="text-green-600 hover:text-green-700 px-3 py-2 rounded-md text-sm font-medium">Entrar</button>
+                        <button id="registerBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">Cadastrar</button>
+                    </div>
+                    <!-- Menu do usuário logado -->
+                    <div id="userMenu" class="relative hidden">
+                        <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-green-600">
+                            <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                                <span id="userInitial">U</span>
+                            </div>
+                            <span id="userName">Usuário</span>
+                        </button>
+                        <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg hidden">
+                            <a href="perfil.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Meu Perfil</a>
+                            <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sair</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Loading -->
+    <div id="loading" class="max-w-6xl mx-auto px-4 py-12 text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <p class="mt-4 text-gray-600 text-lg">Carregando detalhes da trilha...</p>
+    </div>
+
+    <!-- Error -->
+    <div id="error" class="max-w-4xl mx-auto px-4 py-12 text-center hidden">
+        <div class="bg-red-50 border border-red-200 rounded-lg p-8">
+            <h2 class="text-2xl font-bold text-red-800 mb-4">Trilha não encontrada</h2>
+            <p class="text-red-600 mb-6">A trilha que você está procurando não existe ou foi removida.</p>
+            <a href="trilhas.html" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium inline-block">
+                ← Voltar para Trilhas
+            </a>
+        </div>
+    </div>
+
+    <!-- Trail Details -->
+    <div id="trailDetails" class="max-w-6xl mx-auto px-4 py-8 hidden">
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="trilhas.html" class="text-green-600 hover:text-green-700 font-medium">
+                ← Voltar para Trilhas
+            </a>
+        </div>
+
+        <!-- Trail Header -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+            <div class="h-64 bg-gradient-to-r from-green-400 to-blue-500 relative">
+                <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+                <div class="absolute bottom-6 left-6 text-white">
+                    <h1 id="trailName" class="text-4xl font-bold mb-2">Nome da Trilha</h1>
+                    <p id="trailLocation" class="text-xl">📍 Localização</p>
+                </div>
+                <div class="absolute top-6 right-6">
+                    <div class="bg-white bg-opacity-90 rounded-lg px-4 py-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-yellow-400">⭐</span>
+                            <span id="trailRating" class="font-semibold text-gray-900">4.5</span>
+                            <span id="trailReviewCount" class="text-gray-600">(12 avaliações)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trail Info Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Trail Stats -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Informações da Trilha</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <div class="text-2xl font-bold text-green-600" id="trailDistance">8.5 km</div>
+                            <div class="text-sm text-gray-600">Distância</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600" id="trailDuration">4-6h</div>
+                            <div class="text-sm text-gray-600">Duração</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <div class="text-2xl font-bold text-orange-600" id="trailDifficulty">Moderado</div>
+                            <div class="text-sm text-gray-600">Dificuldade</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <div class="text-2xl font-bold text-purple-600" id="trailElevation">+450m</div>
+                            <div class="text-sm text-gray-600">Elevação</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Descrição</h2>
+                    <p id="trailDescription" class="text-gray-600 leading-relaxed">
+                        Descrição da trilha será carregada aqui...
+                    </p>
+                </div>
+
+                <!-- Reviews Section -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">Avaliações e Fotos</h2>
+                        <button id="addReviewBtn" onclick="openTrailReviewModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                            📝 Avaliar Trilha
+                        </button>
+                    </div>
+
+                    <!-- Review Stats -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900" id="avgRating">4.5</div>
+                            <div class="text-sm text-gray-500">Média Geral</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900" id="totalReviews">12</div>
+                            <div class="text-sm text-gray-500">Avaliações</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900" id="totalPhotos">28</div>
+                            <div class="text-sm text-gray-500">Fotos</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900" id="recommendationRate">92%</div>
+                            <div class="text-sm text-gray-500">Recomendam</div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Options -->
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <button class="filter-btn active px-3 py-1 text-sm rounded-full border" data-filter="all">
+                            Todas
+                        </button>
+                        <button class="filter-btn px-3 py-1 text-sm rounded-full border" data-filter="with-photos">
+                            Com Fotos
+                        </button>
+                        <button class="filter-btn px-3 py-1 text-sm rounded-full border" data-filter="5-stars">
+                            5 Estrelas
+                        </button>
+                        <button class="filter-btn px-3 py-1 text-sm rounded-full border" data-filter="recent">
+                            Mais Recentes
+                        </button>
+                    </div>
+
+                    <!-- Reviews List -->
+                    <div id="reviewsList" class="space-y-6">
+                        <!-- Reviews will be loaded here -->
+                    </div>
+
+                    <!-- No Reviews Message -->
+                    <div id="noReviews" class="text-center py-8 text-gray-500 hidden">
+                        <p>Ainda não há avaliações para esta trilha.</p>
+                        <p class="text-sm mt-2">Seja o primeiro a compartilhar sua experiência!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Ações Rápidas</h3>
+                    <div class="space-y-3">
+                        <button class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium">
+                            🧭 Encontrar Guias
+                        </button>
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium">
+                            🌤️ Ver Clima
+                        </button>
+                        <button class="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 px-4 rounded-lg font-medium">
+                            🗺️ Direções
+                        </button>
+                        <button class="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 px-4 rounded-lg font-medium">
+                            ❤️ Salvar nos Favoritos
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Equipment -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Equipamentos Recomendados</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>🥾 Bota de trilha</li>
+                        <li>🎒 Mochila 20-30L</li>
+                        <li>💧 Água (2L mínimo)</li>
+                        <li>🍎 Lanche energético</li>
+                        <li>🧢 Chapéu/Boné</li>
+                        <li>🧴 Protetor solar</li>
+                        <li>📱 GPS/Celular</li>
+                        <li>🔦 Lanterna</li>
+                    </ul>
+                </div>
+
+                <!-- Safety Tips -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-yellow-800 mb-4">⚠️ Dicas de Segurança</h3>
+                    <ul class="space-y-2 text-sm text-yellow-700">
+                        <li>• Informe alguém sobre seu roteiro</li>
+                        <li>• Verifique a previsão do tempo</li>
+                        <li>• Leve água suficiente</li>
+                        <li>• Não saia da trilha marcada</li>
+                        <li>• Respeite a natureza</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-2xl w-full p-6 max-h-screen overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Avaliar Trilha</h3>
+                    <button id="closeReviewModal" class="text-gray-400 hover:text-gray-600">
+                        <span class="text-2xl">×</span>
+                    </button>
+                </div>
+
+                <form id="reviewForm">
+                    <!-- Trail Info in Modal -->
+                    <div class="flex items-center space-x-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center text-white text-lg font-bold">
+                            🏔️
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900" id="modalTrailName">Nome da Trilha</div>
+                            <div class="text-sm text-gray-500" id="modalTrailLocation">Localização</div>
+                        </div>
+                    </div>
+
+                    <!-- Overall Rating -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Avaliação Geral</label>
+                        <div class="flex space-x-1" id="overallRating">
+                            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="1">⭐</button>
+                            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="2">⭐</button>
+                            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="3">⭐</button>
+                            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="4">⭐</button>
+                            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="5">⭐</button>
+                        </div>
+                    </div>
+
+                    <!-- Guide Used -->
+                    <div class="mb-4">
+                        <label for="guideName" class="block text-sm font-medium text-gray-700 mb-2">Guia Utilizado (opcional)</label>
+                        <input type="text" id="guideName" name="guideName" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500"
+                               placeholder="Nome do guia que te acompanhou">
+                    </div>
+
+                    <!-- Comment -->
+                    <div class="mb-4">
+                        <label for="reviewComment" class="block text-sm font-medium text-gray-700 mb-2">Comentário</label>
+                        <textarea id="reviewComment" name="reviewComment" rows="4" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500"
+                                  placeholder="Conte sobre sua experiência nesta trilha... (mínimo 20 caracteres)"></textarea>
+                        <div class="text-sm text-gray-500 mt-1">
+                            <span id="commentCount">0</span>/1000 caracteres
+                        </div>
+                    </div>
+
+                    <!-- Photo Upload -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Fotos da Trilha (opcional)</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors">
+                            <input type="file" id="photoUpload" multiple accept="image/*" class="hidden">
+                            <button type="button" id="photoUploadBtn" class="text-green-600 hover:text-green-700 font-medium">
+                                📷 Clique para adicionar fotos
+                            </button>
+                            <p class="text-sm text-gray-500 mt-2">Máximo 5 fotos, até 5MB cada</p>
+                        </div>
+                        
+                        <!-- Photo Preview -->
+                        <div id="photoPreview" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4 hidden">
+                            <!-- Photo previews will be shown here -->
+                        </div>
+                    </div>
+
+                    <!-- Recommendation -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Você recomenda esta trilha?</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="recommend" value="yes" class="text-green-600 focus:ring-green-500">
+                                <span class="ml-2 text-sm text-gray-700">👍 Sim, recomendo</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="recommend" value="no" class="text-red-600 focus:ring-red-500">
+                                <span class="ml-2 text-sm text-gray-700">👎 Não recomendo</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex space-x-3">
+                        <button type="button" id="cancelReview" 
+                                class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="submitReview"
+                                class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Enviar Avaliação
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Viewer Modal -->
+    <div id="photoViewerModal" class="fixed inset-0 bg-black bg-opacity-90 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="relative max-w-4xl w-full">
+                <button id="closePhotoViewer" class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300 z-10">
+                    ×
+                </button>
+                <img id="photoViewerImage" src="" alt="Foto da trilha" class="w-full h-auto rounded-lg">
+                <div class="absolute bottom-4 left-4 right-4 bg-black bg-opacity-50 text-white p-4 rounded-lg">
+                    <div id="photoViewerCaption" class="text-lg font-medium mb-2">Foto da trilha</div>
+                    <div id="photoViewerAuthor" class="text-sm text-gray-300">Por: Usuário</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Trekko</h3>
+                    <p class="text-gray-400">A plataforma mais completa para conectar trilheiros e guias em todo o Brasil.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Trilhas</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="trilhas.html" class="hover:text-white">Descobrir Trilhas</a></li>
+                        <li><a href="#" class="hover:text-white">Trilhas Populares</a></li>
+                        <li><a href="#" class="hover:text-white">Trilhas por Estado</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Guias</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="guias.html" class="hover:text-white">Encontrar Guias</a></li>
+                        <li><a href="#" class="hover:text-white">Tornar-se Guia</a></li>
+                        <li><a href="#" class="hover:text-white">Certificação</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Suporte</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">Central de Ajuda</a></li>
+                        <li><a href="#" class="hover:text-white">Contato</a></li>
+                        <li><a href="#" class="hover:text-white">Termos de Uso</a></li>
+                        <li><a href="#" class="hover:text-white">Privacidade</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 Trekko. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="auth.js"></script>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://g8h3ilcvjnlq.manus.space';
+        const API_URL = `${API_BASE_URL}/api`;
+
+        console.log('🔧 API configurada:', API_BASE_URL);
+
+        // Variables
+        let currentTrail = null;
+        let currentRating = 0;
+        let uploadedPhotos = [];
+        let currentFilter = 'all';
+
+        // Get trail ID from URL
+        function getTrailIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        // Load trail details
+        async function loadTrailDetails() {
+            const trailId = getTrailIdFromUrl();
+            
+            if (!trailId) {
+                console.error('❌ ID da trilha não fornecido');
+                showError();
+                return;
+            }
+
+            console.log('🔄 Carregando detalhes da trilha ID:', trailId);
+
+            try {
+                // For demo purposes, we'll use mock data
+                const trail = {
+                    id: trailId,
+                    name: 'Trilha da Pedra Bonita',
+                    location: 'São Conrado, Rio de Janeiro - RJ',
+                    distance: '2.8 km',
+                    duration: '2-3h',
+                    difficulty: 'Fácil',
+                    elevation: '+280m',
+                    description: 'Uma trilha curta e acessível com vista espetacular da cidade do Rio de Janeiro. Ideal para iniciantes e famílias. O percurso é bem sinalizado e oferece várias paradas para contemplação da paisagem.',
+                    rating: 4.6,
+                    reviewCount: 18
+                };
+
+                currentTrail = trail;
+                displayTrailDetails(trail);
+                loadTrailReviews(trailId);
+
+            } catch (error) {
+                console.error('❌ Erro ao carregar trilha:', error);
+                showError();
+            }
+        }
+
+        // Display trail details
+        function displayTrailDetails(trail) {
+            // Hide loading and show details
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('trailDetails').classList.remove('hidden');
+
+            // Basic info
+            document.getElementById('trailName').textContent = trail.name;
+            document.getElementById('trailLocation').textContent = trail.location;
+            document.getElementById('trailRating').textContent = trail.rating;
+            document.getElementById('trailReviewCount').textContent = `(${trail.reviewCount} avaliações)`;
+
+            // Modal info
+            document.getElementById('modalTrailName').textContent = trail.name;
+            document.getElementById('modalTrailLocation').textContent = trail.location;
+
+            // Stats
+            document.getElementById('trailDistance').textContent = trail.distance;
+            document.getElementById('trailDuration').textContent = trail.duration;
+            document.getElementById('trailDifficulty').textContent = trail.difficulty;
+            document.getElementById('trailElevation').textContent = trail.elevation;
+
+            // Description
+            document.getElementById('trailDescription').textContent = trail.description;
+        }
+
+        // Show error
+        function showError() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('error').classList.remove('hidden');
+        }
+
+        // Load trail reviews
+        function loadTrailReviews(trailId) {
+            const reviews = getTrailReviews(trailId);
+            displayReviews(reviews);
+        }
+
+        // Get trail reviews from localStorage
+        function getTrailReviews(trailId) {
+            const allReviews = JSON.parse(localStorage.getItem('trailReviews') || '{}');
+            return allReviews[trailId] || [];
+        }
+
+        // Save trail review to localStorage
+        function saveTrailReview(trailId, review) {
+            const allReviews = JSON.parse(localStorage.getItem('trailReviews') || '{}');
+            if (!allReviews[trailId]) {
+                allReviews[trailId] = [];
+            }
+            allReviews[trailId].push(review);
+            localStorage.setItem('trailReviews', JSON.stringify(allReviews));
+        }
+
+        // Display reviews
+        function displayReviews(reviews) {
+            const reviewsList = document.getElementById('reviewsList');
+            const noReviews = document.getElementById('noReviews');
+
+            // Filter reviews
+            let filteredReviews = filterReviews(reviews, currentFilter);
+
+            if (filteredReviews.length === 0) {
+                reviewsList.classList.add('hidden');
+                noReviews.classList.remove('hidden');
+                return;
+            }
+
+            noReviews.classList.add('hidden');
+            reviewsList.classList.remove('hidden');
+            reviewsList.innerHTML = '';
+
+            filteredReviews.forEach(review => {
+                const reviewDiv = document.createElement('div');
+                reviewDiv.className = 'border border-gray-200 rounded-lg p-6';
+                
+                // Photos section
+                let photosHtml = '';
+                if (review.photos && review.photos.length > 0) {
+                    photosHtml = `
+                        <div class="mt-4 mb-4">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                ${review.photos.map((photo, index) => `
+                                    <div class="relative cursor-pointer hover:opacity-90 transition-opacity" 
+                                         onclick="openPhotoViewer('${photo}', '${review.userName}', '${review.comment.substring(0, 100)}...')">
+                                        <img src="${photo}" alt="Foto da trilha" class="w-full h-24 object-cover rounded-lg">
+                                        ${index === 3 && review.photos.length > 4 ? `
+                                            <div class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center text-white font-medium">
+                                                +${review.photos.length - 4}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `).slice(0, 4).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                reviewDiv.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-medium">
+                                ${review.userName.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-900">${review.userName}</h4>
+                                <div class="text-sm text-gray-500">${review.date}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-yellow-400">${'⭐'.repeat(review.rating)}</span>
+                            <span class="ml-1 text-sm text-gray-600">${review.rating}/5</span>
+                        </div>
+                    </div>
+                    ${review.guideName ? `<div class="text-sm text-gray-600 mb-2">🧭 Guia: ${review.guideName}</div>` : ''}
+                    <p class="text-gray-700 mb-3">${review.comment}</p>
+                    ${photosHtml}
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm ${review.recommend === 'yes' ? 'text-green-600' : 'text-red-600'}">
+                            ${review.recommend === 'yes' ? '👍 Recomenda esta trilha' : '👎 Não recomenda esta trilha'}
+                        </div>
+                        ${review.photos && review.photos.length > 0 ? `
+                            <div class="text-sm text-gray-500">
+                                📷 ${review.photos.length} foto${review.photos.length > 1 ? 's' : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                reviewsList.appendChild(reviewDiv);
+            });
+
+            // Update stats
+            updateReviewStats(reviews);
+        }
+
+        // Filter reviews
+        function filterReviews(reviews, filter) {
+            switch (filter) {
+                case 'with-photos':
+                    return reviews.filter(review => review.photos && review.photos.length > 0);
+                case '5-stars':
+                    return reviews.filter(review => review.rating === 5);
+                case 'recent':
+                    return reviews.sort((a, b) => new Date(b.date) - new Date(a.date));
+                default:
+                    return reviews;
+            }
+        }
+
+        // Update review statistics
+        function updateReviewStats(reviews) {
+            if (reviews.length === 0) return;
+
+            const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+            const avgRating = (totalRating / reviews.length).toFixed(1);
+            const recommendCount = reviews.filter(review => review.recommend === 'yes').length;
+            const recommendRate = Math.round((recommendCount / reviews.length) * 100);
+            const totalPhotos = reviews.reduce((sum, review) => sum + (review.photos ? review.photos.length : 0), 0);
+
+            document.getElementById('avgRating').textContent = avgRating;
+            document.getElementById('totalReviews').textContent = reviews.length;
+            document.getElementById('totalPhotos').textContent = totalPhotos;
+            document.getElementById('recommendationRate').textContent = `${recommendRate}%`;
+            document.getElementById('trailRating').textContent = avgRating;
+            document.getElementById('trailReviewCount').textContent = `(${reviews.length} avaliações)`;
+        }
+
+        // Check if user is logged in
+        function isUserLoggedIn() {
+            return localStorage.getItem('userToken') !== null;
+        }
+
+        // Get current user
+        function getCurrentUser() {
+            const userData = localStorage.getItem('userData');
+            return userData ? JSON.parse(userData) : null;
+        }
+
+        // Check if user already reviewed this trail
+        function hasUserReviewedTrail(trailId, userId) {
+            const reviews = getTrailReviews(trailId);
+            return reviews.some(review => review.userId === userId);
+        }
+
+        // Setup review modal
+        function setupReviewModal() {
+            const addReviewBtn = document.getElementById('addReviewBtn');
+            const reviewModal = document.getElementById('reviewModal');
+            const closeReviewModal = document.getElementById('closeReviewModal');
+            const cancelReview = document.getElementById('cancelReview');
+            const reviewForm = document.getElementById('reviewForm');
+            const commentTextarea = document.getElementById('reviewComment');
+            const commentCount = document.getElementById('commentCount');
+            const photoUploadBtn = document.getElementById('photoUploadBtn');
+            const photoUpload = document.getElementById('photoUpload');
+
+            // Add review button click
+            addReviewBtn.addEventListener('click', () => {
+                if (!isUserLoggedIn()) {
+                    alert('Você precisa estar logado para avaliar uma trilha. Faça login ou cadastre-se.');
+                    return;
+                }
+
+                const user = getCurrentUser();
+                const trailId = getTrailIdFromUrl();
+
+                if (hasUserReviewedTrail(trailId, user.id)) {
+                    alert('Você já avaliou esta trilha. Cada usuário pode fazer apenas uma avaliação por trilha.');
+                    return;
+                }
+
+                reviewModal.classList.remove('hidden');
+                resetReviewForm();
+            });
+
+            // Close modal
+            closeReviewModal.addEventListener('click', () => {
+                reviewModal.classList.add('hidden');
+            });
+
+            cancelReview.addEventListener('click', () => {
+                reviewModal.classList.add('hidden');
+            });
+
+            // Click outside modal to close
+            reviewModal.addEventListener('click', (e) => {
+                if (e.target === reviewModal) {
+                    reviewModal.classList.add('hidden');
+                }
+            });
+
+            // Character count
+            commentTextarea.addEventListener('input', () => {
+                const count = commentTextarea.value.length;
+                commentCount.textContent = count;
+                
+                if (count > 1000) {
+                    commentTextarea.value = commentTextarea.value.substring(0, 1000);
+                    commentCount.textContent = 1000;
+                }
+            });
+
+            // Photo upload
+            photoUploadBtn.addEventListener('click', () => {
+                photoUpload.click();
+            });
+
+            photoUpload.addEventListener('change', handlePhotoUpload);
+
+            // Star rating
+            setupStarRating();
+
+            // Form submission
+            reviewForm.addEventListener('submit', handleReviewSubmission);
+        }
+
+        // Setup filter buttons
+        function setupFilterButtons() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Update active state
+                    filterButtons.forEach(btn => btn.classList.remove('active', 'bg-green-600', 'text-white'));
+                    button.classList.add('active', 'bg-green-600', 'text-white');
+                    
+                    // Update filter
+                    currentFilter = button.dataset.filter;
+                    
+                    // Reload reviews with filter
+                    const trailId = getTrailIdFromUrl();
+                    const reviews = getTrailReviews(trailId);
+                    displayReviews(reviews);
+                });
+            });
+        }
+
+        // Handle photo upload
+        function handlePhotoUpload(event) {
+            const files = Array.from(event.target.files);
+            const maxFiles = 5;
+            const maxSize = 5 * 1024 * 1024; // 5MB
+
+            if (uploadedPhotos.length + files.length > maxFiles) {
+                alert(`Você pode adicionar no máximo ${maxFiles} fotos.`);
+                return;
+            }
+
+            files.forEach(file => {
+                if (file.size > maxSize) {
+                    alert(`A foto "${file.name}" é muito grande. Máximo 5MB por foto.`);
+                    return;
+                }
+
+                if (!file.type.startsWith('image/')) {
+                    alert(`O arquivo "${file.name}" não é uma imagem válida.`);
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedPhotos.push(e.target.result);
+                    updatePhotoPreview();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Update photo preview
+        function updatePhotoPreview() {
+            const photoPreview = document.getElementById('photoPreview');
+            
+            if (uploadedPhotos.length === 0) {
+                photoPreview.classList.add('hidden');
+                return;
+            }
+
+            photoPreview.classList.remove('hidden');
+            photoPreview.innerHTML = '';
+
+            uploadedPhotos.forEach((photo, index) => {
+                const photoDiv = document.createElement('div');
+                photoDiv.className = 'relative';
+                photoDiv.innerHTML = `
+                    <img src="${photo}" alt="Preview ${index + 1}" class="w-full h-24 object-cover rounded-lg">
+                    <button type="button" onclick="removePhoto(${index})" 
+                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600">
+                        ×
+                    </button>
+                `;
+                photoPreview.appendChild(photoDiv);
+            });
+        }
+
+        // Remove photo
+        function removePhoto(index) {
+            uploadedPhotos.splice(index, 1);
+            updatePhotoPreview();
+        }
+
+        // Setup star rating
+        function setupStarRating() {
+            const starButtons = document.querySelectorAll('.star-btn');
+            
+            starButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const rating = parseInt(button.dataset.rating);
+                    currentRating = rating;
+                    
+                    // Update star display
+                    starButtons.forEach((star, index) => {
+                        if (index < rating) {
+                            star.classList.remove('text-gray-300');
+                            star.classList.add('text-yellow-400');
+                        } else {
+                            star.classList.remove('text-yellow-400');
+                            star.classList.add('text-gray-300');
+                        }
+                    });
+                });
+            });
+        }
+
+        // Reset review form
+        function resetReviewForm() {
+            currentRating = 0;
+            uploadedPhotos = [];
+            document.getElementById('reviewForm').reset();
+            document.getElementById('commentCount').textContent = '0';
+            updatePhotoPreview();
+            
+            // Reset stars
+            document.querySelectorAll('.star-btn').forEach(star => {
+                star.classList.remove('text-yellow-400');
+                star.classList.add('text-gray-300');
+            });
+        }
+
+        // Handle review submission
+        function handleReviewSubmission(e) {
+            e.preventDefault();
+            
+            const user = getCurrentUser();
+            const trailId = getTrailIdFromUrl();
+            const guideName = document.getElementById('guideName').value.trim();
+            const comment = document.getElementById('reviewComment').value.trim();
+            const recommend = document.querySelector('input[name="recommend"]:checked')?.value;
+
+            // Validation
+            if (currentRating === 0) {
+                alert('Por favor, selecione uma avaliação de 1 a 5 estrelas.');
+                return;
+            }
+
+            if (comment.length < 20) {
+                alert('O comentário deve ter pelo menos 20 caracteres.');
+                return;
+            }
+
+            if (!recommend) {
+                alert('Por favor, indique se você recomenda esta trilha.');
+                return;
+            }
+
+            // Create review object
+            const review = {
+                id: Date.now(),
+                userId: user.id,
+                userName: user.name,
+                trailId: trailId,
+                rating: currentRating,
+                guideName: guideName,
+                comment: comment,
+                recommend: recommend,
+                photos: [...uploadedPhotos],
+                date: new Date().toLocaleDateString('pt-BR')
+            };
+
+            // Save review
+            saveTrailReview(trailId, review);
+
+            // Update display
+            const reviews = getTrailReviews(trailId);
+            displayReviews(reviews);
+
+            // Close modal
+            document.getElementById('reviewModal').classList.add('hidden');
+
+            // Show success message
+            alert('Avaliação enviada com sucesso! Obrigado pelo seu feedback e pelas fotos compartilhadas.');
+        }
+
+        // Open photo viewer
+        function openPhotoViewer(photoSrc, author, caption) {
+            const modal = document.getElementById('photoViewerModal');
+            const image = document.getElementById('photoViewerImage');
+            const captionEl = document.getElementById('photoViewerCaption');
+            const authorEl = document.getElementById('photoViewerAuthor');
+
+            image.src = photoSrc;
+            captionEl.textContent = caption;
+            authorEl.textContent = `Por: ${author}`;
+            
+            modal.classList.remove('hidden');
+        }
+
+        // Setup photo viewer
+        function setupPhotoViewer() {
+            const modal = document.getElementById('photoViewerModal');
+            const closeBtn = document.getElementById('closePhotoViewer');
+
+            closeBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Inicializando página de detalhes da trilha...');
+            loadTrailDetails();
+            setupReviewModal();
+            setupFilterButtons();
+            setupPhotoViewer();
+        });
+
+        // Função para abrir modal de avaliação
+        function openTrailReviewModal() {
+            if (!authManager.isLoggedIn()) {
+                alert('Você precisa estar logado para avaliar uma trilha.');
+                return;
+            }
+            
+            const modal = document.getElementById('reviewModal');
+            modal.classList.remove('hidden');
+        }
+
+        // Make functions global for onclick handlers
+        window.removePhoto = removePhoto;
+        window.openPhotoViewer = openPhotoViewer;
+        window.openTrailReviewModal = openTrailReviewModal;
+    </script>
+</body>
+</html>
+

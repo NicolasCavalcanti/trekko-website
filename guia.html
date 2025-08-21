@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil do Guia - Trekko</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-green-600">Trekko</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="index.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Início</a>
+                        <a href="trilhas.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Trilhas</a>
+                        <a href="guias.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Guias</a>
+                        <a href="#" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Sobre</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Botões de autenticação serão inseridos aqui pelo auth.js -->
+                    <div id="authButtons">
+                        <button id="loginBtn" class="text-green-600 hover:text-green-700 px-3 py-2 rounded-md text-sm font-medium">Entrar</button>
+                        <button id="registerBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">Cadastrar</button>
+                    </div>
+                    <!-- Menu do usuário logado -->
+                    <div id="userMenu" class="relative hidden">
+                        <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-green-600">
+                            <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                                <span id="userInitial">U</span>
+                            </div>
+                            <span id="userName">Usuário</span>
+                        </button>
+                        <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg hidden">
+                            <a href="perfil.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Meu Perfil</a>
+                            <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sair</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Loading -->
+    <div id="loading" class="max-w-4xl mx-auto px-4 py-12 text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <p class="mt-4 text-gray-600 text-lg">Carregando perfil do guia...</p>
+    </div>
+
+    <!-- Error -->
+    <div id="error" class="max-w-4xl mx-auto px-4 py-12 text-center hidden">
+        <div class="bg-red-50 border border-red-200 rounded-lg p-8">
+            <h2 class="text-2xl font-bold text-red-800 mb-4">Guia não encontrado</h2>
+            <p class="text-red-600 mb-6">O guia que você está procurando não existe ou foi removido.</p>
+            <a href="guias.html" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium inline-block">
+                ← Voltar para Guias
+            </a>
+        </div>
+    </div>
+
+    <!-- Guide Profile -->
+    <div id="guideProfile" class="max-w-4xl mx-auto px-4 py-8 hidden">
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="guias.html" class="text-green-600 hover:text-green-700 font-medium">
+                ← Voltar para Guias
+            </a>
+        </div>
+
+        <!-- Header do Guia -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
+                <div class="w-24 h-24 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                    <span id="guideInitial">G</span>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <h1 id="guideName" class="text-2xl font-bold text-gray-900">Nome do Guia</h1>
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Verificado</span>
+                    </div>
+                    <p id="guideLocation" class="text-gray-600 mb-2">📍 Localização</p>
+                    <p id="guideCadastur" class="text-sm text-gray-500 mb-2">Certificação: Cadastur</p>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <span class="text-yellow-400">⭐</span>
+                            <span id="guideRating" class="ml-1 text-sm font-medium text-gray-900">4.8</span>
+                            <span id="guideReviewCount" class="ml-1 text-sm text-gray-500">(24 avaliações)</span>
+                        </div>
+                        <span id="guidePrice" class="text-green-600 font-semibold">R$ 150/dia</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informações do Guia -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div class="lg:col-span-2">
+                <!-- Sobre o Guia -->
+                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Sobre o Guia</h2>
+                    <p id="guideBio" class="text-gray-600 leading-relaxed">Biografia do guia...</p>
+                </div>
+
+                <!-- Trilhas que Conduz -->
+                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Trilhas que Conduz</h2>
+                    <div id="guideTrails" class="space-y-3">
+                        <!-- Trilhas serão carregadas aqui -->
+                    </div>
+                </div>
+
+                <!-- Seção de Avaliações -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">Avaliações</h2>
+                        <button id="addReviewBtn" onclick="openGuideReviewModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                            ⭐ Avaliar Guia
+                        </button>
+                    </div>
+
+                    <!-- Estatísticas de Avaliação -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900" id="avgRating">4.8</div>
+                            <div class="text-sm text-gray-500">Média Geral</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900" id="totalReviews">24</div>
+                            <div class="text-sm text-gray-500">Avaliações</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900" id="recommendationRate">96%</div>
+                            <div class="text-sm text-gray-500">Recomendam</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900" id="experienceYears">8</div>
+                            <div class="text-sm text-gray-500">Anos Exp.</div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Avaliações -->
+                    <div id="reviewsList" class="space-y-4">
+                        <!-- Avaliações serão carregadas aqui -->
+                    </div>
+
+                    <!-- Mensagem quando não há avaliações -->
+                    <div id="noReviews" class="text-center py-8 text-gray-500 hidden">
+                        <p>Ainda não há avaliações para este guia.</p>
+                        <p class="text-sm mt-2">Seja o primeiro a avaliar!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Informações Rápidas -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Informações</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <span class="text-gray-400 mr-3">🗣️</span>
+                            <span id="guideLanguages" class="text-gray-600">Português</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-gray-400 mr-3">📧</span>
+                            <span id="guideEmail" class="text-gray-600">email@exemplo.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-gray-400 mr-3">⏰</span>
+                            <span class="text-gray-600">Resposta rápida</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ações -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Contato</h3>
+                    <div class="space-y-3">
+                        <button class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium">
+                            💬 Enviar Mensagem
+                        </button>
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium">
+                            📱 WhatsApp
+                        </button>
+                        <button class="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 px-4 rounded-lg font-medium">
+                            ❤️ Salvar nos Favoritos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Avaliação -->
+    <div id="reviewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-md w-full p-6 max-h-screen overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Avaliar Guia</h3>
+                    <button id="closeReviewModal" class="text-gray-400 hover:text-gray-600">
+                        <span class="text-2xl">×</span>
+                    </button>
+                </div>
+
+                <form id="reviewForm">
+                    <!-- Informações do Guia no Modal -->
+                    <div class="flex items-center space-x-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white text-lg font-bold">
+                            <span id="modalGuideInitial">G</span>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900" id="modalGuideName">Nome do Guia</div>
+                            <div class="text-sm text-gray-500" id="modalGuideLocation">Localização</div>
+                        </div>
+                    </div>
+
+                    <!-- Avaliação Geral -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Avaliação Geral</label>
+                        <div class="flex space-x-1" id="overallRating">
+                            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="1">⭐</button>
+                            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="2">⭐</button>
+                            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="3">⭐</button>
+                            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="4">⭐</button>
+                            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="5">⭐</button>
+                        </div>
+                    </div>
+
+                    <!-- Trilha Realizada -->
+                    <div class="mb-4">
+                        <label for="trailName" class="block text-sm font-medium text-gray-700 mb-2">Trilha Realizada</label>
+                        <input type="text" id="trailName" name="trailName" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500"
+                               placeholder="Nome da trilha que você fez com este guia">
+                    </div>
+
+                    <!-- Comentário -->
+                    <div class="mb-4">
+                        <label for="reviewComment" class="block text-sm font-medium text-gray-700 mb-2">Comentário</label>
+                        <textarea id="reviewComment" name="reviewComment" rows="4" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500"
+                                  placeholder="Conte sobre sua experiência com este guia... (mínimo 20 caracteres)"></textarea>
+                        <div class="text-sm text-gray-500 mt-1">
+                            <span id="commentCount">0</span>/500 caracteres
+                        </div>
+                    </div>
+
+                    <!-- Recomendação -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Você recomenda este guia?</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="recommend" value="yes" class="text-green-600 focus:ring-green-500">
+                                <span class="ml-2 text-sm text-gray-700">👍 Sim, recomendo</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="recommend" value="no" class="text-red-600 focus:ring-red-500">
+                                <span class="ml-2 text-sm text-gray-700">👎 Não recomendo</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Botões -->
+                    <div class="flex space-x-3">
+                        <button type="button" id="cancelReview" 
+                                class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="submitReview"
+                                class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Enviar Avaliação
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Trekko</h3>
+                    <p class="text-gray-400">A plataforma mais completa para conectar trilheiros e guias em todo o Brasil.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Trilhas</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="trilhas.html" class="hover:text-white">Descobrir Trilhas</a></li>
+                        <li><a href="#" class="hover:text-white">Trilhas Populares</a></li>
+                        <li><a href="#" class="hover:text-white">Trilhas por Estado</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Guias</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="guias.html" class="hover:text-white">Encontrar Guias</a></li>
+                        <li><a href="#" class="hover:text-white">Tornar-se Guia</a></li>
+                        <li><a href="#" class="hover:text-white">Certificação</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Suporte</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">Central de Ajuda</a></li>
+                        <li><a href="#" class="hover:text-white">Contato</a></li>
+                        <li><a href="#" class="hover:text-white">Termos de Uso</a></li>
+                        <li><a href="#" class="hover:text-white">Privacidade</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 Trekko. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="auth.js"></script>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://g8h3ilcvjnlq.manus.space';
+        const API_URL = `${API_BASE_URL}/api`;
+
+        console.log('🔧 API configurada:', API_BASE_URL);
+
+        // Variables
+        let currentGuide = null;
+        let currentRating = 0;
+
+        // Get guide ID from URL
+        function getGuideIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        // Load guide profile
+        async function loadGuideProfile() {
+            const guideId = getGuideIdFromUrl();
+            
+            if (!guideId) {
+                console.error('❌ ID do guia não fornecido');
+                showError();
+                return;
+            }
+
+            console.log('🔄 Carregando perfil do guia ID:', guideId);
+
+            try {
+                const url = `${API_URL}/guides/${guideId}`;
+                console.log('🌐 URL da API:', url);
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    mode: 'cors'
+                });
+                console.log('📡 Status da resposta:', response.status);
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('Guia não encontrado');
+                    }
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const guide = await response.json();
+                console.log('✅ Dados do guia carregados:', guide);
+
+                currentGuide = guide;
+                displayGuideProfile(guide);
+                loadGuideReviews(guideId);
+
+            } catch (error) {
+                console.error('❌ Erro ao carregar guia:', error);
+                showError();
+            }
+        }
+
+        // Display guide profile
+        function displayGuideProfile(guide) {
+            // Hide loading and show profile
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('guideProfile').classList.remove('hidden');
+
+            // Basic info
+            document.getElementById('guideName').textContent = guide.name || 'Nome não disponível';
+            document.getElementById('guideLocation').textContent = `📍 ${guide.operating_regions || ''}, ${guide.operating_states || ''}`;
+            document.getElementById('guideCadastur').textContent = `Certificação: Cadastur: ${guide.cadastur_number || 'N/A'}`;
+            
+            // Profile initial
+            const initial = guide.name ? guide.name.charAt(0).toUpperCase() : 'G';
+            document.getElementById('guideInitial').textContent = initial;
+            document.getElementById('modalGuideInitial').textContent = initial;
+
+            // Modal info
+            document.getElementById('modalGuideName').textContent = guide.name || 'Nome não disponível';
+            document.getElementById('modalGuideLocation').textContent = `${guide.operating_regions || ''}, ${guide.operating_states || ''}`;
+
+            // Stats
+            document.getElementById('guideRating').textContent = guide.average_rating || '4.5';
+            document.getElementById('guideReviewCount').textContent = `(${guide.total_reviews || '0'} avaliações)`;
+            document.getElementById('guidePrice').textContent = guide.daily_rate || 'Sob consulta';
+
+            // Biography
+            document.getElementById('guideBio').textContent = guide.biography || 'Biografia não disponível.';
+
+            // Languages
+            document.getElementById('guideLanguages').textContent = guide.languages ? guide.languages.join(', ') : 'Português';
+
+            // Email
+            document.getElementById('guideEmail').textContent = guide.email || 'email@exemplo.com';
+
+            // Trails - Load from guide's profile activities
+            const trailsContainer = document.getElementById('guideTrails');
+            trailsContainer.innerHTML = '';
+            
+            // Try to load trails from guide's profile activities first
+            const guideTrails = JSON.parse(localStorage.getItem(`guide_trails_${guideId}`) || '[]');
+            
+            if (guideTrails.length > 0) {
+                guideTrails.forEach(trail => {
+                    const trailDiv = document.createElement('div');
+                    trailDiv.className = 'border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow';
+                    trailDiv.innerHTML = `
+                        <h4 class="font-medium text-gray-900 mb-2">${trail.name}</h4>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <div>📍 ${trail.location}</div>
+                            <div>🏔️ Dificuldade: ${trail.difficulty}</div>
+                            <div>📏 Distância: ${trail.distance}</div>
+                            ${trail.duration ? `<div>⏱️ Duração: ${trail.duration}</div>` : ''}
+                            ${trail.price ? `<div>💰 Valor: ${trail.price}</div>` : ''}
+                        </div>
+                        ${trail.photos && trail.photos.length > 0 ? `
+                            <div class="flex space-x-2 mt-3">
+                                ${trail.photos.slice(0, 3).map(photo => `
+                                    <img src="${photo}" alt="Foto da trilha" class="w-16 h-16 rounded object-cover cursor-pointer" onclick="openImageModal('${photo}')">
+                                `).join('')}
+                                ${trail.photos.length > 3 ? `<div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-500">+${trail.photos.length - 3}</div>` : ''}
+                            </div>
+                        ` : ''}
+                        ${trail.description ? `<p class="text-sm text-gray-600 mt-2">${trail.description}</p>` : ''}
+                    `;
+                    trailsContainer.appendChild(trailDiv);
+                });
+            } else if (guide.trails && guide.trails.length > 0) {
+                // Fallback to API trails if no profile trails
+                guide.trails.forEach(trail => {
+                    const trailDiv = document.createElement('div');
+                    trailDiv.className = 'border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow';
+                    trailDiv.innerHTML = `
+                        <h4 class="font-medium text-gray-900 mb-2">${trail.name}</h4>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <div>📍 ${trail.location}</div>
+                            <div>🏔️ Dificuldade: ${trail.difficulty_level}</div>
+                            <div>📏 Distância: ${trail.distance_km} km</div>
+                            <div>⏱️ Duração: ${trail.duration_days}</div>
+                        </div>
+                    `;
+                    trailsContainer.appendChild(trailDiv);
+                });
+            } else {
+                trailsContainer.innerHTML = '<p class="text-gray-500">Nenhuma trilha cadastrada.</p>';
+            }
+
+            // Stats
+            document.getElementById('avgRating').textContent = guide.average_rating || '4.8';
+            document.getElementById('totalReviews').textContent = guide.total_reviews || '0';
+            document.getElementById('recommendationRate').textContent = '96%';
+            document.getElementById('experienceYears').textContent = guide.experience_years || '8';
+        }
+
+        // Show error
+        function showError() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('error').classList.remove('hidden');
+        }
+
+        // Load guide reviews
+        function loadGuideReviews(guideId) {
+            // Load reviews from localStorage
+            const reviews = getGuideReviews(guideId);
+            displayReviews(reviews);
+        }
+
+        // Get guide reviews from localStorage
+        function getGuideReviews(guideId) {
+            const allReviews = JSON.parse(localStorage.getItem('guideReviews') || '{}');
+            return allReviews[guideId] || [];
+        }
+
+        // Save guide review to localStorage
+        function saveGuideReview(guideId, review) {
+            const allReviews = JSON.parse(localStorage.getItem('guideReviews') || '{}');
+            if (!allReviews[guideId]) {
+                allReviews[guideId] = [];
+            }
+            allReviews[guideId].push(review);
+            localStorage.setItem('guideReviews', JSON.stringify(allReviews));
+        }
+
+        // Display reviews
+        function displayReviews(reviews) {
+            const reviewsList = document.getElementById('reviewsList');
+            const noReviews = document.getElementById('noReviews');
+
+            if (reviews.length === 0) {
+                reviewsList.classList.add('hidden');
+                noReviews.classList.remove('hidden');
+                return;
+            }
+
+            noReviews.classList.add('hidden');
+            reviewsList.classList.remove('hidden');
+            reviewsList.innerHTML = '';
+
+            reviews.forEach(review => {
+                const reviewDiv = document.createElement('div');
+                reviewDiv.className = 'border border-gray-200 rounded-lg p-4';
+                reviewDiv.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white font-medium">
+                                ${review.userName.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-900">${review.userName}</h4>
+                                <div class="text-sm text-gray-500">${review.date}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-yellow-400">${'⭐'.repeat(review.rating)}</span>
+                            <span class="ml-1 text-sm text-gray-600">${review.rating}/5</span>
+                        </div>
+                    </div>
+                    ${review.trailName ? `<div class="text-sm text-gray-600 mb-2">🥾 Trilha: ${review.trailName}</div>` : ''}
+                    <p class="text-gray-700 mb-3">${review.comment}</p>
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm ${review.recommend === 'yes' ? 'text-green-600' : 'text-red-600'}">
+                            ${review.recommend === 'yes' ? '👍 Recomenda este guia' : '👎 Não recomenda este guia'}
+                        </div>
+                    </div>
+                `;
+                reviewsList.appendChild(reviewDiv);
+            });
+
+            // Update stats
+            updateReviewStats(reviews);
+        }
+
+        // Update review statistics
+        function updateReviewStats(reviews) {
+            if (reviews.length === 0) return;
+
+            const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+            const avgRating = (totalRating / reviews.length).toFixed(1);
+            const recommendCount = reviews.filter(review => review.recommend === 'yes').length;
+            const recommendRate = Math.round((recommendCount / reviews.length) * 100);
+
+            document.getElementById('avgRating').textContent = avgRating;
+            document.getElementById('totalReviews').textContent = reviews.length;
+            document.getElementById('recommendationRate').textContent = `${recommendRate}%`;
+            document.getElementById('guideRating').textContent = avgRating;
+            document.getElementById('guideReviewCount').textContent = `(${reviews.length} avaliações)`;
+        }
+
+        // Check if user is logged in
+        function isUserLoggedIn() {
+            const userData = localStorage.getItem('userData');
+            return userData !== null && userData !== 'null';
+        }
+
+        // Get current user
+        function getCurrentUser() {
+            const userData = localStorage.getItem('userData');
+            return userData ? JSON.parse(userData) : null;
+        }
+
+        // Check if user already reviewed this guide
+        function hasUserReviewedGuide(guideId, userId) {
+            const reviews = getGuideReviews(guideId);
+            return reviews.some(review => review.userId === userId);
+        }
+
+        // Setup review modal
+        function setupReviewModal() {
+            const addReviewBtn = document.getElementById('addReviewBtn');
+            const reviewModal = document.getElementById('reviewModal');
+            const closeReviewModal = document.getElementById('closeReviewModal');
+            const cancelReview = document.getElementById('cancelReview');
+            const reviewForm = document.getElementById('reviewForm');
+            const commentTextarea = document.getElementById('reviewComment');
+            const commentCount = document.getElementById('commentCount');
+
+            // Add review button click
+            addReviewBtn.addEventListener('click', () => {
+                if (!isUserLoggedIn()) {
+                    alert('Você precisa estar logado para avaliar um guia. Faça login ou cadastre-se.');
+                    return;
+                }
+
+                const user = getCurrentUser();
+                const guideId = getGuideIdFromUrl();
+
+                if (hasUserReviewedGuide(guideId, user.id)) {
+                    alert('Você já avaliou este guia. Cada usuário pode fazer apenas uma avaliação por guia.');
+                    return;
+                }
+
+                reviewModal.classList.remove('hidden');
+                resetReviewForm();
+            });
+
+            // Close modal
+            closeReviewModal.addEventListener('click', () => {
+                reviewModal.classList.add('hidden');
+            });
+
+            cancelReview.addEventListener('click', () => {
+                reviewModal.classList.add('hidden');
+            });
+
+            // Click outside modal to close
+            reviewModal.addEventListener('click', (e) => {
+                if (e.target === reviewModal) {
+                    reviewModal.classList.add('hidden');
+                }
+            });
+
+            // Character count
+            commentTextarea.addEventListener('input', () => {
+                const count = commentTextarea.value.length;
+                commentCount.textContent = count;
+                
+                if (count > 500) {
+                    commentTextarea.value = commentTextarea.value.substring(0, 500);
+                    commentCount.textContent = 500;
+                }
+            });
+
+            // Star rating
+            setupStarRating();
+
+            // Form submission
+            reviewForm.addEventListener('submit', handleReviewSubmission);
+        }
+
+        // Open guide review modal
+        function openGuideReviewModal() {
+            if (!isUserLoggedIn()) {
+                alert('Você precisa estar logado para avaliar um guia. Faça login ou cadastre-se.');
+                return;
+            }
+
+            const user = getCurrentUser();
+            const guideId = getGuideIdFromUrl();
+
+            if (hasUserReviewedGuide(guideId, user.id)) {
+                alert('Você já avaliou este guia. Cada usuário pode fazer apenas uma avaliação por guia.');
+                return;
+            }
+
+            document.getElementById('reviewModal').classList.remove('hidden');
+            resetReviewForm();
+        }
+
+        // Setup star rating
+        function setupStarRating() {
+            const starButtons = document.querySelectorAll('.star-btn');
+            
+            starButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const rating = parseInt(button.dataset.rating);
+                    currentRating = rating;
+                    
+                    // Update star display
+                    starButtons.forEach((star, index) => {
+                        if (index < rating) {
+                            star.classList.remove('text-gray-300');
+                            star.classList.add('text-yellow-400');
+                        } else {
+                            star.classList.remove('text-yellow-400');
+                            star.classList.add('text-gray-300');
+                        }
+                    });
+                });
+            });
+        }
+
+        // Reset review form
+        function resetReviewForm() {
+            currentRating = 0;
+            document.getElementById('reviewForm').reset();
+            document.getElementById('commentCount').textContent = '0';
+            
+            // Reset stars
+            document.querySelectorAll('.star-btn').forEach(star => {
+                star.classList.remove('text-yellow-400');
+                star.classList.add('text-gray-300');
+            });
+        }
+
+        // Handle review submission
+        function handleReviewSubmission(e) {
+            e.preventDefault();
+            
+            const user = getCurrentUser();
+            const guideId = getGuideIdFromUrl();
+            const trailName = document.getElementById('trailName').value.trim();
+            const comment = document.getElementById('reviewComment').value.trim();
+            const recommend = document.querySelector('input[name="recommend"]:checked')?.value;
+
+            // Validation
+            if (currentRating === 0) {
+                alert('Por favor, selecione uma avaliação de 1 a 5 estrelas.');
+                return;
+            }
+
+            if (comment.length < 20) {
+                alert('O comentário deve ter pelo menos 20 caracteres.');
+                return;
+            }
+
+            if (!recommend) {
+                alert('Por favor, indique se você recomenda este guia.');
+                return;
+            }
+
+            // Create review object
+            const review = {
+                id: Date.now(),
+                userId: user.id,
+                userName: user.name,
+                guideId: guideId,
+                rating: currentRating,
+                trailName: trailName,
+                comment: comment,
+                recommend: recommend,
+                date: new Date().toLocaleDateString('pt-BR')
+            };
+
+            // Save review
+            saveGuideReview(guideId, review);
+
+            // Update display
+            const reviews = getGuideReviews(guideId);
+            displayReviews(reviews);
+
+            // Close modal
+            document.getElementById('reviewModal').classList.add('hidden');
+
+            // Show success message
+            alert('Avaliação enviada com sucesso! Obrigado pelo seu feedback.');
+        }
+
+        // Image modal function
+        function openImageModal(imageSrc) {
+            // Create modal if it doesn't exist
+            let imageModal = document.getElementById('imageModal');
+            if (!imageModal) {
+                imageModal = document.createElement('div');
+                imageModal.id = 'imageModal';
+                imageModal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden';
+                imageModal.innerHTML = `
+                    <div class="relative max-w-4xl max-h-full p-4">
+                        <img id="modalImage" src="" alt="Imagem ampliada" class="max-w-full max-h-full object-contain rounded-lg">
+                        <button onclick="closeImageModal()" class="absolute top-2 right-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl">
+                            ×
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(imageModal);
+                
+                // Close on click outside
+                imageModal.addEventListener('click', (e) => {
+                    if (e.target === imageModal) {
+                        closeImageModal();
+                    }
+                });
+            }
+            
+            document.getElementById('modalImage').src = imageSrc;
+            imageModal.classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            const imageModal = document.getElementById('imageModal');
+            if (imageModal) {
+                imageModal.classList.add('hidden');
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Inicializando página de detalhes do guia...');
+            loadGuideProfile();
+            setupReviewModal();
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - Trekko</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .profile-avatar {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        }
+        .guide-avatar {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-green-600">Trekko</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="index.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Início</a>
+                        <a href="trilhas.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Trilhas</a>
+                        <a href="guias.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Guias</a>
+                        <a href="#" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Sobre</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-green-600">
+                            <span id="userName" class="font-medium">Carregando...</span>
+                            <span class="text-sm">▼</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <div class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+                <!-- Avatar -->
+                <div id="profileAvatar" class="profile-avatar w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                    <span id="avatarInitials">--</span>
+                </div>
+                
+                <!-- Profile Info -->
+                <div class="flex-1 text-center md:text-left">
+                    <h1 id="profileName" class="text-2xl font-bold text-gray-900 mb-2">Carregando...</h1>
+                    <p id="profileEmail" class="text-gray-600 mb-2">carregando@exemplo.com</p>
+                    <div class="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
+                        <span id="userTypeBadge" class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">🥾 Carregando...</span>
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">✓ Verificado</span>
+                        <span id="cadasturBadge" class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium hidden">📋 CADASTUR</span>
+                    </div>
+                    <p id="profileBio" class="text-gray-700 max-w-2xl">Carregando biografia...</p>
+                </div>
+                
+                <!-- Edit Button -->
+                <button onclick="openEditModal()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-medium">
+                    ✏️ Editar Perfil
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="stat-card rounded-lg p-6 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">0</div>
+                <div class="text-gray-600" id="stat1Label">Trilhas Realizadas</div>
+            </div>
+            <div class="stat-card rounded-lg p-6 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">0</div>
+                <div class="text-gray-600">Km Percorridos</div>
+            </div>
+            <div class="stat-card rounded-lg p-6 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">0</div>
+                <div class="text-gray-600" id="stat3Label">Guias Contratados</div>
+            </div>
+            <div class="stat-card rounded-lg p-6 text-center">
+                <div id="experienceLevel" class="text-3xl font-bold text-green-600 mb-2">Iniciante</div>
+                <div class="text-gray-600">Nível</div>
+            </div>
+        </div>
+
+        <!-- Content Tabs -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8 px-6">
+                    <button class="tab-btn border-b-2 border-green-500 py-4 px-1 text-sm font-medium text-green-600" data-tab="atividades">
+                        Minhas Atividades
+                    </button>
+                    <button class="tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="favoritos">
+                        Favoritos
+                    </button>
+                    <button class="tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="avaliacoes">
+                        Avaliações
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab Contents -->
+            <div class="p-6">
+                <div id="atividades" class="tab-content">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">Minhas Atividades Recentes</h3>
+                        <button id="addTrailBtn" onclick="openAddTrailModal()" class="hidden bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            + Adicionar Trilha
+                        </button>
+                    </div>
+                    <div id="activitiesContainer" class="text-center py-8">
+                        <p class="text-gray-500">Nenhuma atividade registrada ainda.</p>
+                        <p id="activitySubtext" class="text-sm text-gray-400 mt-2">Suas atividades aparecerão aqui após realizar trilhas.</p>
+                    </div>
+                </div>
+
+                <div id="favoritos" class="tab-content hidden">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Trilhas Favoritas</h3>
+                    <div class="text-center py-8">
+                        <p class="text-gray-500">Nenhuma trilha favorita ainda.</p>
+                        <p class="text-sm text-gray-400 mt-2">Suas trilhas favoritas aparecerão aqui.</p>
+                    </div>
+                </div>
+
+                <div id="avaliacoes" class="tab-content hidden">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Minhas Avaliações</h3>
+                    <div class="text-center py-8">
+                        <p class="text-gray-500">Nenhuma avaliação ainda.</p>
+                        <p class="text-sm text-gray-400 mt-2">Suas avaliações de trilhas e guias aparecerão aqui.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-900">Editar Perfil</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+                    <span class="sr-only">Fechar</span>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="editProfileForm" onsubmit="saveProfile(event)">
+                <div class="space-y-4">
+                    <!-- Upload de Foto de Perfil -->
+                    <div class="text-center">
+                        <div class="mb-4">
+                            <div id="currentAvatar" class="w-24 h-24 mx-auto rounded-full bg-gray-300 flex items-center justify-center text-white text-2xl font-bold">
+                                UP
+                            </div>
+                        </div>
+                        <div>
+                            <label for="profilePhoto" class="block text-sm font-medium text-gray-700 mb-2">Foto de Perfil</label>
+                            <input type="file" id="profilePhoto" name="profilePhoto" accept="image/*" class="hidden" onchange="previewProfilePhoto(event)">
+                            <button type="button" onclick="document.getElementById('profilePhoto').click()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                                📷 Escolher Foto
+                            </button>
+                            <button type="button" id="removePhotoBtn" onclick="removeProfilePhoto()" class="hidden ml-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                                🗑️ Remover
+                            </button>
+                            <p class="text-xs text-gray-500 mt-1">Máximo 5MB - JPG, PNG ou GIF</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="editName" class="block text-sm font-medium text-gray-700">Nome Completo</label>
+                        <input type="text" id="editName" name="name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
+                    </div>
+
+                    <div>
+                        <label for="editEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="editEmail" name="email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
+                    </div>
+
+                    <div id="cadasturField" class="hidden">
+                        <label for="editCadastur" class="block text-sm font-medium text-gray-700">Número CADASTUR</label>
+                        <input type="text" id="editCadastur" name="cadastur" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Ex: 27123456789">
+                        <p id="cadasturHelp" class="text-xs text-gray-500 mt-1">Número oficial do CADASTUR</p>
+                    </div>
+
+                    <div>
+                        <label for="editPhone" class="block text-sm font-medium text-gray-700">Telefone</label>
+                        <input type="tel" id="editPhone" name="phone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="(11) 99999-9999">
+                    </div>
+
+                    <div>
+                        <label for="editLocation" class="block text-sm font-medium text-gray-700">Localização</label>
+                        <input type="text" id="editLocation" name="location" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Cidade, Estado">
+                        <p id="locationHelp" class="text-xs text-gray-500 mt-1">Cidade e estado onde atua</p>
+                    </div>
+
+                    <div>
+                        <label for="editBio" class="block text-sm font-medium text-gray-700">Biografia</label>
+                        <textarea id="editBio" name="bio" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Conte um pouco sobre você e sua paixão por trilhas..."></textarea>
+                    </div>
+
+                    <div>
+                        <label for="editExperienceLevel" class="block text-sm font-medium text-gray-700">Nível de Experiência</label>
+                        <select id="editExperienceLevel" name="experience_level" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
+                            <option value="iniciante">🌱 Iniciante</option>
+                            <option value="intermediario">🥾 Intermediário</option>
+                            <option value="avancado">🏔️ Avançado</option>
+                            <option value="expert">⭐ Expert</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-green-700">
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Select Trail Modal -->
+    <div id="selectTrailModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-10 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white max-h-screen overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-900">Adicionar Trilha ao Meu Perfil</h3>
+                <button onclick="closeSelectTrailModal()" class="text-gray-400 hover:text-gray-600">
+                    <span class="sr-only">Fechar</span>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
+                <button id="selectTab" class="flex-1 py-2 px-3 text-sm font-medium rounded-md bg-white text-green-600 shadow-sm" onclick="showTrailSelection()">
+                    Selecionar Trilha Existente
+                </button>
+                <button id="requestTab" class="flex-1 py-2 px-3 text-sm font-medium rounded-md text-gray-500 hover:text-gray-700" onclick="showRequestForm()">
+                    Solicitar Nova Trilha
+                </button>
+            </div>
+
+            <!-- Trail Selection Tab -->
+            <div id="trailSelectionTab" class="tab-content">
+                <!-- Filtros Avançados -->
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-3">🔍 Filtros de Busca</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Filtro por UF -->
+                        <div>
+                            <label for="filterUF" class="block text-xs font-medium text-gray-700 mb-1">Estado (UF)</label>
+                            <select id="filterUF" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" onchange="applyFilters()">
+                                <option value="">Todos os Estados</option>
+                                <option value="AC">Acre</option>
+                                <option value="AL">Alagoas</option>
+                                <option value="AP">Amapá</option>
+                                <option value="AM">Amazonas</option>
+                                <option value="BA">Bahia</option>
+                                <option value="CE">Ceará</option>
+                                <option value="DF">Distrito Federal</option>
+                                <option value="ES">Espírito Santo</option>
+                                <option value="GO">Goiás</option>
+                                <option value="MA">Maranhão</option>
+                                <option value="MT">Mato Grosso</option>
+                                <option value="MS">Mato Grosso do Sul</option>
+                                <option value="MG">Minas Gerais</option>
+                                <option value="PA">Pará</option>
+                                <option value="PB">Paraíba</option>
+                                <option value="PR">Paraná</option>
+                                <option value="PE">Pernambuco</option>
+                                <option value="PI">Piauí</option>
+                                <option value="RJ">Rio de Janeiro</option>
+                                <option value="RN">Rio Grande do Norte</option>
+                                <option value="RS">Rio Grande do Sul</option>
+                                <option value="RO">Rondônia</option>
+                                <option value="RR">Roraima</option>
+                                <option value="SC">Santa Catarina</option>
+                                <option value="SP">São Paulo</option>
+                                <option value="SE">Sergipe</option>
+                                <option value="TO">Tocantins</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Filtro por Cidade -->
+                        <div>
+                            <label for="filterCity" class="block text-xs font-medium text-gray-700 mb-1">Cidade</label>
+                            <input type="text" id="filterCity" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Digite a cidade..." onkeyup="applyFilters()">
+                        </div>
+                        
+                        <!-- Filtro por Nome da Trilha -->
+                        <div>
+                            <label for="filterTrailName" class="block text-xs font-medium text-gray-700 mb-1">Nome da Trilha</label>
+                            <input type="text" id="filterTrailName" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Digite o nome..." onkeyup="applyFilters()">
+                        </div>
+                    </div>
+                    
+                    <!-- Botão Limpar Filtros -->
+                    <div class="mt-3 flex justify-end">
+                        <button type="button" onclick="clearFilters()" class="text-xs text-gray-500 hover:text-gray-700 underline">
+                            🗑️ Limpar Filtros
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="trailsList" class="space-y-2 max-h-60 overflow-y-auto mb-4">
+                    <div class="text-center py-4 text-gray-500">Carregando trilhas...</div>
+                </div>
+                
+                <div id="selectedTrailInfo" class="hidden bg-green-50 p-4 rounded-lg">
+                    <h4 class="font-medium text-gray-900 mb-2">Trilha Selecionada:</h4>
+                    <div id="selectedTrailDetails" class="mb-4"></div>
+                    <div>
+                        <label for="guidePrice" class="block text-sm font-medium text-gray-700">Valor do Seu Serviço (R$) *</label>
+                        <input type="number" id="guidePrice" step="0.01" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="0.00" required>
+                        <p class="text-xs text-gray-500 mt-1">Informe o valor que você cobra para guiar esta trilha</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Request Form Tab -->
+            <div id="requestFormTab" class="tab-content hidden">
+                <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                    <p class="text-sm text-blue-800">Não encontrou a trilha que você guia? Solicite a inclusão preenchendo as informações abaixo. Nossa equipe analisará e entrará em contato.</p>
+                </div>
+                
+                <form id="requestTrailForm" class="space-y-4">
+                    <div>
+                        <label for="requestTrailName" class="block text-sm font-medium text-gray-700">Nome da Trilha *</label>
+                        <input type="text" id="requestTrailName" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="requestTrailLocation" class="block text-sm font-medium text-gray-700">Localização *</label>
+                            <input type="text" id="requestTrailLocation" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Cidade, Estado" required>
+                        </div>
+                        <div>
+                            <label for="requestTrailDistance" class="block text-sm font-medium text-gray-700">Distância (km) *</label>
+                            <input type="number" id="requestTrailDistance" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="requestTrailDifficulty" class="block text-sm font-medium text-gray-700">Nível de Dificuldade *</label>
+                            <select id="requestTrailDifficulty" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
+                                <option value="">Selecione...</option>
+                                <option value="facil">🟢 Fácil</option>
+                                <option value="moderado">🟡 Moderado</option>
+                                <option value="dificil">🟠 Difícil</option>
+                                <option value="extremo">🔴 Extremo</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="requestTrailDuration" class="block text-sm font-medium text-gray-700">Duração Estimada *</label>
+                            <input type="text" id="requestTrailDuration" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Ex: 4 horas" required>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="requestTrailDescription" class="block text-sm font-medium text-gray-700">Descrição da Trilha *</label>
+                        <textarea id="requestTrailDescription" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Descreva a trilha, pontos de interesse, dificuldades, equipamentos necessários..." required></textarea>
+                    </div>
+                    
+                    <div>
+                        <label for="requestGuidePrice" class="block text-sm font-medium text-gray-700">Valor do Seu Serviço (R$) *</label>
+                        <input type="number" id="requestGuidePrice" step="0.01" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="0.00" required>
+                        <p class="text-xs text-gray-500 mt-1">Informe o valor que você cobra para guiar esta trilha</p>
+                    </div>
+                    
+                    <div>
+                        <label for="requestAdditionalInfo" class="block text-sm font-medium text-gray-700">Informações Adicionais</label>
+                        <textarea id="requestAdditionalInfo" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Qualquer informação adicional sobre a trilha ou sua experiência guiando ela..."></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" onclick="closeSelectTrailModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancelar
+                </button>
+                <button type="button" id="modalActionBtn" onclick="addSelectedTrail()" class="px-4 py-2 bg-green-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-green-700">
+                    Adicionar Trilha
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        console.log('🚀 Sistema de Perfil carregado!');
+
+        // Função para carregar dados do usuário do localStorage
+        function loadUserData() {
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    console.log('📊 Dados do usuário carregados:', user);
+                    return user;
+                } catch (e) {
+                    console.error('❌ Erro ao parsear dados do usuário:', e);
+                }
+            }
+            
+            // Dados padrão se não houver usuário
+            return {
+                id: 'user_default',
+                name: 'Usuário Padrão',
+                email: 'usuario@exemplo.com',
+                user_type: 'trekker',
+                phone: '',
+                location: '',
+                bio: 'Apaixonado por trilhas e aventuras na natureza.',
+                experience_level: 'iniciante'
+            };
+        }
+
+        // Variável global do usuário atual
+        let currentUser = loadUserData();
+
+        // Função para atualizar a interface com os dados do usuário
+        function updateUserInterface(user) {
+            console.log('🎨 Atualizando interface para:', user.name, '(Tipo:', user.user_type + ')');
+            
+            // Atualizar informações básicas
+            document.getElementById('profileName').textContent = user.name;
+            document.getElementById('profileEmail').textContent = user.email;
+            document.getElementById('profileBio').textContent = user.bio || 'Sem biografia definida.';
+            document.getElementById('userName').textContent = user.name;
+            
+            // Atualizar avatar principal
+            const avatar = document.getElementById('profileAvatar');
+            const avatarInitials = document.getElementById('avatarInitials');
+            
+            if (user.profilePhoto) {
+                // Mostrar foto de perfil
+                avatar.innerHTML = `<img src="${user.profilePhoto}" alt="Foto de ${user.name}" class="w-full h-full object-cover rounded-full">`;
+                console.log('📷 Foto de perfil carregada na interface');
+            } else {
+                // Mostrar iniciais
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                avatar.innerHTML = `<span class="text-white text-3xl font-bold">${initials}</span>`;
+            }
+            
+            // Atualizar avatar no modal de edição
+            const currentAvatar = document.getElementById('currentAvatar');
+            if (currentAvatar) {
+                if (user.profilePhoto) {
+                    currentAvatar.innerHTML = `<img src="${user.profilePhoto}" alt="Foto de Perfil" class="w-full h-full object-cover rounded-full">`;
+                    document.getElementById('removePhotoBtn').classList.remove('hidden');
+                } else {
+                    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    currentAvatar.innerHTML = initials;
+                    document.getElementById('removePhotoBtn').classList.add('hidden');
+                }
+            }
+            
+            // Atualizar avatar baseado no tipo de usuário
+            if (user.user_type === 'guia') {
+                avatar.className = 'guide-avatar w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold';
+            } else {
+                avatar.className = 'profile-avatar w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold';
+            }
+            
+            // Atualizar badge do tipo de usuário
+            const userTypeBadge = document.getElementById('userTypeBadge');
+            const cadasturBadge = document.getElementById('cadasturBadge');
+            
+            if (user.user_type === 'guia') {
+                userTypeBadge.textContent = '🧭 Guia Profissional';
+                userTypeBadge.className = 'bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium';
+                cadasturBadge.classList.remove('hidden');
+                
+                // Atualizar labels das estatísticas
+                document.getElementById('stat1Label').textContent = 'Trilhas Conduzidas';
+                document.getElementById('stat3Label').textContent = 'Clientes Atendidos';
+                document.getElementById('activitySubtext').textContent = 'Adicione as trilhas que você conduz.';
+                
+                // Mostrar botão de adicionar trilha
+                document.getElementById('addTrailBtn').classList.remove('hidden');
+            } else {
+                userTypeBadge.textContent = '🥾 Trekker';
+                userTypeBadge.className = 'bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium';
+                cadasturBadge.classList.add('hidden');
+                
+                // Labels padrão para trekkers
+                document.getElementById('stat1Label').textContent = 'Trilhas Realizadas';
+                document.getElementById('stat3Label').textContent = 'Guias Contratados';
+                document.getElementById('activitySubtext').textContent = 'Suas atividades aparecerão aqui após realizar trilhas.';
+                
+                // Esconder botão de adicionar trilha
+                document.getElementById('addTrailBtn').classList.add('hidden');
+            }
+            
+            // Atualizar nível de experiência
+            const experienceLabels = {
+                'iniciante': '🌱 Iniciante',
+                'intermediario': '🥾 Intermediário',
+                'avancado': '🏔️ Avançado',
+                'expert': '⭐ Expert'
+            };
+            document.getElementById('experienceLevel').textContent = experienceLabels[user.experience_level] || 'Iniciante';
+        }
+
+        async function openEditModal() {
+            console.log('🎯 Abrindo modal de editar perfil para:', currentUser.user_type);
+            
+            const modal = document.getElementById('editProfileModal');
+            if (!modal) {
+                console.error('❌ Modal não encontrado!');
+                return;
+            }
+
+            // Recarregar dados do usuário do localStorage
+            currentUser = loadUserData();
+
+            // Preencher formulário com dados atuais
+            document.getElementById('editName').value = currentUser.name || '';
+            document.getElementById('editEmail').value = currentUser.email || '';
+            document.getElementById('editPhone').value = currentUser.phone || '';
+            document.getElementById('editBio').value = currentUser.bio || '';
+            document.getElementById('editExperienceLevel').value = currentUser.experience_level || 'iniciante';
+            
+            // Mostrar campo CADASTUR apenas para guias
+            const cadasturField = document.getElementById('cadasturField');
+            const cadasturInput = document.getElementById('editCadastur');
+            const locationInput = document.getElementById('editLocation');
+            
+            if (currentUser.user_type === 'guia') {
+                cadasturField.classList.remove('hidden');
+                
+                // Para guias, carregar dados do CADASTUR da API
+                if (currentUser.cadastur) {
+                    console.log('🔍 Carregando dados do CADASTUR para guia:', currentUser.cadastur);
+                    
+                    try {
+                        // Buscar dados do guia na API do CADASTUR
+                        const response = await fetch(`https://g8h3ilcvjnlq.manus.space/api/guides?cadastur=${currentUser.cadastur}`);
+                        const guides = await response.json();
+                        
+                        if (guides && guides.length > 0) {
+                            const guideData = guides[0];
+                            console.log('✅ Dados do CADASTUR carregados:', guideData);
+                            
+                            // Preencher campos com dados do CADASTUR e torná-los read-only
+                            cadasturInput.value = guideData.cadastur || currentUser.cadastur;
+                            cadasturInput.readOnly = true;
+                            cadasturInput.style.backgroundColor = '#f3f4f6';
+                            cadasturInput.style.cursor = 'not-allowed';
+                            
+                            locationInput.value = guideData.location || currentUser.location || '';
+                            locationInput.readOnly = true;
+                            locationInput.style.backgroundColor = '#f3f4f6';
+                            locationInput.style.cursor = 'not-allowed';
+                            
+                            // Adicionar texto explicativo
+                            const cadasturHelp = document.getElementById('cadasturHelp');
+                            if (cadasturHelp) {
+                                cadasturHelp.textContent = '🔒 Dados oficiais do CADASTUR (não editáveis)';
+                                cadasturHelp.style.color = '#6b7280';
+                            }
+                            
+                        } else {
+                            console.log('⚠️ Guia não encontrado na base CADASTUR');
+                            // Permitir edição se não encontrado na base
+                            cadasturInput.value = currentUser.cadastur || '';
+                            cadasturInput.readOnly = false;
+                            locationInput.value = currentUser.location || '';
+                            locationInput.readOnly = false;
+                        }
+                    } catch (error) {
+                        console.error('❌ Erro ao carregar dados do CADASTUR:', error);
+                        // Em caso de erro, permitir edição
+                        cadasturInput.value = currentUser.cadastur || '';
+                        cadasturInput.readOnly = false;
+                        locationInput.value = currentUser.location || '';
+                        locationInput.readOnly = false;
+                    }
+                } else {
+                    // Se não tem CADASTUR, permitir edição normal
+                    cadasturInput.value = '';
+                    cadasturInput.readOnly = false;
+                    locationInput.value = currentUser.location || '';
+                    locationInput.readOnly = false;
+                }
+            } else {
+                cadasturField.classList.add('hidden');
+                // Para trekkers, permitir edição normal da localização
+                locationInput.value = currentUser.location || '';
+                locationInput.readOnly = false;
+                locationInput.style.backgroundColor = '';
+                locationInput.style.cursor = '';
+            }
+
+            modal.classList.remove('hidden');
+            console.log('✅ Modal aberto com sucesso!');
+        }
+
+        function closeEditModal() {
+            console.log('🔒 Fechando modal...');
+            const modal = document.getElementById('editProfileModal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function saveProfile(event) {
+            event.preventDefault();
+            console.log('💾 Salvando perfil...');
+
+            // Recarregar dados atuais
+            currentUser = loadUserData();
+
+            // Obter dados do formulário
+            const formData = new FormData(event.target);
+            const updatedUser = {
+                ...currentUser,
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                location: formData.get('location'),
+                bio: formData.get('bio'),
+                experience_level: formData.get('experience_level')
+            };
+
+            // Processar foto de perfil
+            const photoInput = document.getElementById('profilePhoto');
+            if (photoInput.files && photoInput.files[0]) {
+                const file = photoInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    updatedUser.profilePhoto = e.target.result;
+                    console.log('📷 Foto de perfil salva');
+                    
+                    // Continuar com o salvamento
+                    finalizeSaveProfile(updatedUser);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Se não há nova foto, manter a existente ou remover se foi removida
+                const currentAvatar = document.getElementById('currentAvatar');
+                if (currentAvatar.innerHTML.includes('<img')) {
+                    // Manter foto existente
+                    updatedUser.profilePhoto = currentUser.profilePhoto || null;
+                } else {
+                    // Foto foi removida
+                    updatedUser.profilePhoto = null;
+                }
+                
+                finalizeSaveProfile(updatedUser);
+            }
+        }
+
+        function finalizeSaveProfile(updatedUser) {
+            // Adicionar CADASTUR se for guia
+            if (currentUser.user_type === 'guia') {
+                updatedUser.cadastur = document.getElementById('editCadastur').value;
+            }
+
+            // Salvar no localStorage
+            localStorage.setItem('userData', JSON.stringify(updatedUser));
+            currentUser = updatedUser;
+
+            // Atualizar interface
+            updateUserInterface(currentUser);
+
+            // Fechar modal
+            closeEditModal();
+
+            console.log('✅ Perfil salvo com sucesso!', currentUser);
+            alert('Perfil atualizado com sucesso!');
+        }
+
+        // Configurar tabs
+        function setupTabs() {
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetTab = btn.getAttribute('data-tab');
+
+                    // Remover classes ativas
+                    tabBtns.forEach(b => {
+                        b.classList.remove('border-green-500', 'text-green-600');
+                        b.classList.add('border-transparent', 'text-gray-500');
+                    });
+
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+
+                    // Adicionar classes ativas
+                    btn.classList.remove('border-transparent', 'text-gray-500');
+                    btn.classList.add('border-green-500', 'text-green-600');
+
+                    // Mostrar conteúdo alvo
+                    const targetContent = document.getElementById(targetTab);
+                    if (targetContent) {
+                        targetContent.classList.remove('hidden');
+                    }
+                });
+            });
+        }
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 Página carregada, inicializando sistema universal...');
+            
+            // Carregar dados do usuário e atualizar interface
+            currentUser = loadUserData();
+            updateUserInterface(currentUser);
+            
+            // Configurar tabs
+            setupTabs();
+            
+            // Carregar trilhas do usuário se for guia
+            loadUserTrails();
+            
+            console.log('✅ Sistema universal inicializado com sucesso!');
+        });
+
+        // Fechar modal ao clicar fora
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('editProfileModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+            
+            const trailModal = document.getElementById('addTrailModal');
+            if (event.target === trailModal) {
+                closeAddTrailModal();
+            }
+        });
+
+        // Variáveis globais para o sistema de trilhas
+        let selectedTrail = null;
+        let allTrails = [];
+        let currentTab = 'selection';
+
+        // Funções para o modal de seleção de trilha
+        function openAddTrailModal() {
+            console.log('🎯 Abrindo modal de seleção de trilha...');
+            const modal = document.getElementById('selectTrailModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                loadAvailableTrails();
+                showTrailSelection();
+                console.log('✅ Modal de seleção aberto com sucesso!');
+            }
+        }
+
+        function closeSelectTrailModal() {
+            console.log('🔒 Fechando modal de seleção...');
+            const modal = document.getElementById('selectTrailModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                selectedTrail = null;
+                document.getElementById('selectedTrailInfo').classList.add('hidden');
+                document.getElementById('guidePrice').value = '';
+            }
+        }
+
+        // Função para alternar entre tabs
+        function showTrailSelection() {
+            currentTab = 'selection';
+            document.getElementById('trailSelectionTab').classList.remove('hidden');
+            document.getElementById('requestFormTab').classList.add('hidden');
+            
+            document.getElementById('selectTab').className = 'flex-1 py-2 px-3 text-sm font-medium rounded-md bg-white text-green-600 shadow-sm';
+            document.getElementById('requestTab').className = 'flex-1 py-2 px-3 text-sm font-medium rounded-md text-gray-500 hover:text-gray-700';
+            
+            document.getElementById('modalActionBtn').textContent = 'Adicionar Trilha';
+            document.getElementById('modalActionBtn').onclick = addSelectedTrail;
+        }
+
+        function showRequestForm() {
+            currentTab = 'request';
+            document.getElementById('trailSelectionTab').classList.add('hidden');
+            document.getElementById('requestFormTab').classList.remove('hidden');
+            
+            document.getElementById('selectTab').className = 'flex-1 py-2 px-3 text-sm font-medium rounded-md text-gray-500 hover:text-gray-700';
+            document.getElementById('requestTab').className = 'flex-1 py-2 px-3 text-sm font-medium rounded-md bg-white text-green-600 shadow-sm';
+            
+            document.getElementById('modalActionBtn').textContent = 'Enviar Solicitação';
+            document.getElementById('modalActionBtn').onclick = submitTrailRequest;
+        }
+
+        // Função para carregar trilhas disponíveis
+        async function loadAvailableTrails() {
+            try {
+                console.log('📥 Carregando trilhas disponíveis...');
+                
+                // Simular trilhas da API (em produção seria fetch da API real)
+                const mockTrails = [
+                    {
+                        id: 1,
+                        name: 'Trilha da Pedra Bonita',
+                        location: 'Rio de Janeiro, RJ',
+                        distance: 2.5,
+                        difficulty: 'moderado',
+                        duration: '2 horas',
+                        description: 'Uma trilha clássica com vista panorâmica da cidade do Rio de Janeiro.'
+                    },
+                    {
+                        id: 2,
+                        name: 'Pico da Bandeira',
+                        location: 'Alto Caparaó, MG',
+                        distance: 9.0,
+                        difficulty: 'dificil',
+                        duration: '6 horas',
+                        description: 'O terceiro pico mais alto do Brasil, com paisagens deslumbrantes.'
+                    },
+                    {
+                        id: 3,
+                        name: 'Trilha do Morro do Elefante',
+                        location: 'Campos do Jordão, SP',
+                        distance: 1.8,
+                        difficulty: 'facil',
+                        duration: '1.5 horas',
+                        description: 'Trilha fácil com vista panorâmica de Campos do Jordão.'
+                    },
+                    {
+                        id: 4,
+                        name: 'Pico dos Três Estados',
+                        location: 'Itatiaia, RJ',
+                        distance: 12.0,
+                        difficulty: 'extremo',
+                        duration: '8 horas',
+                        description: 'Trilha desafiadora que passa pela divisa de três estados.'
+                    },
+                    {
+                        id: 5,
+                        name: 'Cachoeira do Tabuleiro',
+                        location: 'Conceição do Mato Dentro, MG',
+                        distance: 4.2,
+                        difficulty: 'moderado',
+                        duration: '3 horas',
+                        description: 'Trilha até uma das cachoeiras mais altas de Minas Gerais.'
+                    }
+                ];
+
+                allTrails = mockTrails;
+                displayTrails(allTrails);
+                console.log('✅ Trilhas carregadas:', allTrails.length);
+            } catch (error) {
+                console.error('❌ Erro ao carregar trilhas:', error);
+                document.getElementById('trailsList').innerHTML = '<div class="text-center py-4 text-red-500">Erro ao carregar trilhas</div>';
+            }
+        }
+
+        // Função para aplicar filtros avançados
+        function applyFilters() {
+            const ufFilter = document.getElementById('filterUF').value.toLowerCase();
+            const cityFilter = document.getElementById('filterCity').value.toLowerCase();
+            const nameFilter = document.getElementById('filterTrailName').value.toLowerCase();
+            
+            console.log('🔍 Aplicando filtros:', { uf: ufFilter, city: cityFilter, name: nameFilter });
+            
+            let filteredTrails = allTrails.filter(trail => {
+                // Extrair UF e cidade da localização
+                const locationParts = trail.location.split(', ');
+                const city = locationParts[0] ? locationParts[0].toLowerCase() : '';
+                const uf = locationParts[1] ? locationParts[1].toLowerCase() : '';
+                
+                // Aplicar filtros com correspondência parcial
+                const matchesUF = !ufFilter || uf.includes(ufFilter);
+                const matchesCity = !cityFilter || city.includes(cityFilter);
+                const matchesName = !nameFilter || trail.name.toLowerCase().includes(nameFilter);
+                
+                return matchesUF && matchesCity && matchesName;
+            });
+            
+            console.log('📊 Trilhas filtradas:', filteredTrails.length, 'de', allTrails.length);
+            displayTrails(filteredTrails);
+        }
+
+        // Função para limpar todos os filtros
+        function clearFilters() {
+            document.getElementById('filterUF').value = '';
+            document.getElementById('filterCity').value = '';
+            document.getElementById('filterTrailName').value = '';
+            
+            console.log('🗑️ Filtros limpos, exibindo todas as trilhas');
+            displayTrails(allTrails);
+        }
+
+        // Função para exibir trilhas na lista
+        function displayTrails(trails) {
+            const trailsList = document.getElementById('trailsList');
+            
+            if (trails.length === 0) {
+                trailsList.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="text-gray-400 text-4xl mb-2">🔍</div>
+                        <p class="text-gray-500">Nenhuma trilha encontrada com os filtros aplicados</p>
+                        <button onclick="clearFilters()" class="mt-2 text-green-600 hover:text-green-700 text-sm underline">
+                            Limpar filtros e ver todas
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            trailsList.innerHTML = trails.map(trail => {
+                const difficultyColors = {
+                    'facil': 'bg-green-100 text-green-800',
+                    'moderado': 'bg-yellow-100 text-yellow-800',
+                    'dificil': 'bg-orange-100 text-orange-800',
+                    'extremo': 'bg-red-100 text-red-800'
+                };
+                
+                const difficultyIcons = {
+                    'facil': '🟢',
+                    'moderado': '🟡',
+                    'dificil': '🟠',
+                    'extremo': '🔴'
+                };
+                
+                return `
+                    <div class="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectTrail(${trail.id})">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h5 class="font-medium text-gray-900">${trail.name}</h5>
+                                <p class="text-sm text-gray-600">📍 ${trail.location}</p>
+                                <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                    <span>📏 ${trail.distance}km</span>
+                                    <span>⏱️ ${trail.duration}</span>
+                                </div>
+                            </div>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${difficultyColors[trail.difficulty]}">
+                                ${difficultyIcons[trail.difficulty]} ${trail.difficulty.charAt(0).toUpperCase() + trail.difficulty.slice(1)}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Função para selecionar uma trilha
+        function selectTrail(trailId) {
+            selectedTrail = allTrails.find(trail => trail.id === trailId);
+            if (selectedTrail) {
+                console.log('🎯 Trilha selecionada:', selectedTrail.name);
+                
+                document.getElementById('selectedTrailDetails').innerHTML = `
+                    <div class="bg-white p-3 rounded border">
+                        <h5 class="font-medium text-gray-900">${selectedTrail.name}</h5>
+                        <p class="text-sm text-gray-600">📍 ${selectedTrail.location}</p>
+                        <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                            <span>📏 ${selectedTrail.distance}km</span>
+                            <span>⏱️ ${selectedTrail.duration}</span>
+                            <span class="capitalize">🎯 ${selectedTrail.difficulty}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">${selectedTrail.description}</p>
+                    </div>
+                `;
+                
+                document.getElementById('selectedTrailInfo').classList.remove('hidden');
+                document.getElementById('guidePrice').focus();
+            }
+        }
+
+        // Função para adicionar trilha selecionada ao perfil do guia
+        function addSelectedTrail() {
+            if (!selectedTrail) {
+                alert('Por favor, selecione uma trilha primeiro.');
+                return;
+            }
+
+            const price = document.getElementById('guidePrice').value;
+            if (!price || parseFloat(price) <= 0) {
+                alert('Por favor, informe o valor do seu serviço.');
+                document.getElementById('guidePrice').focus();
+                return;
+            }
+
+            // Criar objeto da trilha do guia
+            const guideTrail = {
+                id: `guide_trail_${Date.now()}`,
+                guide_id: currentUser.id,
+                guide_name: currentUser.name,
+                trail_id: selectedTrail.id,
+                trail_name: selectedTrail.name,
+                trail_location: selectedTrail.location,
+                trail_distance: selectedTrail.distance,
+                trail_difficulty: selectedTrail.difficulty,
+                trail_duration: selectedTrail.duration,
+                trail_description: selectedTrail.description,
+                guide_price: parseFloat(price),
+                date_added: new Date().toISOString()
+            };
+
+            // Salvar no localStorage
+            let guideTrails = JSON.parse(localStorage.getItem('guideTrails') || '[]');
+            
+            // Verificar se a trilha já foi adicionada por este guia
+            const existingTrail = guideTrails.find(gt => 
+                gt.guide_id === currentUser.id && gt.trail_id === selectedTrail.id
+            );
+            
+            if (existingTrail) {
+                alert('Você já adicionou esta trilha ao seu perfil.');
+                return;
+            }
+
+            guideTrails.push(guideTrail);
+            localStorage.setItem('guideTrails', JSON.stringify(guideTrails));
+
+            console.log('✅ Trilha adicionada ao perfil do guia!', guideTrail);
+            
+            // Fechar modal e atualizar lista
+            closeSelectTrailModal();
+            loadUserTrails();
+            
+            alert('Trilha adicionada com sucesso ao seu perfil!');
+        }
+
+        // Funções auxiliares para dificuldade
+        function getDifficultyIcon(difficulty) {
+            const icons = {
+                'facil': '🟢',
+                'moderado': '🟡', 
+                'dificil': '🟠',
+                'extremo': '🔴'
+            };
+            return icons[difficulty] || '⚪';
+        }
+
+        function getDifficultyLabel(difficulty) {
+            return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+        }
+
+        // Função para buscar trilhas (mantida para compatibilidade)
+        function searchTrails() {
+            const searchTerm = document.getElementById('trailSearch').value.toLowerCase();
+            const filteredTrails = allTrails.filter(trail => 
+                trail.name.toLowerCase().includes(searchTerm) ||
+                trail.location.toLowerCase().includes(searchTerm)
+            );
+            displayTrails(filteredTrails);
+        }
+
+        // Função para selecionar trilha
+        function selectTrail(trailId) {
+            selectedTrail = allTrails.find(trail => trail.id === trailId);
+            
+            if (selectedTrail) {
+                console.log('🎯 Trilha selecionada:', selectedTrail.name);
+                
+                // Mostrar detalhes da trilha selecionada
+                document.getElementById('selectedTrailDetails').innerHTML = `
+                    <div class="bg-white p-3 rounded border">
+                        <h5 class="font-medium">${selectedTrail.name}</h5>
+                        <p class="text-sm text-gray-600">📍 ${selectedTrail.location}</p>
+                        <div class="flex items-center space-x-3 mt-1 text-sm text-gray-500">
+                            <span>📏 ${selectedTrail.distance}km</span>
+                            <span>⏱️ ${selectedTrail.duration}</span>
+                            <span>${getDifficultyIcon(selectedTrail.difficulty)} ${getDifficultyLabel(selectedTrail.difficulty)}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">${selectedTrail.description}</p>
+                    </div>
+                `;
+                
+                document.getElementById('selectedTrailInfo').classList.remove('hidden');
+                const priceField = document.getElementById('guidePrice');
+                if (priceField) {
+                    priceField.focus();
+                }
+            }
+        }
+
+        // Função para adicionar trilha selecionada
+        function addSelectedTrail() {
+            if (currentTab === 'selection') {
+                if (!selectedTrail) {
+                    alert('Por favor, selecione uma trilha.');
+                    return;
+                }
+
+                const guidePrice = document.getElementById('guidePrice').value;
+                if (!guidePrice || parseFloat(guidePrice) <= 0) {
+                    alert('Por favor, informe o valor do seu serviço.');
+                    return;
+                }
+
+                // Salvar trilha do guia
+                const guideTrail = {
+                    id: 'guide_trail_' + Date.now(),
+                    guide_id: currentUser.id,
+                    guide_name: currentUser.name,
+                    trail_id: selectedTrail.id,
+                    trail_name: selectedTrail.name,
+                    trail_location: selectedTrail.location,
+                    trail_distance: selectedTrail.distance,
+                    trail_difficulty: selectedTrail.difficulty,
+                    trail_duration: selectedTrail.duration,
+                    trail_description: selectedTrail.description,
+                    guide_price: parseFloat(guidePrice),
+                    created_at: new Date().toISOString()
+                };
+
+                // Salvar no localStorage
+                let userTrails = JSON.parse(localStorage.getItem('userTrails_' + currentUser.id)) || [];
+                userTrails.push(guideTrail);
+                localStorage.setItem('userTrails_' + currentUser.id, JSON.stringify(userTrails));
+
+                closeSelectTrailModal();
+                loadUserTrails();
+
+                console.log('✅ Trilha adicionada ao perfil do guia!', guideTrail);
+                alert('Trilha adicionada ao seu perfil com sucesso!');
+            }
+        }
+
+        // Função para enviar solicitação de nova trilha (será implementada na próxima fase)
+        function submitTrailRequest() {
+            if (currentTab === 'request') {
+                // Validar campos obrigatórios
+                const requiredFields = [
+                    'requestTrailName',
+                    'requestTrailLocation', 
+                    'requestTrailDistance',
+                    'requestTrailDifficulty',
+                    'requestTrailDuration',
+                    'requestTrailDescription',
+                    'requestGuidePrice'
+                ];
+
+                for (let fieldId of requiredFields) {
+                    const field = document.getElementById(fieldId);
+                    if (!field.value.trim()) {
+                        alert('Por favor, preencha todos os campos obrigatórios.');
+                        field.focus();
+                        return;
+                    }
+                }
+
+                // Coletar dados do formulário
+                const requestData = {
+                    guide_name: currentUser.name,
+                    guide_email: currentUser.email,
+                    guide_cadastur: currentUser.cadastur,
+                    trail_name: document.getElementById('requestTrailName').value,
+                    trail_location: document.getElementById('requestTrailLocation').value,
+                    trail_distance: document.getElementById('requestTrailDistance').value,
+                    trail_difficulty: document.getElementById('requestTrailDifficulty').value,
+                    trail_duration: document.getElementById('requestTrailDuration').value,
+                    trail_description: document.getElementById('requestTrailDescription').value,
+                    guide_price: document.getElementById('requestGuidePrice').value,
+                    additional_info: document.getElementById('requestAdditionalInfo').value,
+                    request_date: new Date().toISOString()
+                };
+
+                // Enviar email
+                sendTrailRequestEmail(requestData);
+            }
+        }
+
+        // Função para enviar solicitação de nova trilha via email
+        function sendTrailRequestEmail(requestData) {
+            console.log('📧 Enviando solicitação de trilha por email...', requestData);
+            
+            // Preparar dados do email
+            const emailData = {
+                to: 'contato@trekko.com.br',
+                subject: `Solicitação de Nova Trilha - ${requestData.trail_name}`,
+                body: `
+                    <h2>Nova Solicitação de Trilha</h2>
+                    
+                    <h3>Dados do Guia:</h3>
+                    <ul>
+                        <li><strong>Nome:</strong> ${requestData.guide_name}</li>
+                        <li><strong>Email:</strong> ${requestData.guide_email}</li>
+                        <li><strong>CADASTUR:</strong> ${requestData.guide_cadastur || 'Não informado'}</li>
+                    </ul>
+                    
+                    <h3>Dados da Trilha Solicitada:</h3>
+                    <ul>
+                        <li><strong>Nome:</strong> ${requestData.trail_name}</li>
+                        <li><strong>Localização:</strong> ${requestData.trail_location}</li>
+                        <li><strong>Distância:</strong> ${requestData.trail_distance} km</li>
+                        <li><strong>Dificuldade:</strong> ${getDifficultyLabel(requestData.trail_difficulty)}</li>
+                        <li><strong>Duração:</strong> ${requestData.trail_duration}</li>
+                        <li><strong>Valor do Serviço:</strong> R$ ${parseFloat(requestData.guide_price).toFixed(2)}</li>
+                    </ul>
+                    
+                    <h3>Descrição da Trilha:</h3>
+                    <p>${requestData.trail_description}</p>
+                    
+                    ${requestData.additional_info ? `
+                    <h3>Informações Adicionais:</h3>
+                    <p>${requestData.additional_info}</p>
+                    ` : ''}
+                    
+                    <hr>
+                    <p><small>Solicitação enviada em: ${new Date(requestData.request_date).toLocaleString('pt-BR')}</small></p>
+                `
+            };
+            
+            // Simular envio de email (em produção seria integração com serviço de email)
+            simulateEmailSend(emailData)
+                .then(result => {
+                    if (result.success) {
+                        console.log('✅ Email enviado com sucesso!');
+                        
+                        // Salvar solicitação no localStorage para histórico
+                        saveTrailRequest(requestData);
+                        
+                        // Fechar modal e mostrar sucesso
+                        closeSelectTrailModal();
+                        
+                        alert('Solicitação enviada com sucesso! Nossa equipe analisará e entrará em contato em até 48 horas.');
+                        
+                        // Limpar formulário
+                        document.getElementById('requestTrailForm').reset();
+                        
+                    } else {
+                        throw new Error(result.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Erro ao enviar email:', error);
+                    alert('Erro ao enviar solicitação. Tente novamente ou entre em contato diretamente pelo email contato@trekko.com.br');
+                });
+        }
+        
+        // Função para simular envio de email (em produção seria substituída por integração real)
+        function simulateEmailSend(emailData) {
+            return new Promise((resolve) => {
+                // Simular delay de envio
+                setTimeout(() => {
+                    console.log('📧 Email simulado enviado:', emailData);
+                    resolve({ success: true, messageId: 'sim_' + Date.now() });
+                }, 1500);
+            });
+        }
+        
+        // Função para salvar solicitação no histórico local
+        function saveTrailRequest(requestData) {
+            try {
+                let requests = JSON.parse(localStorage.getItem('trailRequests_' + currentUser.id)) || [];
+                
+                const requestRecord = {
+                    ...requestData,
+                    id: 'request_' + Date.now(),
+                    status: 'enviado',
+                    sent_at: new Date().toISOString()
+                };
+                
+                requests.push(requestRecord);
+                localStorage.setItem('trailRequests_' + currentUser.id, JSON.stringify(requests));
+                
+                console.log('💾 Solicitação salva no histórico:', requestRecord);
+            } catch (error) {
+                console.error('❌ Erro ao salvar solicitação:', error);
+            }
+        }
+
+        function saveTrail(event) {
+            // Esta função não é mais usada, mas mantida para compatibilidade
+            console.log('⚠️ Função saveTrail descontinuada - use o novo sistema de seleção');
+        }
+
+        // Carregar trilhas do usuário
+        function loadUserTrails() {
+            console.log('📥 Carregando trilhas do usuário...');
+            
+            // Recarregar dados atuais do usuário
+            currentUser = loadUserData();
+            
+            if (!currentUser || currentUser.user_type !== 'guia') {
+                console.log('ℹ️ Usuário não é guia, ocultando botão de adicionar trilha');
+                const addBtn = document.getElementById('addTrailBtn');
+                if (addBtn) addBtn.style.display = 'none';
+                return;
+            }
+
+            // Mostrar botão de adicionar trilha para guias
+            const addBtn = document.getElementById('addTrailBtn');
+            if (addBtn) addBtn.style.display = 'block';
+
+            // Carregar trilhas salvas
+            const userTrails = JSON.parse(localStorage.getItem('userTrails_' + currentUser.id)) || [];
+            
+            const activitiesContainer = document.getElementById('activitiesContainer');
+            if (!activitiesContainer) return;
+
+            if (userTrails.length === 0) {
+                activitiesContainer.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <div class="text-4xl mb-2">🏔️</div>
+                        <p>Nenhuma atividade registrada ainda.</p>
+                        <p class="text-sm mt-1">Suas atividades aparecerão aqui após realizar trilhas.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Exibir trilhas
+            const trailsHtml = userTrails.map(trail => `
+                <div class="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-medium text-gray-900">${trail.trail_name || trail.name}</h4>
+                        <span class="text-xs text-gray-500">${new Date(trail.created_at).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4 text-sm text-gray-600 mb-2">
+                        <span>📍 ${trail.trail_location || trail.location}</span>
+                        <span>📏 ${trail.trail_distance || trail.distance}km</span>
+                        <span>${getDifficultyIcon(trail.trail_difficulty || trail.difficulty)} ${getDifficultyLabel(trail.trail_difficulty || trail.difficulty)}</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">⏱️ ${trail.trail_duration || trail.duration}</span>
+                        <span class="font-medium text-green-600">R$ ${(trail.guide_price || trail.price || 0).toFixed(2)}</span>
+                    </div>
+                    
+                    <p class="text-sm text-gray-700 mt-2 line-clamp-2">${trail.trail_description || trail.description}</p>
+                </div>
+            `).join('');
+
+            activitiesContainer.innerHTML = trailsHtml;
+            console.log('✅ Trilhas carregadas:', userTrails.length);
+        }
+
+        // Funções auxiliares
+        function getDifficultyIcon(difficulty) {
+            const icons = {
+                'facil': '🟢',
+                'moderado': '🟡',
+                'dificil': '🟠',
+                'extremo': '🔴'
+            };
+            return icons[difficulty] || '⚪';
+        }
+
+        function getDifficultyLabel(difficulty) {
+            const labels = {
+                'facil': 'Fácil',
+                'moderado': 'Moderado',
+                'dificil': 'Difícil',
+                'extremo': 'Extremo'
+            };
+            return labels[difficulty] || 'Não definido';
+        }
+
+        // Funções de upload de foto de perfil
+        function previewProfilePhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validar tamanho do arquivo (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('A foto deve ter no máximo 5MB.');
+                event.target.value = '';
+                return;
+            }
+
+            // Validar tipo de arquivo
+            if (!file.type.match(/^image\/(jpeg|jpg|png|gif)$/)) {
+                alert('Por favor, selecione uma imagem válida (JPG, PNG ou GIF).');
+                event.target.value = '';
+                return;
+            }
+
+            // Criar preview da foto
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const currentAvatar = document.getElementById('currentAvatar');
+                const removeBtn = document.getElementById('removePhotoBtn');
+                
+                // Substituir avatar por imagem
+                currentAvatar.innerHTML = `<img src="${e.target.result}" alt="Foto de Perfil" class="w-full h-full object-cover rounded-full">`;
+                
+                // Mostrar botão de remover
+                removeBtn.classList.remove('hidden');
+                
+                console.log('📷 Preview da foto de perfil carregado');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeProfilePhoto() {
+            const currentAvatar = document.getElementById('currentAvatar');
+            const photoInput = document.getElementById('profilePhoto');
+            const removeBtn = document.getElementById('removePhotoBtn');
+            
+            // Restaurar avatar com iniciais
+            const user = loadUserData();
+            const initials = user ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'UP';
+            currentAvatar.innerHTML = initials;
+            
+            // Limpar input e ocultar botão
+            photoInput.value = '';
+            removeBtn.classList.add('hidden');
+            
+            console.log('🗑️ Foto de perfil removida');
+        }
+
+        // Preview de fotos
+        document.addEventListener('change', function(event) {
+            if (event.target.id === 'trailPhotos') {
+                const files = Array.from(event.target.files);
+                const preview = document.getElementById('photoPreview');
+                
+                if (files.length > 0) {
+                    preview.classList.remove('hidden');
+                    preview.innerHTML = files.map((file, index) => {
+                        const url = URL.createObjectURL(file);
+                        return `
+                            <div class="relative">
+                                <img src="${url}" class="w-full h-24 object-cover rounded" alt="${file.name}">
+                                <button type="button" onclick="removePhoto(${index})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">
+                                    ×
+                                </button>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    preview.classList.add('hidden');
+                }
+            }
+        });
+
+        function removePhoto(index) {
+            const input = document.getElementById('trailPhotos');
+            const dt = new DataTransfer();
+            const files = Array.from(input.files);
+            
+            files.forEach((file, i) => {
+                if (i !== index) {
+                    dt.items.add(file);
+                }
+            });
+            
+            input.files = dt.files;
+            input.dispatchEvent(new Event('change'));
+        }
+
+        console.log('🎉 Sistema Universal de Perfil totalmente funcional!');
+    </script>
+</body>
+</html>
+

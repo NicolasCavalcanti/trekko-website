@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Perfil - Trekko</title>
+</head>
+<body>
+    <h1>Configurando usuário de teste...</h1>
+    <p>Aguarde, você será redirecionado para o perfil em 2 segundos.</p>
+    
+    <script>
+        // Criar dados de usuário para teste
+        const userData = {
+            id: 'user_test_' + Date.now(),
+            name: 'Usuário Teste Integrado',
+            email: 'teste.integrado@exemplo.com',
+            user_type: 'trekker',
+            phone: '',
+            location: '',
+            bio: '',
+            experience_level: 'iniciante'
+        };
+        
+        localStorage.setItem('userData', JSON.stringify(userData));
+        console.log('Dados de usuário criados:', userData);
+        
+        // Redirecionar para perfil
+        setTimeout(() => {
+            window.location.href = '/perfil';
+        }, 2000);
+    </script>
+</body>
+</html>
+

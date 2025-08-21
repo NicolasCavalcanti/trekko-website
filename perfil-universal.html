@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - Trekko</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .profile-avatar {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        }
+        .guide-avatar {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-green-600">Trekko</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="index.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Início</a>
+                        <a href="trilhas.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Trilhas</a>
+                        <a href="guias.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Guias</a>
+                        <a href="#" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Sobre</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-green-600">
+                            <span id="userName" class="font-medium">Carregando...</span>
+                            <span class="text-sm">▼</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <div class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+                <!-- Avatar -->
+                <div id="profileAvatar" class="profile-avatar w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                    <span id="avatarInitials">--</span>
+                </div>
+                
+                <!-- Profile Info -->
+                <div class="flex-1 text-center md:text-left">
+                    <h1 id="profileName" class="text-2xl font-bold text-gray-900 mb-2">Carregando...</h1>
+                    <p id="profileEmail" class="text-gray-600 mb-2">carregando@exemplo.com</p>
+                    <div class="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
+                        <span id="userTypeBadge" class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">🥾 Carregando...</span>
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">✓ Verificado</span>
+                        <span id="cadasturBadge" class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium hidden">📋 CADASTUR</span>
+                    </div>
+                    <p id="profileBio" class="text-gray-700 max-w-2xl">Carregando biografia...</p>
+                </div>
+                
+                <!-- Edit Button -->
+                <button onclick="openEditModal()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-medium">
+                    ✏️ Editar Perfil
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="stat-card rounded-lg p-6 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">0</div>
+                <div class="text-gray-600" id="stat1Label">Trilhas Realizadas</div>
+            </div>
+            <div class="stat-card rounded-lg p-6 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">0</div>
+                <div class="text-gray-600">Km Percorridos</div>
+            </div>
+            <div class="stat-card rounded-lg p-6 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">0</div>
+                <div class="text-gray-600" id="stat3Label">Guias Contratados</div>
+            </div>
+            <div class="stat-card rounded-lg p-6 text-center">
+                <div id="experienceLevel" class="text-3xl font-bold text-green-600 mb-2">Iniciante</div>
+                <div class="text-gray-600">Nível</div>
+            </div>
+        </div>
+
+        <!-- Content Tabs -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8 px-6">
+                    <button class="tab-btn border-b-2 border-green-500 py-4 px-1 text-sm font-medium text-green-600" data-tab="atividades">
+                        Minhas Atividades
+                    </button>
+                    <button class="tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="favoritos">
+                        Favoritos
+                    </button>
+                    <button class="tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="avaliacoes">
+                        Avaliações
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab Contents -->
+            <div class="p-6">
+                <div id="atividades" class="tab-content">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">Minhas Atividades Recentes</h3>
+                        <button id="addTrailBtn" class="hidden bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            + Adicionar Trilha
+                        </button>
+                    </div>
+                    <div class="text-center py-8">
+                        <p class="text-gray-500">Nenhuma atividade registrada ainda.</p>
+                        <p id="activitySubtext" class="text-sm text-gray-400 mt-2">Suas atividades aparecerão aqui após realizar trilhas.</p>
+                    </div>
+                </div>
+
+                <div id="favoritos" class="tab-content hidden">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Trilhas Favoritas</h3>
+                    <div class="text-center py-8">
+                        <p class="text-gray-500">Nenhuma trilha favorita ainda.</p>
+                        <p class="text-sm text-gray-400 mt-2">Suas trilhas favoritas aparecerão aqui.</p>
+                    </div>
+                </div>
+
+                <div id="avaliacoes" class="tab-content hidden">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Minhas Avaliações</h3>
+                    <div class="text-center py-8">
+                        <p class="text-gray-500">Nenhuma avaliação ainda.</p>
+                        <p class="text-sm text-gray-400 mt-2">Suas avaliações de trilhas e guias aparecerão aqui.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-900">Editar Perfil</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+                    <span class="sr-only">Fechar</span>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="editProfileForm" onsubmit="saveProfile(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label for="editName" class="block text-sm font-medium text-gray-700">Nome Completo</label>
+                        <input type="text" id="editName" name="name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
+                    </div>
+
+                    <div>
+                        <label for="editEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="editEmail" name="email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
+                    </div>
+
+                    <div id="cadasturField" class="hidden">
+                        <label for="editCadastur" class="block text-sm font-medium text-gray-700">Número CADASTUR</label>
+                        <input type="text" id="editCadastur" name="cadastur" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Ex: 27123456789">
+                    </div>
+
+                    <div>
+                        <label for="editPhone" class="block text-sm font-medium text-gray-700">Telefone</label>
+                        <input type="tel" id="editPhone" name="phone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="(11) 99999-9999">
+                    </div>
+
+                    <div>
+                        <label for="editLocation" class="block text-sm font-medium text-gray-700">Localização</label>
+                        <input type="text" id="editLocation" name="location" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Cidade, Estado">
+                    </div>
+
+                    <div>
+                        <label for="editBio" class="block text-sm font-medium text-gray-700">Biografia</label>
+                        <textarea id="editBio" name="bio" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Conte um pouco sobre você e sua paixão por trilhas..."></textarea>
+                    </div>
+
+                    <div>
+                        <label for="editExperienceLevel" class="block text-sm font-medium text-gray-700">Nível de Experiência</label>
+                        <select id="editExperienceLevel" name="experience_level" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
+                            <option value="iniciante">🌱 Iniciante</option>
+                            <option value="intermediario">🥾 Intermediário</option>
+                            <option value="avancado">🏔️ Avançado</option>
+                            <option value="expert">⭐ Expert</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-green-700">
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        console.log('🚀 Sistema Universal de Perfil carregado!');
+
+        // Função para carregar dados do usuário do localStorage
+        function loadUserData() {
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    console.log('📊 Dados do usuário carregados:', user);
+                    return user;
+                } catch (e) {
+                    console.error('❌ Erro ao parsear dados do usuário:', e);
+                }
+            }
+            
+            // Dados padrão se não houver usuário
+            return {
+                id: 'user_default',
+                name: 'Usuário Padrão',
+                email: 'usuario@exemplo.com',
+                user_type: 'trekker',
+                phone: '',
+                location: '',
+                bio: 'Apaixonado por trilhas e aventuras na natureza.',
+                experience_level: 'iniciante'
+            };
+        }
+
+        // Variável global do usuário atual
+        let currentUser = loadUserData();
+
+        // Função para atualizar a interface com os dados do usuário
+        function updateUserInterface(user) {
+            console.log('🎨 Atualizando interface para:', user.name, '(Tipo:', user.user_type + ')');
+            
+            // Atualizar informações básicas
+            document.getElementById('profileName').textContent = user.name;
+            document.getElementById('profileEmail').textContent = user.email;
+            document.getElementById('profileBio').textContent = user.bio || 'Sem biografia definida.';
+            document.getElementById('userName').textContent = user.name;
+            
+            // Atualizar avatar
+            const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            document.getElementById('avatarInitials').textContent = initials;
+            
+            // Atualizar avatar baseado no tipo de usuário
+            const avatar = document.getElementById('profileAvatar');
+            if (user.user_type === 'guia') {
+                avatar.className = 'guide-avatar w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold';
+            } else {
+                avatar.className = 'profile-avatar w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold';
+            }
+            
+            // Atualizar badge do tipo de usuário
+            const userTypeBadge = document.getElementById('userTypeBadge');
+            const cadasturBadge = document.getElementById('cadasturBadge');
+            
+            if (user.user_type === 'guia') {
+                userTypeBadge.textContent = '🧭 Guia Profissional';
+                userTypeBadge.className = 'bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium';
+                cadasturBadge.classList.remove('hidden');
+                
+                // Atualizar labels das estatísticas
+                document.getElementById('stat1Label').textContent = 'Trilhas Conduzidas';
+                document.getElementById('stat3Label').textContent = 'Clientes Atendidos';
+                document.getElementById('activitySubtext').textContent = 'Adicione as trilhas que você conduz.';
+                
+                // Mostrar botão de adicionar trilha
+                document.getElementById('addTrailBtn').classList.remove('hidden');
+            } else {
+                userTypeBadge.textContent = '🥾 Trekker';
+                userTypeBadge.className = 'bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium';
+                cadasturBadge.classList.add('hidden');
+                
+                // Labels padrão para trekkers
+                document.getElementById('stat1Label').textContent = 'Trilhas Realizadas';
+                document.getElementById('stat3Label').textContent = 'Guias Contratados';
+                document.getElementById('activitySubtext').textContent = 'Suas atividades aparecerão aqui após realizar trilhas.';
+                
+                // Esconder botão de adicionar trilha
+                document.getElementById('addTrailBtn').classList.add('hidden');
+            }
+            
+            // Atualizar nível de experiência
+            const experienceLabels = {
+                'iniciante': '🌱 Iniciante',
+                'intermediario': '🥾 Intermediário',
+                'avancado': '🏔️ Avançado',
+                'expert': '⭐ Expert'
+            };
+            document.getElementById('experienceLevel').textContent = experienceLabels[user.experience_level] || 'Iniciante';
+        }
+
+        function openEditModal() {
+            console.log('🎯 Abrindo modal de editar perfil para:', currentUser.user_type);
+            
+            const modal = document.getElementById('editProfileModal');
+            if (!modal) {
+                console.error('❌ Modal não encontrado!');
+                return;
+            }
+
+            // Recarregar dados do usuário do localStorage
+            currentUser = loadUserData();
+
+            // Preencher formulário com dados atuais
+            document.getElementById('editName').value = currentUser.name || '';
+            document.getElementById('editEmail').value = currentUser.email || '';
+            document.getElementById('editPhone').value = currentUser.phone || '';
+            document.getElementById('editLocation').value = currentUser.location || '';
+            document.getElementById('editBio').value = currentUser.bio || '';
+            document.getElementById('editExperienceLevel').value = currentUser.experience_level || 'iniciante';
+            
+            // Mostrar campo CADASTUR apenas para guias
+            const cadasturField = document.getElementById('cadasturField');
+            const cadasturInput = document.getElementById('editCadastur');
+            
+            if (currentUser.user_type === 'guia') {
+                cadasturField.classList.remove('hidden');
+                cadasturInput.value = currentUser.cadastur || '';
+            } else {
+                cadasturField.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+            console.log('✅ Modal aberto com sucesso!');
+        }
+
+        function closeEditModal() {
+            console.log('🔒 Fechando modal...');
+            const modal = document.getElementById('editProfileModal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function saveProfile(event) {
+            event.preventDefault();
+            console.log('💾 Salvando perfil...');
+
+            // Recarregar dados atuais
+            currentUser = loadUserData();
+
+            // Obter dados do formulário
+            const formData = new FormData(event.target);
+            const updatedUser = {
+                ...currentUser,
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                location: formData.get('location'),
+                bio: formData.get('bio'),
+                experience_level: formData.get('experience_level')
+            };
+
+            // Adicionar CADASTUR se for guia
+            if (currentUser.user_type === 'guia') {
+                updatedUser.cadastur = formData.get('cadastur');
+            }
+
+            // Salvar no localStorage
+            localStorage.setItem('userData', JSON.stringify(updatedUser));
+            currentUser = updatedUser;
+
+            // Atualizar interface
+            updateUserInterface(currentUser);
+
+            // Fechar modal
+            closeEditModal();
+
+            console.log('✅ Perfil salvo com sucesso!', currentUser);
+            alert('Perfil atualizado com sucesso!');
+        }
+
+        // Configurar tabs
+        function setupTabs() {
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetTab = btn.getAttribute('data-tab');
+
+                    // Remover classes ativas
+                    tabBtns.forEach(b => {
+                        b.classList.remove('border-green-500', 'text-green-600');
+                        b.classList.add('border-transparent', 'text-gray-500');
+                    });
+
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+
+                    // Adicionar classes ativas
+                    btn.classList.remove('border-transparent', 'text-gray-500');
+                    btn.classList.add('border-green-500', 'text-green-600');
+
+                    // Mostrar conteúdo alvo
+                    const targetContent = document.getElementById(targetTab);
+                    if (targetContent) {
+                        targetContent.classList.remove('hidden');
+                    }
+                });
+            });
+        }
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 Página carregada, inicializando sistema universal...');
+            
+            // Carregar dados do usuário e atualizar interface
+            currentUser = loadUserData();
+            updateUserInterface(currentUser);
+            
+            // Configurar tabs
+            setupTabs();
+            
+            console.log('✅ Sistema universal inicializado com sucesso!');
+        });
+
+        // Fechar modal ao clicar fora
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('editProfileModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        });
+
+        console.log('🎉 Sistema Universal de Perfil totalmente funcional!');
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guias - Trekko</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-green-600">Trekko</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="index.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Início</a>
+                        <a href="#" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Trilhas</a>
+                        <a href="guias.html" class="text-green-600 px-3 py-2 rounded-md text-sm font-medium">Guias</a>
+                        <a href="#" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Sobre</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4" id="authSection">
+                    <button id="loginBtn" class="text-green-600 hover:text-green-700 px-3 py-2 rounded-md text-sm font-medium">Entrar</button>
+                    <button id="registerBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">Cadastrar</button>
+                    
+                    <!-- User Menu (hidden by default) -->
+                    <div id="userMenu" class="hidden relative">
+                        <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-green-600">
+                            <span id="userName" class="font-medium"></span>
+                            <span class="text-sm">▼</span>
+                        </button>
+                        <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="perfil.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Meu Perfil</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configurações</a>
+                            <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sair</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Buscar Guias</h1>
+        
+        <!-- Search Form -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <input type="text" id="searchInput" placeholder="Buscar guias por nome, especialidade ou região..." 
+                       class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                <select id="stateSelect" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">Estado</option>
+                    <option value="AC">AC - Acre</option>
+                    <option value="AL">AL - Alagoas</option>
+                    <option value="AP">AP - Amapá</option>
+                    <option value="AM">AM - Amazonas</option>
+                    <option value="BA">BA - Bahia</option>
+                    <option value="CE">CE - Ceará</option>
+                    <option value="DF">DF - Distrito Federal</option>
+                    <option value="ES">ES - Espírito Santo</option>
+                    <option value="GO">GO - Goiás</option>
+                    <option value="MA">MA - Maranhão</option>
+                    <option value="MT">MT - Mato Grosso</option>
+                    <option value="MS">MS - Mato Grosso do Sul</option>
+                    <option value="MG">MG - Minas Gerais</option>
+                    <option value="PA">PA - Pará</option>
+                    <option value="PB">PB - Paraíba</option>
+                    <option value="PR">PR - Paraná</option>
+                    <option value="PE">PE - Pernambuco</option>
+                    <option value="PI">PI - Piauí</option>
+                    <option value="RJ">RJ - Rio de Janeiro</option>
+                    <option value="RN">RN - Rio Grande do Norte</option>
+                    <option value="RS">RS - Rio Grande do Sul</option>
+                    <option value="RO">RO - Rondônia</option>
+                    <option value="RR">RR - Roraima</option>
+                    <option value="SC">SC - Santa Catarina</option>
+                    <option value="SP">SP - São Paulo</option>
+                    <option value="SE">SE - Sergipe</option>
+                    <option value="TO">TO - Tocantins</option>
+                </select>
+                <select id="languageSelect" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">Idioma</option>
+                    <option value="Português">Português</option>
+                    <option value="Espanhol">Espanhol</option>
+                    <option value="Inglês">Inglês</option>
+                    <option value="Francês">Francês</option>
+                </select>
+                <button onclick="searchGuides()" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md font-medium">
+                    🔍 Buscar
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="text-center py-8 hidden">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+            <p class="mt-2 text-gray-600">Carregando guias...</p>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="hidden">
+            <h2 id="resultsCount" class="text-xl font-semibold text-gray-900 mb-6"></h2>
+            <div id="guidesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+
+        <!-- No Results -->
+        <div id="noResults" class="text-center py-12 hidden">
+            <p class="text-gray-500 text-lg">Nenhum guia encontrado. Tente ajustar os filtros de busca.</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Trekko</h3>
+                    <p class="text-gray-400">A plataforma mais completa para conectar trilheiros e guias em todo o Brasil.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Trilhas</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">Descobrir Trilhas</a></li>
+                        <li><a href="#" class="hover:text-white">Trilhas Populares</a></li>
+                        <li><a href="#" class="hover:text-white">Trilhas por Estado</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Guias</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="guias.html" class="hover:text-white">Encontrar Guias</a></li>
+                        <li><a href="#" class="hover:text-white">Tornar-se Guia</a></li>
+                        <li><a href="#" class="hover:text-white">Certificação</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Suporte</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">Central de Ajuda</a></li>
+                        <li><a href="#" class="hover:text-white">Contato</a></li>
+                        <li><a href="#" class="hover:text-white">Termos de Uso</a></li>
+                        <li><a href="#" class="hover:text-white">Privacidade</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 Trekko. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://p9hwiqcldgkm.manus.space';
+        const API_URL = `${API_BASE_URL}/api`;
+
+        console.log('🔧 API configurada:', API_BASE_URL);
+
+        // Search guides function
+        async function searchGuides() {
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const noResults = document.getElementById('noResults');
+            const guidesGrid = document.getElementById('guidesGrid');
+            const resultsCount = document.getElementById('resultsCount');
+
+            // Show loading
+            loading.classList.remove('hidden');
+            results.classList.add('hidden');
+            noResults.classList.add('hidden');
+
+            try {
+                console.log('🔍 Iniciando busca de guias...');
+                
+                // Get search parameters
+                const searchTerm = document.getElementById('searchInput').value;
+                const state = document.getElementById('stateSelect').value;
+                const language = document.getElementById('languageSelect').value;
+
+                // Build query parameters
+                const params = new URLSearchParams();
+                if (searchTerm) params.append('search', searchTerm);
+                if (state) params.append('state', state);
+                if (language) params.append('language', language);
+
+                const url = `${API_URL}/guides/search?${params.toString()}`;
+                console.log('🌐 URL da busca:', url);
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    mode: 'cors'
+                });
+                console.log('📡 Status da resposta:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ Erro da API:', errorText);
+                    throw new Error(`HTTP error! Status: ${response.status} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log('✅ Dados recebidos:', data);
+
+                // Hide loading
+                loading.classList.add('hidden');
+
+                if (data.guides && data.guides.length > 0) {
+                    // Show results
+                    results.classList.remove('hidden');
+                    resultsCount.textContent = `${data.guides.length} guias encontrados`;
+                    
+                    // Clear previous results
+                    guidesGrid.innerHTML = '';
+
+                    // Render guides
+                    data.guides.forEach(guide => {
+                        const guideCard = createGuideCard(guide);
+                        guidesGrid.appendChild(guideCard);
+                    });
+                } else {
+                    // Show no results
+                    noResults.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error('❌ Erro na busca:', error);
+                loading.classList.add('hidden');
+                noResults.classList.remove('hidden');
+                document.getElementById('noResults').innerHTML = `
+                    <p class="text-red-500 text-lg">Erro ao buscar guias: ${error.message}</p>
+                `;
+            }
+        }
+
+        // Create guide card
+        function createGuideCard(guide) {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow';
+            
+            const initial = guide.name ? guide.name.charAt(0).toUpperCase() : 'G';
+            const cadastur = guide.certifications ? guide.certifications.replace('Cadastur: ', '') : 'N/A';
+            
+            card.innerHTML = `
+                <div class="relative">
+                    <div class="h-48 bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center">
+                        <span class="text-6xl font-bold text-white">${initial}</span>
+                    </div>
+                    <div class="absolute top-2 right-2">
+                        <span class="bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">
+                            ${guide.is_verified ? 'Verificado' : 'Pendente'}
+                        </span>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-bold text-lg text-gray-900 mb-2">${guide.name}</h3>
+                    <div class="flex items-center text-gray-600 mb-2">
+                        <span class="text-sm">📍 ${guide.operating_states || 'Brasil'}</span>
+                    </div>
+                    <div class="text-sm text-gray-600 mb-3">
+                        Certificação: Cadastur: ${cadastur}
+                    </div>
+                    <div class="text-center mb-3">
+                        <span class="text-sm text-gray-600">${guide.languages ? guide.languages.join(', ') : 'Português'}</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center">
+                            <span class="text-yellow-400">⭐</span>
+                            <span class="font-medium ml-1">${guide.average_rating || '4.5'}</span>
+                            <span class="text-gray-500 ml-1">(${guide.review_count || '0'})</span>
+                        </div>
+                        <div class="text-green-600 font-bold">
+                            💰 ${guide.daily_rate || 'Sob consulta'}
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-gray-600">
+                            👥 ${guide.total_bookings || '0'} expedições
+                        </div>
+                        <button onclick="viewGuideProfile(${guide.id})" 
+                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            Ver Perfil
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // View guide profile
+        function viewGuideProfile(guideId) {
+            console.log('👤 Abrindo perfil do guia:', guideId);
+            window.location.href = `guia.html?id=${guideId}`;
+        }
+
+        // Auto-search on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 Página carregada, iniciando busca automática...');
+            
+            // Verificar estado de autenticação
+            checkAuthState();
+            
+            searchGuides();
+        });
+
+        // Função para verificar estado de autenticação
+        function checkAuthState() {
+            const userData = localStorage.getItem('userData');
+            
+            if (userData && userData !== 'null') {
+                try {
+                    const currentUser = JSON.parse(userData);
+                    showUserMenu(currentUser);
+                } catch (e) {
+                    console.error('Erro ao parsear userData:', e);
+                    showAuthButtons();
+                }
+            } else {
+                showAuthButtons();
+            }
+        }
+
+        function showUserMenu(user) {
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const userMenu = document.getElementById('userMenu');
+            const userName = document.getElementById('userName');
+            
+            if (loginBtn) loginBtn.style.display = 'none';
+            if (registerBtn) registerBtn.style.display = 'none';
+            if (userMenu) userMenu.classList.remove('hidden');
+            if (userName) userName.textContent = `U ${user.name}`;
+        }
+
+        function showAuthButtons() {
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const userMenu = document.getElementById('userMenu');
+            
+            if (loginBtn) loginBtn.style.display = 'block';
+            if (registerBtn) registerBtn.style.display = 'block';
+            if (userMenu) userMenu.classList.add('hidden');
+        }
+    </script>
+    <!-- Sistema de Autenticação Global -->
+    <script src="auth.js"></script>
+</body>
+</html>
+
