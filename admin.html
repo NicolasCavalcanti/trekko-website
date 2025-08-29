@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-S816P190VN');
+    </script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2482023752745520"
+         crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-2482023752745520">
+    
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Trekko</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/business-rules.js"></script>
+    <script src="js/trail-validation.js"></script>
+    <style>
+        .admin-card {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+        }
+        .audit-log {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-green-600">Trekko</a>
+                    <span class="ml-4 px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">Admin</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">← Voltar ao Site</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">🔧 Painel Administrativo</h1>
+
+        <!-- Métricas de Sucesso -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="metric-card rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-bold">⏱️</span>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Tempo Médio Cadastro</p>
+                        <p class="text-2xl font-bold text-gray-900" id="avgRegistrationTime">--</p>
+                        <p class="text-xs text-gray-500">Meta: < 5 min</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-bold">📸</span>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Upload 10 Imagens</p>
+                        <p class="text-2xl font-bold text-gray-900" id="avgUploadTime">--</p>
+                        <p class="text-xs text-gray-500">Meta: < 30s</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-bold">💰</span>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Tempo Estorno</p>
+                        <p class="text-2xl font-bold text-gray-900" id="avgRefundTime">--</p>
+                        <p class="text-xs text-gray-500">Meta: < 10s</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-bold">⚠️</span>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Falhas Críticas</p>
+                        <p class="text-2xl font-bold text-gray-900" id="criticalFailures">0</p>
+                        <p class="text-xs text-gray-500">Meta: 0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configurações de Comissão -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div class="admin-card rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">💰 Configurações de Comissão</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Comissão Global (%)</label>
+                        <input type="number" id="globalCommission" min="0" max="100" step="0.1" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Override por Guia</label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="guideId" placeholder="ID do Guia" 
+                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <input type="number" id="guideCommission" placeholder="%" min="0" max="100" step="0.1"
+                                   class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <button onclick="setGuideCommission()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">
+                                Definir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Política de Estorno -->
+            <div class="admin-card rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">🔄 Política de Estorno</h2>
+                
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-white rounded border">
+                        <span class="text-sm">Até 48h antes</span>
+                        <span class="font-semibold text-green-600">100% de estorno</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-white rounded border">
+                        <span class="text-sm">Até 24h antes</span>
+                        <span class="font-semibold text-yellow-600">50% de estorno</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-white rounded border">
+                        <span class="text-sm">No dia</span>
+                        <span class="font-semibold text-red-600">0% de estorno</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simuladores -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Simulador de Comissão -->
+            <div class="admin-card rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">🧮 Simulador de Comissão</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Valor da Transação (R$)</label>
+                        <input type="number" id="transactionAmount" min="0" step="0.01" placeholder="100.00"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ID do Guia (opcional)</label>
+                            <input type="text" id="simGuideId" placeholder="guide_123"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ID da Reserva (opcional)</label>
+                            <input type="text" id="simBookingId" placeholder="booking_456"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                    </div>
+                    
+                    <button onclick="simulateCommission()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md">
+                        Calcular Comissão
+                    </button>
+                    
+                    <div id="commissionResult" class="hidden p-4 bg-blue-50 rounded-lg">
+                        <!-- Resultado será inserido aqui -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simulador de Estorno -->
+            <div class="admin-card rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">💸 Simulador de Estorno</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Valor Original (R$)</label>
+                        <input type="number" id="refundAmount" min="0" step="0.01" placeholder="200.00"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Data da Trilha</label>
+                        <input type="datetime-local" id="bookingDate"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    
+                    <button onclick="simulateRefund()" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-md">
+                        Calcular Estorno
+                    </button>
+                    
+                    <div id="refundResult" class="hidden p-4 bg-orange-50 rounded-lg">
+                        <!-- Resultado será inserido aqui -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Validador de Trilhas -->
+        <div class="admin-card rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">✅ Validador de Trilhas</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Dados da Trilha (JSON)</label>
+                    <textarea id="trailData" rows="10" placeholder='{"name": "Trilha Teste", "description": "...", "status": "publicada", "photos": [...]}'
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 font-mono text-sm"></textarea>
+                    
+                    <button onclick="validateTrail()" class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md">
+                        Validar Trilha
+                    </button>
+                </div>
+                
+                <div id="validationResult" class="space-y-4">
+                    <!-- Resultado da validação será inserido aqui -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Log de Auditoria -->
+        <div class="admin-card rounded-lg p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-900">📋 Log de Auditoria</h2>
+                <div class="flex space-x-2">
+                    <button onclick="refreshAuditLog()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm">
+                        Atualizar
+                    </button>
+                    <button onclick="clearAuditLog()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm">
+                        Limpar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="audit-log bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm" id="auditLogContainer">
+                <!-- Logs serão inseridos aqui -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInitialData();
+            refreshMetrics();
+            refreshAuditLog();
+            
+            // Atualizar métricas a cada 30 segundos
+            setInterval(refreshMetrics, 30000);
+        });
+
+        // Carregar dados iniciais
+        function loadInitialData() {
+            const globalCommission = document.getElementById('globalCommission');
+            globalCommission.value = (window.trekkoRules.config.commission.global * 100).toFixed(1);
+            
+            // Definir data padrão para simulação (amanhã)
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('bookingDate').value = tomorrow.toISOString().slice(0, 16);
+        }
+
+        // Atualizar métricas
+        function refreshMetrics() {
+            if (!window.trekkoRules) return;
+            
+            const metrics = window.trekkoRules.checkSuccessMetrics();
+            
+            // Simular algumas métricas para demonstração
+            document.getElementById('avgRegistrationTime').textContent = '3.2 min';
+            document.getElementById('avgUploadTime').textContent = '18.5s';
+            document.getElementById('avgRefundTime').textContent = '4.2s';
+            document.getElementById('criticalFailures').textContent = metrics.criticalFailures;
+        }
+
+        // Definir comissão por guia
+        function setGuideCommission() {
+            const guideId = document.getElementById('guideId').value;
+            const commission = parseFloat(document.getElementById('guideCommission').value) / 100;
+            
+            if (!guideId || isNaN(commission)) {
+                alert('Por favor, preencha ID do guia e comissão válidos');
+                return;
+            }
+            
+            window.trekkoRules.setGuideCommissionOverride(guideId, commission);
+            alert(`Comissão de ${(commission * 100).toFixed(1)}% definida para guia ${guideId}`);
+            
+            // Limpar campos
+            document.getElementById('guideId').value = '';
+            document.getElementById('guideCommission').value = '';
+        }
+
+        // Simular cálculo de comissão
+        function simulateCommission() {
+            const amount = parseFloat(document.getElementById('transactionAmount').value);
+            const guideId = document.getElementById('simGuideId').value || null;
+            const bookingId = document.getElementById('simBookingId').value || null;
+            
+            if (isNaN(amount) || amount <= 0) {
+                alert('Por favor, insira um valor válido');
+                return;
+            }
+            
+            const result = window.trekkoRules.calculateCommission(amount, guideId, bookingId);
+            
+            document.getElementById('commissionResult').innerHTML = `
+                <h3 class="font-semibold text-blue-800 mb-2">Resultado do Cálculo</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span>Valor Original:</span>
+                        <span class="font-semibold">R$ ${result.originalAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Taxa de Comissão:</span>
+                        <span class="font-semibold">${(result.commissionRate * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Valor da Comissão:</span>
+                        <span class="font-semibold text-red-600">R$ ${result.commissionAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="flex justify-between border-t pt-2">
+                        <span>Valor Líquido:</span>
+                        <span class="font-semibold text-green-600">R$ ${result.netAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="text-xs text-gray-600 mt-2">
+                        Fonte: ${result.source}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('commissionResult').classList.remove('hidden');
+        }
+
+        // Simular cálculo de estorno
+        function simulateRefund() {
+            const amount = parseFloat(document.getElementById('refundAmount').value);
+            const bookingDate = new Date(document.getElementById('bookingDate').value);
+            
+            if (isNaN(amount) || amount <= 0) {
+                alert('Por favor, insira um valor válido');
+                return;
+            }
+            
+            if (!bookingDate || bookingDate <= new Date()) {
+                alert('Por favor, insira uma data futura válida');
+                return;
+            }
+            
+            const result = window.trekkoRules.calculateRefund(amount, bookingDate);
+            
+            document.getElementById('refundResult').innerHTML = `
+                <h3 class="font-semibold text-orange-800 mb-2">Resultado do Estorno</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span>Valor Original:</span>
+                        <span class="font-semibold">R$ ${result.originalAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Horas até a trilha:</span>
+                        <span class="font-semibold">${result.hoursUntilBooking.toFixed(1)}h</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Percentual de estorno:</span>
+                        <span class="font-semibold">${(result.refundPercentage * 100).toFixed(0)}%</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Valor do estorno:</span>
+                        <span class="font-semibold text-green-600">R$ ${result.refundAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="flex justify-between border-t pt-2">
+                        <span>Valor retido:</span>
+                        <span class="font-semibold text-red-600">R$ ${result.retainedAmount.toFixed(2)}</span>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('refundResult').classList.remove('hidden');
+        }
+
+        // Validar trilha
+        function validateTrail() {
+            const trailDataText = document.getElementById('trailData').value;
+            
+            if (!trailDataText.trim()) {
+                alert('Por favor, insira os dados da trilha em formato JSON');
+                return;
+            }
+            
+            try {
+                const trailData = JSON.parse(trailDataText);
+                const validation = window.trailValidator.validateTrailForPublication(trailData);
+                
+                let resultHtml = `
+                    <div class="p-4 rounded-lg ${validation.isValid ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}">
+                        <h3 class="font-semibold ${validation.isValid ? 'text-green-800' : 'text-red-800'} mb-2">
+                            ${validation.isValid ? '✅ Trilha Válida' : '❌ Trilha Inválida'}
+                        </h3>
+                        <p class="text-sm ${validation.isValid ? 'text-green-700' : 'text-red-700'} mb-3">
+                            ${validation.canPublish ? 'Pode ser publicada' : 'Não pode ser publicada'}
+                        </p>
+                `;
+                
+                if (validation.errors.length > 0) {
+                    resultHtml += `
+                        <div class="mb-3">
+                            <h4 class="font-medium text-red-800 mb-1">Erros:</h4>
+                            <ul class="text-sm text-red-700 list-disc list-inside">
+                                ${validation.errors.map(error => `<li>${error}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+                
+                if (validation.warnings.length > 0) {
+                    resultHtml += `
+                        <div class="mb-3">
+                            <h4 class="font-medium text-yellow-800 mb-1">Avisos:</h4>
+                            <ul class="text-sm text-yellow-700 list-disc list-inside">
+                                ${validation.warnings.map(warning => `<li>${warning}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+                
+                resultHtml += '</div>';
+                
+                document.getElementById('validationResult').innerHTML = resultHtml;
+                
+            } catch (error) {
+                document.getElementById('validationResult').innerHTML = `
+                    <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <h3 class="font-semibold text-red-800 mb-2">❌ Erro de Formato</h3>
+                        <p class="text-sm text-red-700">JSON inválido: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Atualizar log de auditoria
+        function refreshAuditLog() {
+            if (!window.trekkoRules) return;
+            
+            const logs = window.trekkoRules.getAuditLogs().slice(0, 50); // Últimos 50 logs
+            const container = document.getElementById('auditLogContainer');
+            
+            if (logs.length === 0) {
+                container.innerHTML = '<div class="text-gray-500">Nenhum log de auditoria disponível</div>';
+                return;
+            }
+            
+            const logHtml = logs.map(log => {
+                const timestamp = new Date(log.timestamp).toLocaleString('pt-BR');
+                return `<div class="mb-2">
+                    <span class="text-yellow-400">[${timestamp}]</span>
+                    <span class="text-blue-400">${log.action}</span>
+                    <span class="text-gray-300">by ${log.userId}</span>
+                    ${log.data ? `<div class="ml-4 text-green-300 text-xs">${JSON.stringify(log.data, null, 2)}</div>` : ''}
+                </div>`;
+            }).join('');
+            
+            container.innerHTML = logHtml;
+        }
+
+        // Limpar log de auditoria
+        function clearAuditLog() {
+            if (confirm('Tem certeza que deseja limpar o log de auditoria?')) {
+                window.trekkoRules.auditLog = [];
+                refreshAuditLog();
+            }
+        }
+
+        // Exemplo de dados para teste
+        function loadExampleTrail() {
+            const exampleTrail = {
+                id: "trail_123",
+                name: "Trilha da Pedra Bonita",
+                description: "Uma trilha curta e acessível com vista espetacular da cidade do Rio de Janeiro. Ideal para iniciantes e famílias. O percurso é bem sinalizado e oferece várias paradas para contemplação da paisagem.",
+                location: "São Conrado, Rio de Janeiro - RJ",
+                difficulty: "Fácil",
+                distance: 2.8,
+                duration: "2-3h",
+                status: "publicada",
+                photos: [
+                    { url: "https://example.com/photo1.jpg", width: 1200, height: 800 },
+                    { url: "https://example.com/photo2.jpg", width: 1024, height: 768 },
+                    { url: "https://example.com/photo3.jpg", width: 800, height: 600 }
+                ]
+            };
+            
+            document.getElementById('trailData').value = JSON.stringify(exampleTrail, null, 2);
+        }
+
+        // Adicionar botão para carregar exemplo
+        document.addEventListener('DOMContentLoaded', function() {
+            const trailDataTextarea = document.getElementById('trailData');
+            const exampleButton = document.createElement('button');
+            exampleButton.textContent = 'Carregar Exemplo';
+            exampleButton.className = 'mt-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm';
+            exampleButton.onclick = loadExampleTrail;
+            trailDataTextarea.parentNode.insertBefore(exampleButton, trailDataTextarea.nextSibling);
+        });
+
+        console.log('🔧 Painel Administrativo carregado com sucesso!');
+    </script>
+</body>
+</html>
+

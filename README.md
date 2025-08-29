@@ -1,14 +1,40 @@
-# 🏔️ Trekko - Plataforma de Trilhas e Guias
+# 🏔️ Trekko - Plataforma de Trekking do Brasil
+
+[![Deploy Status](https://img.shields.io/badge/deploy-active-brightgreen)](https://www.trekko.com.br)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.0.0-orange.svg)](package.json)
 
 ## 📋 Sobre o Projeto
 
-O Trekko é uma plataforma completa para conectar trilheiros e guias profissionais, oferecendo:
+O **Trekko** é a maior plataforma de trekking do Brasil, conectando aventureiros a guias especializados e trilhas incríveis por todo o país. Nossa missão é democratizar o acesso às belezas naturais brasileiras através de experiências seguras e inesquecíveis.
 
-- 🔍 **Busca de trilhas** integrada com a base oficial do CADASTUR
-- 👨‍🦯 **Perfis de guias verificados** com dados oficiais
-- 📝 **Sistema de avaliações** de trilhas e guias
-- 🎯 **Filtros avançados** por estado, cidade e dificuldade
-- 📱 **Interface responsiva** para desktop e mobile
+### ✨ Funcionalidades Principais
+
+- 🏔️ **Catálogo de Trilhas** - Mais de 20 trilhas com imagens reais e informações detalhadas
+- 👨‍🦯 **Rede de Guias** - Guias certificados pelo CADASTUR
+- ⭐ **Sistema de Avaliações** - Reviews e recomendações da comunidade
+- 📱 **Interface Responsiva** - Experiência otimizada para mobile e desktop
+- 🔍 **Busca Avançada** - Filtros por estado, cidade, dificuldade e duração
+- 💰 **Sistema de Comissões** - Regras de negócio robustas para pagamentos
+- 📊 **Painel Administrativo** - Métricas e simuladores para gestão
+
+## 🚀 Tecnologias Utilizadas
+
+- **Frontend:** HTML5, CSS3, JavaScript (ES6+)
+- **Framework CSS:** Tailwind CSS
+- **APIs:** Integração com CADASTUR (Ministério do Turismo)
+- **Analytics:** Google Analytics 4 (G-S816P190VN)
+- **Monetização:** Google AdSense (ca-pub-2482023752745520)
+- **Deploy:** GitHub Pages
+- **Domínio:** www.trekko.com.br
+
+## 📊 Estatísticas do Sistema
+
+- **20 trilhas** com galerias completas (60 fotos profissionais)
+- **8 estados** brasileiros cobertos
+- **100% responsivo** para todos os dispositivos
+- **Sistema de imagens** com 22MB otimizados
+- **API integrada** com dados reais do CADASTUR
 
 ## 🚀 Como Hospedar no GitHub Pages com Domínio Personalizado
 

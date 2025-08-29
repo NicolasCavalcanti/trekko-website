@@ -1,20 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-S816P190VN');
+    </script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2482023752745520"
+         crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-2482023752745520">
+    
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trilhas - Trekko</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google tag (gtag.js) -->
-<meta name="google-adsense-account" content="ca-pub-2482023752745520">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-S816P190VN');
-</script>
+    <script src="js/trail-images.js"></script>
 </head>
 <body class="bg-gray-50">
     <!-- Header -->
@@ -234,11 +241,20 @@
                     // Clear previous results
                     trailsGrid.innerHTML = '';
 
-                    // Render trails
+                    // Display trails
                     data.trails.forEach(trail => {
                         const trailCard = createTrailCard(trail);
                         trailsGrid.appendChild(trailCard);
                     });
+                    
+                    // Aplicar imagens das trilhas automaticamente
+                    if (window.trailImages && typeof window.trailImages.apply === 'function') {
+                        console.log('🖼️ Aplicando imagens das trilhas...');
+                        setTimeout(() => {
+                            window.trailImages.apply();
+                            console.log('✅ Imagens das trilhas aplicadas!');
+                        }, 100);
+                    }
                 } else {
                     // Show no results
                     noResults.classList.remove('hidden');
@@ -258,6 +274,7 @@
         function createTrailCard(trail) {
             const card = document.createElement('div');
             card.className = 'bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow';
+            card.setAttribute('data-trail-name', trail.name);
             
             const difficultyColor = {
                 'Fácil': 'bg-green-100 text-green-800',
@@ -266,10 +283,19 @@
                 'Muito difícil': 'bg-red-100 text-red-800'
             };
             
+            // Obter imagem da trilha
+            const coverImage = window.trailImages ? window.trailImages.getCover(trail.name) : null;
+            const imageAlt = window.trailImages ? window.trailImages.getAlt(trail.name) : trail.name;
+            
             card.innerHTML = `
                 <div class="relative">
-                    <div class="h-48 bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center">
-                        <span class="text-white text-6xl">🏔️</span>
+                    <div class="h-48 bg-gradient-to-br from-green-500 to-blue-600 overflow-hidden">
+                        ${coverImage ? 
+                            `<img src="${coverImage}" alt="${imageAlt}" class="w-full h-full object-cover">` :
+                            `<div class="w-full h-full flex items-center justify-center">
+                                <span class="text-white text-6xl">🏔️</span>
+                            </div>`
+                        }
                     </div>
                     <div class="absolute top-2 right-2">
                         <span class="bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">
