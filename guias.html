@@ -123,6 +123,13 @@
             <div id="guidesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
 
+        <!-- Pagination Controls -->
+        <div id="paginationControls" class="flex justify-center items-center space-x-2 mt-8 hidden">
+            <button id="prevPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50" disabled>Anterior</button>
+            <div id="pageNumbers" class="flex space-x-1"></div>
+            <button id="nextPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50" disabled>Próxima</button>
+        </div>
+
         <!-- No Results -->
         <div id="noResults" class="text-center py-12 hidden">
             <p class="text-gray-500 text-lg">Nenhum guia encontrado. Tente ajustar os filtros de busca.</p>
@@ -173,24 +180,29 @@
         // API Configuration
         const API_BASE_URL = 'https://p9hwiqcldgkm.manus.space';
         const API_URL = `${API_BASE_URL}/api`;
+        const ITEMS_PER_PAGE = 30;
+        let currentPage = 1;
 
         console.log('🔧 API configurada:', API_BASE_URL);
 
         // Search guides function
-        async function searchGuides() {
+        async function searchGuides(page = 1) {
+            currentPage = page;
             const loading = document.getElementById('loading');
             const results = document.getElementById('results');
             const noResults = document.getElementById('noResults');
             const guidesGrid = document.getElementById('guidesGrid');
             const resultsCount = document.getElementById('resultsCount');
+            const paginationControls = document.getElementById('paginationControls');
 
             // Show loading
             loading.classList.remove('hidden');
             results.classList.add('hidden');
             noResults.classList.add('hidden');
+            paginationControls.classList.add('hidden');
 
             try {
-                console.log('🔍 Iniciando busca de guias...');
+                console.log(`🔍 Iniciando busca de guias para a página ${currentPage}...`);
                 
                 // Get search parameters
                 const searchTerm = document.getElementById('searchInput').value;
@@ -202,48 +214,54 @@
                 if (searchTerm) params.append('search', searchTerm);
                 if (state) params.append('state', state);
                 if (language) params.append('language', language);
+                params.append('page', currentPage);
+                params.append('limit', ITEMS_PER_PAGE);
 
                 const url = `${API_URL}/guides/search?${params.toString()}`;
-                console.log('🌐 URL da busca:', url);
+                console.log("🌐 URL da busca:", url);
 
                 const response = await fetch(url, {
-                    method: 'GET',
+                    method: "GET",
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
                     },
-                    mode: 'cors'
+                    mode: "cors"
                 });
-                console.log('📡 Status da resposta:', response.status);
+                console.log("📡 Status da resposta:", response.status);
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    console.error('❌ Erro da API:', errorText);
+                    console.error("❌ Erro da API:", errorText);
                     throw new Error(`HTTP error! Status: ${response.status} - ${errorText}`);
                 }
 
                 const data = await response.json();
-                console.log('✅ Dados recebidos:', data);
+                console.log("✅ Dados recebidos:", data);
 
                 // Hide loading
-                loading.classList.add('hidden');
+                loading.classList.add("hidden");
 
                 if (data.guides && data.guides.length > 0) {
                     // Show results
-                    results.classList.remove('hidden');
-                    resultsCount.textContent = `${data.guides.length} guias encontrados`;
+                    results.classList.remove("hidden");
+                    resultsCount.textContent = `${data.total} guias encontrados (Página ${currentPage} de ${data.pages})`;
                     
                     // Clear previous results
-                    guidesGrid.innerHTML = '';
+                    guidesGrid.innerHTML = "";
 
-                    // Render guides
+                    // Display guides
                     data.guides.forEach(guide => {
                         const guideCard = createGuideCard(guide);
                         guidesGrid.appendChild(guideCard);
                     });
+
+                    // Render pagination controls
+                    renderPagination(data.total, data.pages);
+
                 } else {
                     // Show no results
-                    noResults.classList.remove('hidden');
+                    noResults.classList.remove("hidden");
                 }
 
             } catch (error) {
@@ -254,6 +272,83 @@
                     <p class="text-red-500 text-lg">Erro ao buscar guias: ${error.message}</p>
                 `;
             }
+        }
+
+        // Render pagination controls
+        function renderPagination(totalResults, totalPages) {
+            const pageNumbersContainer = document.getElementById('pageNumbers');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const paginationControls = document.getElementById('paginationControls');
+
+            pageNumbersContainer.innerHTML = ''; // Clear previous page numbers
+            
+            // Show pagination if we have more than one page
+            if (totalPages > 1) {
+                paginationControls.classList.remove('hidden');
+            } else {
+                paginationControls.classList.add('hidden');
+                return;
+            }
+
+            // Previous button
+            prevPageBtn.disabled = currentPage === 1;
+            prevPageBtn.onclick = () => searchGuides(currentPage - 1);
+
+            // Calculate which page numbers to show
+            const maxVisiblePages = 10;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            // Adjust start page if we're near the end
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            // Add first page and ellipsis if needed
+            if (startPage > 1) {
+                const firstPageBtn = document.createElement('button');
+                firstPageBtn.textContent = '1';
+                firstPageBtn.className = 'px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300';
+                firstPageBtn.onclick = () => searchGuides(1);
+                pageNumbersContainer.appendChild(firstPageBtn);
+                
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.className = 'px-2 py-1 text-gray-500';
+                    pageNumbersContainer.appendChild(ellipsis);
+                }
+            }
+
+            // Page numbers
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.className = `px-3 py-1 rounded-md ${currentPage === i ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
+                pageBtn.onclick = () => searchGuides(i);
+                pageNumbersContainer.appendChild(pageBtn);
+            }
+
+            // Add ellipsis and last page if needed
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.className = 'px-2 py-1 text-gray-500';
+                    pageNumbersContainer.appendChild(ellipsis);
+                }
+                
+                const lastPageBtn = document.createElement('button');
+                lastPageBtn.textContent = totalPages;
+                lastPageBtn.className = 'px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300';
+                lastPageBtn.onclick = () => searchGuides(totalPages);
+                pageNumbersContainer.appendChild(lastPageBtn);
+            }
+
+            // Next button
+            nextPageBtn.disabled = currentPage === totalPages;
+            nextPageBtn.onclick = () => searchGuides(currentPage + 1);
         }
 
         // Create guide card

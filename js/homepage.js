@@ -796,3 +796,275 @@ const modalStyles = `
 // Add styles to head
 document.head.insertAdjacentHTML('beforeend', modalStyles);
 
+
+
+// ========================================
+// MAPA INTERATIVO - TRILHAS PRÓXIMAS
+// ========================================
+
+let map;
+let userMarker;
+let trailMarkers = [];
+let userLocation = null;
+
+// Initialize map when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeMap();
+});
+
+// Initialize the interactive map
+function initializeMap() {
+    // Create map centered on Brazil
+    map = L.map('map').setView([-15.7801, -47.9292], 4);
+    
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    // Request user location
+    requestUserLocation();
+}
+
+// Request user's current location
+function requestUserLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            onLocationSuccess,
+            onLocationError,
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 300000 // 5 minutes
+            }
+        );
+    } else {
+        onLocationError(new Error('Geolocation not supported'));
+    }
+}
+
+// Handle successful location retrieval
+function onLocationSuccess(position) {
+    userLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+    };
+    
+    console.log('📍 Localização do usuário:', userLocation);
+    
+    // Center map on user location
+    map.setView([userLocation.lat, userLocation.lng], 8);
+    
+    // Add user marker
+    userMarker = L.marker([userLocation.lat, userLocation.lng], {
+        icon: L.divIcon({
+            className: 'user-location-marker',
+            html: '<div style="background: #2D6A4F; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">📍</div>',
+            iconSize: [26, 26],
+            iconAnchor: [13, 13]
+        })
+    }).addTo(map);
+    
+    userMarker.bindPopup('<b>Sua localização</b><br>Trilhas próximas em um raio de 300km').openPopup();
+    
+    // Load nearby trails
+    loadNearbyTrails();
+}
+
+// Handle location error
+function onLocationError(error) {
+    console.warn('❌ Erro ao obter localização:', error.message);
+    
+    // Show message on map
+    const errorMessage = L.popup()
+        .setLatLng([-15.7801, -47.9292])
+        .setContent('<b>Localização não disponível</b><br>Mostrando todas as trilhas do Brasil')
+        .openOn(map);
+    
+    // Load all trails instead
+    loadAllTrails();
+}
+
+// Load trails near user location (300km radius)
+async function loadNearbyTrails() {
+    if (!userLocation) return;
+    
+    try {
+        console.log('🔍 Buscando trilhas próximas...');
+        
+        // Fetch all trails from API
+        const response = await fetch('https://g8h3ilcvjnlq.manus.space/api/trails?limit=1000');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const trails = data.trails || data || [];
+        
+        console.log(`📊 Total de trilhas encontradas: ${trails.length}`);
+        
+        // Filter trails within 300km radius
+        const nearbyTrails = trails.filter(trail => {
+            if (!trail.latitude || !trail.longitude) return false;
+            
+            const distance = calculateDistance(
+                userLocation.lat, 
+                userLocation.lng, 
+                parseFloat(trail.latitude), 
+                parseFloat(trail.longitude)
+            );
+            
+            return distance <= 300; // 300km radius
+        });
+        
+        console.log(`🎯 Trilhas próximas (300km): ${nearbyTrails.length}`);
+        
+        // Add trail markers to map
+        addTrailMarkers(nearbyTrails);
+        
+    } catch (error) {
+        console.error('❌ Erro ao carregar trilhas próximas:', error);
+        loadAllTrails(); // Fallback to all trails
+    }
+}
+
+// Load all trails if location is not available
+async function loadAllTrails() {
+    try {
+        console.log('🔍 Carregando todas as trilhas...');
+        
+        const response = await fetch('https://g8h3ilcvjnlq.manus.space/api/trails?limit=100');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const trails = data.trails || data || [];
+        
+        console.log(`📊 Total de trilhas carregadas: ${trails.length}`);
+        
+        // Add all trail markers
+        addTrailMarkers(trails);
+        
+    } catch (error) {
+        console.error('❌ Erro ao carregar trilhas:', error);
+    }
+}
+
+// Add trail markers to the map
+function addTrailMarkers(trails) {
+    // Clear existing trail markers
+    trailMarkers.forEach(marker => map.removeLayer(marker));
+    trailMarkers = [];
+    
+    trails.forEach(trail => {
+        if (!trail.latitude || !trail.longitude) return;
+        
+        const lat = parseFloat(trail.latitude);
+        const lng = parseFloat(trail.longitude);
+        
+        if (isNaN(lat) || isNaN(lng)) return;
+        
+        // Create custom trail marker
+        const trailMarker = L.marker([lat, lng], {
+            icon: L.divIcon({
+                className: 'trail-marker',
+                html: '<div style="background: #7C4B2A; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">🥾</div>',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            })
+        });
+        
+        // Create popup content
+        const distance = userLocation ? 
+            calculateDistance(userLocation.lat, userLocation.lng, lat, lng) : null;
+        
+        const popupContent = `
+            <div style="min-width: 200px;">
+                <h3 style="margin: 0 0 8px 0; color: #2D6A4F; font-size: 14px; font-weight: bold;">${trail.name}</h3>
+                <p style="margin: 4px 0; font-size: 12px; color: #666;">📍 ${trail.city}, ${trail.uf}</p>
+                ${trail.difficulty ? `<p style="margin: 4px 0; font-size: 12px; color: #666;">🏔️ ${trail.difficulty}</p>` : ''}
+                ${trail.distance ? `<p style="margin: 4px 0; font-size: 12px; color: #666;">📏 ${trail.distance} km</p>` : ''}
+                ${distance ? `<p style="margin: 4px 0; font-size: 12px; color: #2D6A4F; font-weight: bold;">📍 ${Math.round(distance)} km de você</p>` : ''}
+                <button onclick="viewTrailDetails('${trail.id || trail.name}')" style="background: #2D6A4F; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; margin-top: 8px;">Ver Detalhes</button>
+            </div>
+        `;
+        
+        trailMarker.bindPopup(popupContent);
+        
+        // Add hover effect
+        trailMarker.on('mouseover', function() {
+            this.openPopup();
+        });
+        
+        trailMarker.addTo(map);
+        trailMarkers.push(trailMarker);
+    });
+    
+    console.log(`🗺️ ${trailMarkers.length} marcadores adicionados ao mapa`);
+}
+
+// Calculate distance between two coordinates (Haversine formula)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c;
+    return distance;
+}
+
+// View trail details
+function viewTrailDetails(trailId) {
+    window.open(`trilha.html?id=${trailId}`, '_blank');
+}
+
+// Add custom CSS for map markers
+const mapStyles = document.createElement('style');
+mapStyles.textContent = `
+    .trail-marker {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+    
+    .trail-marker:hover {
+        transform: scale(1.2);
+    }
+    
+    .user-location-marker {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    .leaflet-popup-content-wrapper {
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    
+    .leaflet-popup-content {
+        margin: 12px;
+        line-height: 1.4;
+    }
+`;
+document.head.appendChild(mapStyles);
+

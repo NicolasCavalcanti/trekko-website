@@ -34,12 +34,14 @@
     <meta property="twitter:title" content="Trekko – Trilhas e guias no Brasil">
     <meta property="twitter:description" content="Descubra trilhas incríveis, encontre guias experientes certificados CADASTUR e planeje sua próxima aventura na natureza brasileira.">
     <meta property="twitter:image" content="https://www.trekko.com.br/images/og-image.jpg">
-
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet")>
     
     <!-- CSS -->
     <style>
@@ -871,7 +873,7 @@
             <ul class="nav-menu">
                 <li><a href="/trilhas.html">Trilhas</a></li>
                 <li><a href="/guias.html">Guias</a></li>
-                <li><a href="#sobre">Sobre</a></li>
+                <li><a href="sobre.html">Sobre</a></li>
                 <li><a href="#ajuda">Ajuda</a></li>
             </ul>
 
@@ -1031,7 +1033,16 @@
         </div>
     </section>
 
-    <!-- Depoimentos -->
+        <!-- Mapa Interativo -->
+        <section class="section mapa-section" id="explore-mapa">
+            <div class="container">
+                <h2 class="section-title">Explore no mapa</h2>
+                <p class="section-subtitle">Encontre trilhas perto de você</p>
+                <div id="map" style="height: 500px; border-radius: 1rem;"></div>
+            </div>
+        </section>
+
+        <!-- Depoimentos -->
     <section class="section">
         <div class="container">
             <h2 class="section-title">O que dizem nossos exploradores</h2>
@@ -1152,7 +1163,7 @@
                 <div class="footer-section">
                     <h3>Empresa</h3>
                     <ul>
-                        <li><a href="#sobre">Sobre nós</a></li>
+                        <li><a href="sobre.html">Sobre nós</a></li>
                         <li><a href="#termos">Termos de uso</a></li>
                         <li><a href="#privacidade">Política de privacidade</a></li>
                         <li><a href="#contato">Contato</a></li>
@@ -1175,6 +1186,8 @@
     </footer>
 
     <!-- Scripts -->
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/homepage.js"></script>
 
     <!-- Schema.org structured data -->
