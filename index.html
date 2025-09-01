@@ -1,583 +1,1201 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trekko – Trilhas e guias no Brasil | Conecte-se com a natureza</title>
+    <meta name="description" content="Descubra trilhas incríveis, encontre guias experientes certificados CADASTUR e planeje sua próxima aventura na natureza brasileira.">
+    <meta name="keywords" content="trilhas, trekking, guias, natureza, aventura, brasil, cadastur, montanha, cachoeira">
+    
+    <!-- Google Analytics 4 -->
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-S816P190VN');
     </script>
     
     <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2482023752745520"
-         crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2482023752745520" crossorigin="anonymous"></script>
     <meta name="google-adsense-account" content="ca-pub-2482023752745520">
     
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trekko - Sua plataforma de trekking no Brasil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.trekko.com.br/">
+    <meta property="og:title" content="Trekko – Trilhas e guias no Brasil">
+    <meta property="og:description" content="Descubra trilhas incríveis, encontre guias experientes certificados CADASTUR e planeje sua próxima aventura na natureza brasileira.">
+    <meta property="og:image" content="https://www.trekko.com.br/images/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.trekko.com.br/">
+    <meta property="twitter:title" content="Trekko – Trilhas e guias no Brasil">
+    <meta property="twitter:description" content="Descubra trilhas incríveis, encontre guias experientes certificados CADASTUR e planeje sua próxima aventura na natureza brasileira.">
+    <meta property="twitter:image" content="https://www.trekko.com.br/images/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
     <style>
-        .hero-bg {
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
-                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23059669" width="1200" height="800"/><path fill="%23047857" d="M0,400 Q300,200 600,400 T1200,400 L1200,800 L0,800 Z"/></svg>');
+        :root {
+            --verde-floresta: #2D6A4F;
+            --marrom-terra: #7C4B2A;
+            --azul-petroleo: #1E3A5F;
+            --bege-areia: #E7D9C0;
+            --cinza-grafite: #333333;
+            --branco: #FFFFFF;
+            --cinza-claro: #F8F9FA;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            line-height: 1.6;
+            color: var(--cinza-grafite);
+            overflow-x: hidden;
+        }
+
+        .font-sora {
+            font-family: 'Sora', sans-serif;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--verde-floresta);
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--cinza-grafite);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            color: var(--verde-floresta);
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--verde-floresta);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #245a42;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--verde-floresta);
+            border: 2px solid var(--verde-floresta);
+        }
+
+        .btn-secondary:hover {
+            background: var(--verde-floresta);
+            color: white;
+        }
+
+        /* Search Bar Compact */
+        .search-compact {
+            display: none;
+            background: white;
+            border-radius: 2rem;
+            padding: 0.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-left: 2rem;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-compact.visible {
+            display: flex;
+        }
+
+        .search-compact input {
+            border: none;
+            outline: none;
+            padding: 0.5rem 1rem;
+            flex: 1;
+            border-radius: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(45, 106, 79, 0.4), rgba(30, 58, 95, 0.4)), url('images/hero-background.jpg');
             background-size: cover;
             background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
         }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 0 2rem;
+        }
+
+        .hero h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .search-hero {
+            background: white;
+            border-radius: 2rem;
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            flex-wrap: wrap;
+        }
+
+        .search-field {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .search-field label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--cinza-grafite);
+        }
+
+        .search-field input, .search-field select {
+            border: none;
+            outline: none;
+            padding: 0.75rem;
+            border-radius: 1rem;
+            background: var(--cinza-claro);
+            color: var(--cinza-grafite);
+            font-size: 1rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero-stats {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        /* Sections */
+        .section {
+            padding: 5rem 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--cinza-grafite);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.125rem;
+            color: #666;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Estados Grid */
+        .estados-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .estado-card {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .estado-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .estado-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .estado-card-content {
+            padding: 1.5rem;
+        }
+
+        .estado-name {
+            font-weight: 700;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: var(--cinza-grafite);
+        }
+
+        .estado-count {
+            color: var(--verde-floresta);
+            font-weight: 600;
+        }
+
+        .estado-destaque {
+            color: #666;
+            font-size: 0.875rem;
+            font-style: italic;
+            margin-top: 0.25rem;
+        }
+
+        /* Trilhas Carrossel */
+        .trilhas-carrossel {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .trilhas-container {
+            display: flex;
+            gap: 1.5rem;
+            transition: transform 0.3s ease;
+            padding: 1rem 0;
+        }
+
+        .trilha-card {
+            min-width: 300px;
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .trilha-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .trilha-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .trilha-card-content {
+            padding: 1.5rem;
+        }
+
+        .trilha-title {
+            font-weight: 700;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: var(--cinza-grafite);
+        }
+
+        .trilha-location {
+            color: #666;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .trilha-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .trilha-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .trilha-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stars {
+            color: #fbbf24;
+        }
+
+        .trilha-price {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--verde-floresta);
+            margin-bottom: 1rem;
+        }
+
+        /* Como Funciona */
+        .como-funciona {
+            background: var(--cinza-claro);
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .step {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--verde-floresta);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .step-title {
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--cinza-grafite);
+        }
+
+        .step-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Guias */
+        .guias-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .guia-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .guia-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .guia-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            object-fit: cover;
+        }
+
+        .guia-name {
+            font-weight: 700;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: var(--cinza-grafite);
+        }
+
+        .guia-location {
+            color: #666;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .guia-badges {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: var(--bege-areia);
+            color: var(--marrom-terra);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge.cadastur {
+            background: var(--verde-floresta);
+            color: white;
+        }
+
+        /* Mapa */
+        .mapa-section {
+            background: var(--azul-petroleo);
+            color: white;
+        }
+
+        .mapa-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .mapa-content h2 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .mapa-placeholder {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Depoimentos */
+        .depoimentos-carrossel {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .depoimentos-container {
+            display: flex;
+            gap: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .depoimento {
+            min-width: 350px;
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .depoimento-text {
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .depoimento-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .depoimento-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .depoimento-info h4 {
+            font-weight: 600;
+            color: var(--cinza-grafite);
+        }
+
+        .depoimento-info p {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        /* Conteúdo */
+        .conteudo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .conteudo-card {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .conteudo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .conteudo-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .conteudo-card-content {
+            padding: 1.5rem;
+        }
+
+        .conteudo-title {
+            font-weight: 700;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: var(--cinza-grafite);
+        }
+
+        .conteudo-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Newsletter */
+        .newsletter {
+            background: var(--bege-areia);
+            text-align: center;
+        }
+
+        .newsletter-form {
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 1rem;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--cinza-grafite);
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--bege-areia);
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--bege-areia);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #555;
+            padding-top: 1rem;
+            text-align: center;
+            color: #ccc;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .search-hero {
+                flex-direction: column;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .mapa-container {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+        }
+
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .skeleton-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .skeleton-image {
+            width: 100%;
+            height: 200px;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .skeleton-text {
+            height: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .skeleton-text.short {
+            width: 60%;
+        }
+
+        .skeleton-text.medium {
+            width: 80%;
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Utilities */
+        .text-center { text-align: center; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 1rem; }
+        .mb-4 { margin-bottom: 1.5rem; }
+        .mt-4 { margin-top: 1.5rem; }
     </style>
 </head>
-<body class="bg-gray-50">
+<body>
     <!-- Header -->
-    <header class="bg-white shadow-sm">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <span class="text-2xl font-bold text-green-600">Trekko</span>
-                </div>
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="#" class="text-gray-900 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Início</a>
-                        <a href="trilhas.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Trilhas</a>
-                        <a href="guias.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Guias</a>
-                        <a href="#" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Sobre</a>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button id="loginBtn" class="text-green-600 hover:text-green-700 px-3 py-2 rounded-md text-sm font-medium">Entrar</button>
-                    <button id="registerBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">Cadastrar</button>
-                    
-                    <!-- User Menu (hidden by default) -->
-                    <div id="userMenu" class="hidden relative">
-                        <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-green-600">
-                            <span id="userName" class="font-medium"></span>
-                            <span class="text-sm">▼</span>
-                        </button>
-                        <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                            <a href="perfil.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Meu Perfil</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configurações</a>
-                            <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sair</button>
-                        </div>
-                    </div>
-                </div>
+    <header class="header" id="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">🏔️ Trekko</a>
+            
+            <ul class="nav-menu">
+                <li><a href="/trilhas.html">Trilhas</a></li>
+                <li><a href="/guias.html">Guias</a></li>
+                <li><a href="#sobre">Sobre</a></li>
+                <li><a href="#ajuda">Ajuda</a></li>
+            </ul>
+
+            <div class="search-compact" id="searchCompact">
+                <input type="text" placeholder="Para onde vamos?" id="searchCompactInput">
+                <button class="btn btn-primary" onclick="performSearch()">🔍</button>
+            </div>
+
+            <div class="nav-actions">
+                <a href="#" class="btn btn-secondary" onclick="openModal('login')">Entrar</a>
+                <a href="#" class="btn btn-primary" onclick="openModal('cadastro')">Cadastrar</a>
             </div>
         </nav>
     </header>
 
     <!-- Hero Section -->
-    <section class="hero-bg h-96 flex items-center justify-center text-center text-white">
-        <div class="max-w-4xl mx-auto px-4">
-            <h1 class="text-4xl md:text-6xl font-bold mb-4">
-                Conecte-se com a <span class="text-orange-400">natureza</span>
-            </h1>
-            <p class="text-xl md:text-2xl mb-8">
-                Descubra trilhas incríveis, encontre guias experientes e planeje suas próximas aventuras no Brasil
-            </p>
-            <a href="guias.html" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg text-lg font-semibold inline-block">
-                Buscar Aventuras
-            </a>
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <h1>Conecte-se com a natureza</h1>
+            <p>Descubra trilhas incríveis, encontre guias experientes e planeje sua próxima aventura.</p>
+            
+          <div class="search-hero">
+            <div class="search-field">
+                <label>Buscar trilha</label>
+                <input type="text" id="searchInput" placeholder="Buscar trilhas por nome ou localização...">
+            </div>
+            <div class="search-field">
+                <label>Estado</label>
+                <select id="estadoSelect">
+                    <option value="">Estado</option>
+                    <option value="AC">AC - Acre</option>
+                    <option value="AL">AL - Alagoas</option>
+                    <option value="AP">AP - Amapá</option>
+                    <option value="AM">AM - Amazonas</option>
+                    <option value="BA">BA - Bahia</option>
+                    <option value="CE">CE - Ceará</option>
+                    <option value="DF">DF - Distrito Federal</option>
+                    <option value="ES">ES - Espírito Santo</option>
+                    <option value="GO">GO - Goiás</option>
+                    <option value="MA">MA - Maranhão</option>
+                    <option value="MT">MT - Mato Grosso</option>
+                    <option value="MS">MS - Mato Grosso do Sul</option>
+                    <option value="MG">MG - Minas Gerais</option>
+                    <option value="PA">PA - Pará</option>
+                    <option value="PB">PB - Paraíba</option>
+                    <option value="PR">PR - Paraná</option>
+                    <option value="PE">PE - Pernambuco</option>
+                    <option value="PI">PI - Piauí</option>
+                    <option value="RJ">RJ - Rio de Janeiro</option>
+                    <option value="RN">RN - Rio Grande do Norte</option>
+                    <option value="RS">RS - Rio Grande do Sul</option>
+                    <option value="RO">RO - Rondônia</option>
+                    <option value="RR">RR - Roraima</option>
+                    <option value="SC">SC - Santa Catarina</option>
+                    <option value="SP">SP - São Paulo</option>
+                    <option value="SE">SE - Sergipe</option>
+                    <option value="TO">TO - Tocantins</option>
+                </select>
+            </div>
+            <div class="search-field">
+                <label>Dificuldade</label>
+                <select id="dificuldadeSelect">
+                    <option value="">Dificuldade</option>
+                    <option value="Fácil">Fácil</option>
+                    <option value="Moderado">Moderado</option>
+                    <option value="Difícil">Difícil</option>
+                    <option value="Muito difícil">Muito difícil</option>
+                    <option value="Extremo">Extremo</option>
+                </select>
+            </div>
+            <div class="search-field">
+                <label>Distância máxima</label>
+                <input type="number" id="distanciaInput" placeholder="Distância máxima (km)">
+            </div>
+            <button class="btn btn-primary" onclick="performSearch()">🔍 Buscar Trilhas</button>
+        </div>
+            <div class="hero-actions">
+
+            </div>
+        </div>
+
+        <div class="hero-stats">
+            <div class="stat">
+                <span class="stat-number" id="trilhasCount">500+</span>
+                <span class="stat-label">Trilhas catalogadas</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number" id="guiasCount">200+</span>
+                <span class="stat-label">Guias CADASTUR</span>
+            </div>
         </div>
     </section>
 
-    <!-- Login Modal -->
-    <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-900">Entrar</h2>
-                <button id="closeLoginModal" class="text-gray-400 hover:text-gray-600">
-                    <span class="text-2xl">&times;</span>
-                </button>
-            </div>
+    <!-- Explorar por Estado -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Explore por Estado</h2>
+            <p class="section-subtitle">Descubra as melhores trilhas em cada região do Brasil</p>
             
-            <form id="loginForm">
-                <div class="mb-4">
-                    <label for="loginEmail" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" id="loginEmail" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                </div>
-                
-                <div class="mb-6">
-                    <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-2">Senha</label>
-                    <input type="password" id="loginPassword" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                </div>
-                
-                <div id="loginError" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"></div>
-                
-                <button type="submit" id="loginSubmit" 
-                        class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md font-medium">
-                    Entrar
-                </button>
-            </form>
-            
-            <div class="mt-4 text-center">
-                <p class="text-sm text-gray-600">
-                    Não tem uma conta? 
-                    <button id="switchToRegister" class="text-green-600 hover:text-green-700 font-medium">Cadastre-se</button>
-                </p>
+            <div class="estados-grid" id="estadosGrid">
+                <!-- Estados serão carregados dinamicamente -->
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Register Modal -->
-    <div id="registerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 max-h-screen overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-900">Cadastrar</h2>
-                <button id="closeRegisterModal" class="text-gray-400 hover:text-gray-600">
-                    <span class="text-2xl">&times;</span>
-                </button>
-            </div>
+    <!-- Como Funciona -->
+    <section class="section como-funciona">
+        <div class="container">
+            <h2 class="section-title">Como funciona</h2>
+            <p class="section-subtitle">Sua aventura em 3 passos simples</p>
             
-            <form id="registerForm">
-                <div class="mb-4">
-                    <label for="registerName" class="block text-sm font-medium text-gray-700 mb-2">Nome Completo</label>
-                    <input type="text" id="registerName" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+            <div class="steps-grid">
+                <div class="step">
+                    <div class="step-icon">🔍</div>
+                    <h3 class="step-title">1. Encontre sua trilha</h3>
+                    <p class="step-description">Explore nossa seleção de trilhas verificadas e escolha a aventura perfeita para você.</p>
                 </div>
-                
-                <div class="mb-4">
-                    <label for="registerEmail" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" id="registerEmail" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <div class="step">
+                    <div class="step-icon">👨‍🦯</div>
+                    <h3 class="step-title">2. Conecte-se com um guia</h3>
+                    <p class="step-description">Converse com guias certificados CADASTUR e agende sua data com segurança.</p>
                 </div>
-                
-                <div class="mb-4">
-                    <label for="registerPassword" class="block text-sm font-medium text-gray-700 mb-2">Senha</label>
-                    <input type="password" id="registerPassword" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <p class="text-xs text-gray-500 mt-1">Mínimo 8 caracteres, com maiúscula, minúscula e número</p>
+                <div class="step">
+                    <div class="step-icon">🏔️</div>
+                    <h3 class="step-title">3. Viva a aventura</h3>
+                    <p class="step-description">Desfrute de uma experiência única na natureza com cancelamento claro e pagamento seguro.</p>
                 </div>
-                
-                <div class="mb-4">
-                    <label for="registerUserType" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Usuário</label>
-                    <select id="registerUserType" required 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white text-gray-900">
-                        <option value="" class="text-gray-500">Selecione o tipo de usuário...</option>
-                        <option value="trekker" class="text-gray-900">🥾 Trekker (Usuário)</option>
-                        <option value="guia" class="text-gray-900">🧭 Guia Profissional</option>
-                    </select>
-                </div>
-                
-                <!-- CADASTUR Field (hidden by default) -->
-                <div id="cadasturField" class="hidden mb-4">
-                    <label for="registerCadastur" class="block text-sm font-medium text-gray-700 mb-2">Número CADASTUR</label>
-                    <input type="text" id="registerCadastur" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                           placeholder="Digite seu número CADASTUR">
-                    <p class="text-xs text-gray-500 mt-1">Obrigatório para guias profissionais</p>
-                    
-                    <!-- CADASTUR Validation Status -->
-                    <div id="cadasturValidation" class="hidden mt-2"></div>
-                </div>
-                
-                <div id="registerError" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"></div>
-                <div id="registerSuccess" class="hidden mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded"></div>
-                
-                <button type="submit" id="registerSubmit" 
-                        class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md font-medium">
-                    Cadastrar
-                </button>
-            </form>
-            
-            <div class="mt-4 text-center">
-                <p class="text-sm text-gray-600">
-                    Já tem uma conta? 
-                    <button id="switchToLogin" class="text-green-600 hover:text-green-700 font-medium">Faça login</button>
-                </p>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Footer -->>
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Trekko</h3>
-                    <p class="text-gray-400">A plataforma mais completa para conectar trilheiros e guias em todo o Brasil.</p>
+    <!-- Guias em Destaque -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Guias em Destaque</h2>
+            <p class="section-subtitle">Conheça nossos guias mais experientes e bem avaliados</p>
+            
+            <div class="guias-grid" id="guiasGrid">
+                <!-- Guias serão carregados dinamicamente -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Mapa Interativo -->
+    <section class="section mapa-section">
+        <div class="container">
+            <div class="mapa-container">
+                <div class="mapa-content">
+                    <h2 class="section-title">Explore no mapa</h2>
+                    <p class="section-subtitle">Descubra trilhas próximas a você ou em destinos dos seus sonhos</p>
+                    <a href="/trilhas.html" class="btn btn-primary mt-4">Ver todas as trilhas</a>
                 </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Trilhas</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white">Descobrir Trilhas</a></li>
-                        <li><a href="#" class="hover:text-white">Trilhas Populares</a></li>
-                        <li><a href="#" class="hover:text-white">Trilhas por Estado</a></li>
+                <div class="mapa-placeholder">
+                    🗺️ Mapa interativo em breve
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Depoimentos -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">O que dizem nossos exploradores</h2>
+            <p class="section-subtitle">Experiências reais de quem já viveu aventuras conosco</p>
+            
+            <div class="depoimentos-carrossel">
+                <div class="depoimentos-container" id="depoimentosContainer">
+                    <div class="depoimento">
+                        <p class="depoimento-text">"Experiência incrível! O guia era super experiente e me ajudou a conquistar meu primeiro pico. Recomendo demais!"</p>
+                        <div class="depoimento-author">
+                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face" alt="Maria Silva" class="depoimento-avatar">
+                            <div class="depoimento-info">
+                                <h4>Maria Silva</h4>
+                                <p>Pico da Bandeira • Março 2024</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="depoimento">
+                        <p class="depoimento-text">"Plataforma fantástica! Encontrei o guia perfeito para a Travessia Petrópolis-Teresópolis. Tudo muito organizado e seguro."</p>
+                        <div class="depoimento-author">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="João Santos" class="depoimento-avatar">
+                            <div class="depoimento-info">
+                                <h4>João Santos</h4>
+                                <p>Travessia Petrópolis-Teresópolis • Janeiro 2024</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="depoimento">
+                        <p class="depoimento-text">"Como guia, a Trekko me ajudou a conectar com mais aventureiros. Plataforma séria e comprometida com a segurança."</p>
+                        <div class="depoimento-author">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="Carlos Montanha" class="depoimento-avatar">
+                            <div class="depoimento-info">
+                                <h4>Carlos Montanha</h4>
+                                <p>Guia CADASTUR • Serra da Mantiqueira</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Conteúdo/SEO -->
+    <section class="section" style="background: var(--cinza-claro);">
+        <div class="container">
+            <h2 class="section-title">Explore e aprenda</h2>
+            <p class="section-subtitle">Dicas e guias para tornar sua aventura ainda melhor</p>
+            
+            <div class="conteudo-grid">
+                <div class="conteudo-card">
+                    <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&h=200&fit=crop" alt="Quando ir" loading="lazy">
+                    <div class="conteudo-card-content">
+                        <h3 class="conteudo-title">Quando ir</h3>
+                        <p class="conteudo-description">Descubra as melhores épocas para cada tipo de trilha e região do Brasil.</p>
+                    </div>
+                </div>
+                <div class="conteudo-card">
+                    <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=200&fit=crop" alt="Checklist essencial" loading="lazy">
+                    <div class="conteudo-card-content">
+                        <h3 class="conteudo-title">Checklist essencial</h3>
+                        <p class="conteudo-description">Lista completa de equipamentos e itens indispensáveis para sua aventura.</p>
+                    </div>
+                </div>
+                <div class="conteudo-card">
+                    <img src="https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=200&fit=crop" alt="Trilhas dog-friendly" loading="lazy">
+                    <div class="conteudo-card-content">
+                        <h3 class="conteudo-title">Trilhas dog-friendly</h3>
+                        <p class="conteudo-description">Aventuras perfeitas para você e seu melhor amigo de quatro patas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="section newsletter">
+        <div class="container">
+            <h2 class="section-title">Receba as melhores trilhas do mês</h2>
+            <p class="section-subtitle">Roteiros prontos + alertas de janela climática direto no seu e-mail</p>
+            
+            <form class="newsletter-form" onsubmit="submitNewsletter(event)">
+                <div class="form-row">
+                    <input type="text" placeholder="Seu nome" required id="newsletterNome">
+                    <input type="email" placeholder="Seu e-mail" required id="newsletterEmail">
+                </div>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="lgpdConsent" required>
+                    <label for="lgpdConsent">Concordo em receber comunicações da Trekko e com a Política de Privacidade</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Quero receber</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Trilhas por Estado</h3>
+                    <ul>
+                        <li><a href="/trilhas.html?estado=SP">São Paulo</a></li>
+                        <li><a href="/trilhas.html?estado=RJ">Rio de Janeiro</a></li>
+                        <li><a href="/trilhas.html?estado=MG">Minas Gerais</a></li>
+                        <li><a href="/trilhas.html?estado=SC">Santa Catarina</a></li>
+                        <li><a href="/trilhas.html?estado=PR">Paraná</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Guias</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="guias.html" class="hover:text-white">Encontrar Guias</a></li>
-                        <li><a href="#" class="hover:text-white">Tornar-se Guia</a></li>
-                        <li><a href="#" class="hover:text-white">Certificação</a></li>
+                <div class="footer-section">
+                    <h3>Para Guias</h3>
+                    <ul>
+                        <li><a href="#" onclick="openModal('guia')">Tornar-se guia</a></li>
+                        <li><a href="/guias.html">Guias certificados</a></li>
+                        <li><a href="#ajuda">Central de ajuda</a></li>
+                        <li><a href="#suporte">Suporte técnico</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Suporte</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white">Central de Ajuda</a></li>
-                        <li><a href="#" class="hover:text-white">Contato</a></li>
-                        <li><a href="#" class="hover:text-white">Termos de Uso</a></li>
-                        <li><a href="#" class="hover:text-white">Privacidade</a></li>
+                <div class="footer-section">
+                    <h3>Empresa</h3>
+                    <ul>
+                        <li><a href="#sobre">Sobre nós</a></li>
+                        <li><a href="#termos">Termos de uso</a></li>
+                        <li><a href="#privacidade">Política de privacidade</a></li>
+                        <li><a href="#contato">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Conecte-se</h3>
+                    <ul>
+                        <li><a href="#instagram">Instagram</a></li>
+                        <li><a href="#facebook">Facebook</a></li>
+                        <li><a href="#youtube">YouTube</a></li>
+                        <li><a href="#whatsapp">WhatsApp</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2025 Trekko. Todos os direitos reservados.</p>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Trekko. Todos os direitos reservados. Conectando você com a natureza brasileira.</p>
             </div>
         </div>
     </footer>
-</body>
-</html>
 
+    <!-- Scripts -->
+    <script src="js/homepage.js"></script>
 
-    <script>
-        // API Configuration
-        const API_BASE_URL = 'https://g8h3ilcvjnlq.manus.space/api';
-        
-        // Authentication state
-        let currentUser = null;
-        let accessToken = null;
-        let refreshToken = null;
-
-        // DOM Elements
-        const loginBtn = document.getElementById('loginBtn');
-        const registerBtn = document.getElementById('registerBtn');
-        const loginModal = document.getElementById('loginModal');
-        const registerModal = document.getElementById('registerModal');
-        const closeLoginModal = document.getElementById('closeLoginModal');
-        const closeRegisterModal = document.getElementById('closeRegisterModal');
-        const switchToRegister = document.getElementById('switchToRegister');
-        const switchToLogin = document.getElementById('switchToLogin');
-        const userMenu = document.getElementById('userMenu');
-        const userName = document.getElementById('userName');
-        const userMenuBtn = document.getElementById('userMenuBtn');
-        const userDropdown = document.getElementById('userDropdown');
-        const logoutBtn = document.getElementById('logoutBtn');
-
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuthState();
-            setupEventListeners();
-        });
-
-        function setupEventListeners() {
-            // Modal controls
-            loginBtn.addEventListener('click', () => showModal('login'));
-            registerBtn.addEventListener('click', () => showModal('register'));
-            closeLoginModal.addEventListener('click', () => hideModal('login'));
-            closeRegisterModal.addEventListener('click', () => hideModal('register'));
-            switchToRegister.addEventListener('click', () => switchModal('register'));
-            switchToLogin.addEventListener('click', () => switchModal('login'));
-
-            // User menu
-            userMenuBtn.addEventListener('click', toggleUserDropdown);
-            logoutBtn.addEventListener('click', logout);
-
-            // Forms
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            document.getElementById('registerForm').addEventListener('submit', handleRegister);
-
-            // CADASTUR validation
-            document.getElementById('registerUserType').addEventListener('change', handleUserTypeChange);
-            document.getElementById('registerCadastur').addEventListener('input', debounce(validateCadastur, 500));
-            document.getElementById('registerName').addEventListener('input', debounce(validateCadastur, 500));
-
-            // Close modals on outside click
-            window.addEventListener('click', function(e) {
-                if (e.target === loginModal) hideModal('login');
-                if (e.target === registerModal) hideModal('register');
-            });
-        }
-
-        function checkAuthState() {
-            // Verificar se há dados de usuário salvos
-            const userData = localStorage.getItem('userData');
-            
-            if (userData && userData !== 'null') {
-                try {
-                    currentUser = JSON.parse(userData);
-                    showUserMenu();
-                } catch (e) {
-                    console.error('Erro ao parsear userData:', e);
-                    showAuthButtons();
-                }
-            } else {
-                showAuthButtons();
-            }
-        }
-
-        function showUserMenu() {
-            if (loginBtn) loginBtn.style.display = 'none';
-            if (registerBtn) registerBtn.style.display = 'none';
-            if (userMenu) userMenu.classList.remove('hidden');
-            if (userName && currentUser) {
-                userName.textContent = `U ${currentUser.name}`;
-            }
-        }
-
-        function showAuthButtons() {
-            loginBtn.style.display = 'block';
-            registerBtn.style.display = 'block';
-            userMenu.classList.add('hidden');
-        }
-
-        function showModal(type) {
-            if (type === 'login') {
-                loginModal.classList.remove('hidden');
-                document.getElementById('loginEmail').focus();
-            } else {
-                registerModal.classList.remove('hidden');
-                document.getElementById('registerName').focus();
-            }
-        }
-
-        function hideModal(type) {
-            if (type === 'login') {
-                loginModal.classList.add('hidden');
-                clearForm('loginForm');
-            } else {
-                registerModal.classList.add('hidden');
-                clearForm('registerForm');
-            }
-        }
-
-        function switchModal(type) {
-            hideModal(type === 'login' ? 'register' : 'login');
-            showModal(type);
-        }
-
-        function clearForm(formId) {
-            document.getElementById(formId).reset();
-            hideError(formId.replace('Form', 'Error'));
-            hideSuccess(formId.replace('Form', 'Success'));
-        }
-
-        function toggleUserDropdown() {
-            userDropdown.classList.toggle('hidden');
-        }
-
-        function handleUserTypeChange() {
-            const userType = document.getElementById('registerUserType').value;
-            const cadasturField = document.getElementById('cadasturField');
-            
-            if (userType === 'guia') {
-                cadasturField.classList.remove('hidden');
-                document.getElementById('registerCadastur').required = true;
-            } else {
-                cadasturField.classList.add('hidden');
-                document.getElementById('registerCadastur').required = false;
-                document.getElementById('cadasturValidation').classList.add('hidden');
-            }
-        }
-
-        async function validateCadastur() {
-            const cadastur = document.getElementById('registerCadastur').value.trim();
-            const name = document.getElementById('registerName').value.trim();
-            const userType = document.getElementById('registerUserType').value;
-            const validationDiv = document.getElementById('cadasturValidation');
-
-            if (userType !== 'guia' || !cadastur || !name) {
-                validationDiv.classList.add('hidden');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/auth/validate-cadastur`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        cadastur_number: cadastur,
-                        name: name
-                    })
-                });
-
-                const data = await response.json();
-                
-                validationDiv.classList.remove('hidden');
-                if (data.success) {
-                    validationDiv.innerHTML = `<p class="text-sm text-green-600">✓ ${data.message}</p>`;
-                } else {
-                    validationDiv.innerHTML = `<p class="text-sm text-red-600">✗ ${data.message}</p>`;
-                }
-            } catch (error) {
-                console.error('Erro na validação CADASTUR:', error);
-            }
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const submitBtn = document.getElementById('loginSubmit');
-
-            if (!email || !password) {
-                showError('loginError', 'Email e senha são obrigatórios');
-                return;
-            }
-
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Entrando...';
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Save auth data
-                    localStorage.setItem('accessToken', data.access_token);
-                    localStorage.setItem('refreshToken', data.refresh_token);
-                    localStorage.setItem('currentUser', JSON.stringify(data.user));
-                    
-                    currentUser = data.user;
-                    accessToken = data.access_token;
-                    refreshToken = data.refresh_token;
-
-                    hideModal('login');
-                    showUserMenu();
-                    showSuccess('loginSuccess', 'Login realizado com sucesso!');
-                } else {
-                    showError('loginError', data.message);
-                }
-            } catch (error) {
-                showError('loginError', 'Erro de conexão. Tente novamente.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Entrar';
-            }
-        }
-
-        async function handleRegister(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('registerName').value.trim();
-            const email = document.getElementById('registerEmail').value.trim();
-            const password = document.getElementById('registerPassword').value;
-            const userType = document.getElementById('registerUserType').value;
-            const cadastur = document.getElementById('registerCadastur').value.trim();
-            const submitBtn = document.getElementById('registerSubmit');
-
-            if (!name || !email || !password || !userType) {
-                showError('registerError', 'Todos os campos são obrigatórios');
-                return;
-            }
-
-            if (userType === 'guia' && !cadastur) {
-                showError('registerError', 'Número CADASTUR é obrigatório para guias');
-                return;
-            }
-
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Cadastrando...';
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        name,
-                        email,
-                        password,
-                        user_type: userType,
-                        cadastur_number: cadastur
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Save auth data
-                    localStorage.setItem('accessToken', data.access_token);
-                    localStorage.setItem('refreshToken', data.refresh_token);
-                    localStorage.setItem('currentUser', JSON.stringify(data.user));
-                    
-                    currentUser = data.user;
-                    accessToken = data.access_token;
-                    refreshToken = data.refresh_token;
-
-                    hideModal('register');
-                    showUserMenu();
-                    showSuccess('registerSuccess', 'Cadastro realizado com sucesso!');
-                } else {
-                    showError('registerError', data.message);
-                }
-            } catch (error) {
-                showError('registerError', 'Erro de conexão. Tente novamente.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Cadastrar';
-            }
-        }
-
-        async function logout() {
-            try {
-                if (refreshToken) {
-                    await fetch(`${API_BASE_URL}/auth/logout`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ refresh_token: refreshToken })
-                    });
-                }
-            } catch (error) {
-                console.error('Erro no logout:', error);
-            } finally {
-                // Clear local data
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                localStorage.removeItem('currentUser');
-                
-                currentUser = null;
-                accessToken = null;
-                refreshToken = null;
-
-                showAuthButtons();
-                userDropdown.classList.add('hidden');
-            }
-        }
-
-        function showError(elementId, message) {
-            const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.classList.remove('hidden');
-        }
-
-        function hideError(elementId) {
-            const element = document.getElementById(elementId);
-            element.classList.add('hidden');
-        }
-
-        function showSuccess(elementId, message) {
-            const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.classList.remove('hidden');
-            setTimeout(() => hideSuccess(elementId), 3000);
-        }
-
-        function hideSuccess(elementId) {
-            const element = document.getElementById(elementId);
-            element.classList.add('hidden');
-        }
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Trekko",
+        "url": "https://www.trekko.com.br",
+        "logo": "https://www.trekko.com.br/images/logo.png",
+        "description": "Plataforma de trilhas e guias certificados no Brasil",
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "BR"
+        },
+        "sameAs": [
+            "https://www.instagram.com/trekko",
+            "https://www.facebook.com/trekko"
+        ]
+    }
     </script>
-
-    <!-- Sistema de Autenticação Global -->
-    <script src="auth.js"></script>
 </body>
 </html>
 
