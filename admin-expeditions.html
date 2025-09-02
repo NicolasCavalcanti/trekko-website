@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-S816P190VN');
+    </script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2482023752745520"
+         crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-2482023752745520">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizar Expedições - Trekko</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .status-draft { @apply bg-gray-100 text-gray-800; }
+        .status-published { @apply bg-green-100 text-green-800; }
+        .status-closed { @apply bg-red-100 text-red-800; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-green-600">Trekko</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="index.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Início</a>
+                        <a href="trilhas.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Trilhas</a>
+                        <a href="guias.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Guias</a>
+                        <a href="admin-expeditions.html" class="text-green-600 px-3 py-2 rounded-md text-sm font-medium">Organizar Expedições</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4" id="authSection">
+                    <!-- User Menu (hidden by default) -->
+                    <div id="userMenu" class="relative">
+                        <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-green-600">
+                            <span id="userName" class="font-medium">Guia</span>
+                            <span class="text-sm">▼</span>
+                        </button>
+                        <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="perfil.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Meu Perfil</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configurações</a>
+                            <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sair</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Minhas Expedições</h1>
+                <p class="text-gray-600 mt-2">Gerencie suas expedições e organize grupos para trilhas</p>
+            </div>
+            <button id="newExpeditionBtn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2">
+                <span>+</span>
+                <span>Nova Expedição</span>
+            </button>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <select id="stateFilter" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">Todos os Estados</option>
+                    <option value="MG">MG - Minas Gerais</option>
+                    <option value="RJ">RJ - Rio de Janeiro</option>
+                    <option value="SP">SP - São Paulo</option>
+                    <option value="ES">ES - Espírito Santo</option>
+                    <option value="PR">PR - Paraná</option>
+                    <option value="SC">SC - Santa Catarina</option>
+                    <option value="RS">RS - Rio Grande do Sul</option>
+                    <option value="BA">BA - Bahia</option>
+                    <option value="GO">GO - Goiás</option>
+                    <option value="MT">MT - Mato Grosso</option>
+                </select>
+                <select id="cityFilter" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">Todas as Cidades</option>
+                </select>
+                <input type="text" id="trailSearch" placeholder="Nome da trilha..." 
+                       class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                <button onclick="filterExpeditions()" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md font-medium">
+                    🔍 Buscar
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="text-center py-8 hidden">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+            <p class="mt-2 text-gray-600">Carregando expedições...</p>
+        </div>
+
+        <!-- Expeditions Table -->
+        <div id="expeditionsTable" class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trilha</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Período</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vagas</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expeditionsTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Expeditions will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- No Expeditions -->
+        <div id="noExpeditions" class="text-center py-12 hidden">
+            <div class="bg-gray-50 rounded-lg p-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhuma expedição encontrada</h3>
+                <p class="text-gray-500 mb-4">Comece criando sua primeira expedição para organizar grupos de trilheiros.</p>
+                <button onclick="openNewExpeditionModal()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium">
+                    + Criar Primeira Expedição
+                </button>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div id="paginationControls" class="flex justify-center items-center space-x-2 mt-8 hidden">
+            <button id="prevPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50" disabled>Anterior</button>
+            <div id="pageNumbers" class="flex space-x-1"></div>
+            <button id="nextPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50" disabled>Próxima</button>
+        </div>
+    </main>
+
+    <!-- New Expedition Modal -->
+    <div id="expeditionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-2xl w-full p-6 max-h-screen overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900" id="modalTitle">Nova Expedição</h3>
+                    <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                        <span class="text-2xl">×</span>
+                    </button>
+                </div>
+
+                <form id="expeditionForm">
+                    <!-- Trail Selection -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">1) Trilha *</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                            <select id="modalStateSelect" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="">Estado</option>
+                                <option value="MG">MG - Minas Gerais</option>
+                                <option value="RJ">RJ - Rio de Janeiro</option>
+                                <option value="SP">SP - São Paulo</option>
+                                <option value="ES">ES - Espírito Santo</option>
+                                <option value="PR">PR - Paraná</option>
+                                <option value="SC">SC - Santa Catarina</option>
+                                <option value="RS">RS - Rio Grande do Sul</option>
+                                <option value="BA">BA - Bahia</option>
+                                <option value="GO">GO - Goiás</option>
+                                <option value="MT">MT - Mato Grosso</option>
+                            </select>
+                            <select id="modalCitySelect" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="">Cidade</option>
+                            </select>
+                            <input type="text" id="modalTrailSearch" placeholder="Nome da trilha..." 
+                                   class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div id="trailResults" class="space-y-2 max-h-40 overflow-y-auto hidden">
+                            <!-- Trail search results will appear here -->
+                        </div>
+                        <div id="selectedTrail" class="hidden p-3 bg-green-50 border border-green-200 rounded-md">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-medium text-green-900" id="selectedTrailName"></div>
+                                    <div class="text-sm text-green-700" id="selectedTrailLocation"></div>
+                                </div>
+                                <button type="button" onclick="clearSelectedTrail()" class="text-green-600 hover:text-green-800">
+                                    ×
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Date Period -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">2) Período *</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Data de Início</label>
+                                <input type="date" id="startDate" required
+                                       class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Data de Fim</label>
+                                <input type="date" id="endDate" required
+                                       class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">ⓘ Fim ≥ Início; duração ≤ 30 dias</p>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="mb-6">
+                        <label for="price" class="block text-sm font-medium text-gray-700 mb-2">3) Preço por pessoa *</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2 text-gray-500">R$</span>
+                            <input type="number" id="price" min="1" step="0.01" required
+                                   class="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                   placeholder="0,00">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">ⓘ mínimo R$ 1,00</p>
+                    </div>
+
+                    <!-- Max People -->
+                    <div class="mb-6">
+                        <label for="maxPeople" class="block text-sm font-medium text-gray-700 mb-2">4) Quantidade máxima *</label>
+                        <input type="number" id="maxPeople" min="1" max="50" required
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                               placeholder="1">
+                        <p class="text-xs text-gray-500 mt-1">ⓘ até 50 pessoas</p>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-6">
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">5) Descrição *</label>
+                        <textarea id="description" rows="4" maxlength="3000" required
+                                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                  placeholder="Descreva os detalhes da expedição, itinerário, o que está incluído, equipamentos necessários..."></textarea>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>ⓘ Descreva detalhes importantes para os participantes</span>
+                            <span><span id="descriptionCount">0</span>/3000</span>
+                        </div>
+                    </div>
+
+                    <!-- Form Errors -->
+                    <div id="formErrors" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                        <div class="text-red-800 text-sm">
+                            <ul id="errorList" class="list-disc list-inside space-y-1"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex space-x-3">
+                        <button type="button" id="saveDraftBtn" 
+                                class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">
+                            Salvar Rascunho
+                        </button>
+                        <button type="submit" id="publishBtn" 
+                                class="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
+                            Publicar Expedição
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Participants Modal -->
+    <div id="participantsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-2xl w-full p-6 max-h-screen overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900" id="participantsModalTitle">Inscritos</h3>
+                    <button id="closeParticipantsModal" class="text-gray-400 hover:text-gray-600">
+                        <span class="text-2xl">×</span>
+                    </button>
+                </div>
+
+                <div id="participantsList" class="space-y-4">
+                    <!-- Participants will be loaded here -->
+                </div>
+
+                <div class="flex justify-between mt-6">
+                    <button id="exportParticipantsBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        📊 Exportar CSV
+                    </button>
+                    <button onclick="closeParticipantsModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://p9hwiqcldgkm.manus.space';
+        const API_URL = `${API_BASE_URL}/api`;
+        const ITEMS_PER_PAGE = 15;
+        let currentPage = 1;
+        let selectedTrailId = null;
+        let editingExpeditionId = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadExpeditions();
+            setupEventListeners();
+            setupFormValidation();
+        });
+
+        // Setup event listeners
+        func        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal listeners
+            document.getElementById('newExpeditionBtn').addEventListener('click', openNewExpeditionModal);
+            document.getElementById('closeModal').addEventListener('click', closeExpeditionModal);
+            document.getElementById('saveDraftBtn').addEventListener('click', () => saveExpedition('draft'));
+            document.getElementById('expeditionForm').addEventListener('submit', (event) => {
+                event.preventDefault();
+                saveExpedition('published');
+            });
+
+            // Form input listeners
+            document.getElementById('modalStateSelect').addEventListener('change', loadCities);
+            document.getElementById('modalTrailSearch').addEventListener('input', debounce(searchTrails, 300));
+            document.getElementById('startDate').addEventListener('change', validateDates);
+            document.getElementById('endDate').addEventListener('change', validateDates);
+            document.getElementById('description').addEventListener('input', updateCharacterCount);
+
+            // User menu listener
+            document.getElementById('userMenuBtn').addEventListener('click', toggleUserMenu);
+
+            // Initial load
+            loadExpeditions();
+            checkAuthStatus();
+            setupFormValidation();
+        });ync function loadExpeditions(page = 1) {
+            currentPage = page;
+            const loading = document.getElementById('loading');
+            const table = document.getElementById('expeditionsTable');
+            const noExpeditions = document.getElementById('noExpeditions');
+            const tableBody = document.getElementById('expeditionsTableBody');
+
+            loading.classList.remove('hidden');
+            table.classList.add('hidden');
+            noExpeditions.classList.add('hidden');
+
+            try {
+                // Build query parameters
+                const params = new URLSearchParams();
+                const state = document.getElementById('stateFilter').value;
+                const city = document.getElementById('cityFilter').value;
+                const trailSearch = document.getElementById('trailSearch').value;
+
+                if (state) params.append('state', state);
+                if (city) params.append('city', city);
+                if (trailSearch) params.append('trail_search', trailSearch);
+                params.append('page', currentPage);
+                params.append('limit', ITEMS_PER_PAGE);
+
+                const response = await fetch(`${API_URL}/expeditions/guide?${params.toString()}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                loading.classList.add('hidden');
+
+                if (data.expeditions && data.expeditions.length > 0) {
+                    table.classList.remove('hidden');
+                    renderExpeditionsTable(data.expeditions);
+                    renderPagination(data.total, data.pages);
+                } else {
+                    noExpeditions.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error('Error loading expeditions:', error);
+                loading.classList.add('hidden');
+                noExpeditions.classList.remove('hidden');
+            }
+        }
+
+        // Render expeditions table
+        function renderExpeditionsTable(expeditions) {
+            const tableBody = document.getElementById('expeditionsTableBody');
+            tableBody.innerHTML = '';
+
+            expeditions.forEach(expedition => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${expedition.trail_name}</div>
+                        <div class="text-sm text-gray-500">${expedition.trail_location}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${formatDateRange(expedition.start_date, expedition.end_date)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">R$ ${(expedition.price_cents / 100).toFixed(2)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${expedition.participants_count}/${expedition.max_people}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full status-${expedition.status}">
+                            ${getStatusText(expedition.status)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="relative inline-block text-left">
+                            <button onclick="toggleExpeditionMenu('${expedition.id}')" class="text-gray-400 hover:text-gray-600">
+                                ⋮
+                            </button>
+                            <div id="menu-${expedition.id}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                                <a href="expedition.html?id=${expedition.id}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Ver Página</a>
+                                <button onclick="editExpedition('${expedition.id}')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Editar</button>
+                                <button onclick="duplicateExpedition('${expedition.id}')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Duplicar</button>
+                                <button onclick="viewParticipants('${expedition.id}')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Ver Inscritos</button>
+                                ${expedition.status === 'published' ? 
+                                    '<button onclick="closeExpedition(\'' + expedition.id + '\')" class="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-gray-100">Encerrar</button>' : 
+                                    ''
+                                }
+                            </div>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Open new expedition modal
+        function openNewExpeditionModal() {
+            editingExpeditionId = null;
+            selectedTrailId = null;
+            document.getElementById('modalTitle').textContent = 'Nova Expedição';
+            document.getElementById('expeditionForm').reset();
+            clearSelectedTrail();
+            clearFormErrors();
+            document.getElementById('expeditionModal').classList.remove('hidden');
+        }
+
+        // Close expedition modal
+        function closeExpeditionModal() {
+            document.getElementById('expeditionModal').classList.add('hidden');
+        }
+
+        // Handle form submit
+        async function handleFormSubmit(event, status = 'published') {
+            if (event) event.preventDefault();
+            
+            clearFormErrors();
+            
+            c        async function saveExpedition(status) {
+            clearFormErrors();
+
+            const expeditionData = {
+                trail_id: selectedTrailId,
+                start_date: document.getElementById("startDate").value,
+                end_date: document.getElementById("endDate").value,
+                price_cents: parseFloat(document.getElementById("price").value) * 100,
+                max_people: parseInt(document.getElementById("maxPeople").value),
+                description: document.getElementById("description").value,
+                status: status,
+                guide_id: currentUser.id // Assuming currentUser is available globally
+            };
+
+            const errors = validateExpeditionForm(expeditionData);
+            if (errors.length > 0) {
+                showFormErrors(errors);
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    alert("Você precisa estar logado para criar ou editar expedições.");
+                    return;
+                }
+
+                const response = await fetch(`${API_URL}/expeditions`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(expeditionData)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMessage = "Erro ao salvar expedição";
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        errorMessage = errorData.message || errorMessage;
+                    } catch (e) {
+                        errorMessage = `Erro: ${errorText}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                closeExpeditionModal();
+                loadExpeditions();
+                
+                alert(status === "draft" ? "Rascunho salvo com sucesso!" : "Expedição publicada com sucesso!");
+
+            } catch (error) {
+                console.error("Error saving expedition:", error);
+                showFormErrors([error.message]);
+            }
+        }}
+
+        // Validate expedition form
+        function validateExpeditionForm(data) {
+            const errors = [];
+
+            if (!data.trail_id) {
+                errors.push('Selecione uma trilha');
+            }
+
+            if (!data.start_date) {
+                errors.push('Data de início é obrigatória');
+            }
+
+            if (!data.end_date) {
+                errors.push('Data de fim é obrigatória');
+            }
+
+            if (data.start_date && data.end_date) {
+                const start = new Date(data.start_date);
+                const end = new Date(data.end_date);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (start < today) {
+                    errors.push('Data de início deve ser hoje ou no futuro');
+                }
+
+                if (end < start) {
+                    errors.push('Data de fim deve ser igual ou posterior à data de início');
+                }
+
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays > 30) {
+                    errors.push('Duração máxima de 30 dias');
+                }
+            }
+
+            if (!data.price_cents || data.price_cents < 100) {
+                errors.push('Preço mínimo de R$ 1,00');
+            }
+
+            if (!data.max_people || data.max_people < 1 || data.max_people > 50) {
+                errors.push('Quantidade de pessoas deve ser entre 1 e 50');
+            }
+
+            if (!data.description || data.description.trim().length < 20) {
+                errors.push('Descrição deve ter pelo menos 20 caracteres');
+            }
+
+            return errors;
+        }
+
+        // Show form errors
+        function showFormErrors(errors) {
+            const errorContainer = document.getElementById('formErrors');
+            const errorList = document.getElementById('errorList');
+            
+            errorList.innerHTML = '';
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                errorList.appendChild(li);
+            });
+            
+            errorContainer.classList.remove('hidden');
+        }
+
+        // Clear form errors
+        function clearFormErrors() {
+            document.getElementById('formErrors').classList.add('hidden');
+        }
+
+        // Search trails
+        async function searchTrails() {
+            const searchTerm = document.getElementById('modalTrailSearch').value;
+            const state = document.getElementById('modalStateSelect').value;
+            const city = document.getElementById('modalCitySelect').value;
+            
+            if (searchTerm.length < 2 && !state && !city) {
+                document.getElementById('trailResults').classList.add('hidden');
+                return;
+            }
+
+            try {
+                const params = new URLSearchParams();
+                if (searchTerm) params.append('search', searchTerm);
+                if (state) params.append('state', state);
+                if (city) params.append('city', city);
+                params.append('limit', 10);
+
+                const response = await fetch(`${API_URL}/trails?${params.toString()}`);
+                const data = await response.json();
+
+                renderTrailResults(data.trails || []);
+            } catch (error) {
+                console.error('Error searching trails:', error);
+            }
+        }
+
+        // Render trail search results
+        function renderTrailResults(trails) {
+            const resultsContainer = document.getElementById('trailResults');
+            resultsContainer.innerHTML = '';
+
+            if (trails.length === 0) {
+                resultsContainer.classList.add('hidden');
+                return;
+            }
+
+            trails.forEach(trail => {
+                const div = document.createElement('div');
+                div.className = 'p-3 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50';
+                div.innerHTML = `
+                    <div class="font-medium text-gray-900">${trail.name}</div>
+                    <div class="text-sm text-gray-500">${trail.city}, ${trail.state}</div>
+                `;
+                div.addEventListener('click', () => selectTrail(trail));
+                resultsContainer.appendChild(div);
+            });
+
+            resultsContainer.classList.remove('hidden');
+        }
+
+        // Select trail
+        function selectTrail(trail) {
+            selectedTrailId = trail.id;
+            document.getElementById('selectedTrailName').textContent = trail.name;
+            document.getElementById('selectedTrailLocation').textContent = `${trail.city}, ${trail.state}`;
+            document.getElementById('selectedTrail').classList.remove('hidden');
+            document.getElementById('trailResults').classList.add('hidden');
+            document.getElementById('modalTrailSearch').value = '';
+        }
+
+        // Clear selected trail
+        function clearSelectedTrail() {
+            selectedTrailId = null;
+            document.getElementById('selectedTrail').classList.add('hidden');
+        }
+
+        // Load cities based on state
+        async function loadCities() {
+            const state = document.getElementById("modalStateSelect").value;
+            const citySelect = document.getElementById("modalCitySelect");
+            
+            citySelect.innerHTML = '<option value="">Cidade</option>';
+            
+            if (!state) return;
+
+            try {
+                const response = await fetch(`${API_URL}/cities_with_trails?state=${state}`);
+                const data = await response.json();
+                
+                data.cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading cities:', error);
+            }
+        }
+
+        // Validate dates
+        function validateDates() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                
+                if (end < start) {
+                    document.getElementById('endDate').setCustomValidity('Data de fim deve ser igual ou posterior à data de início');
+                } else {
+                    document.getElementById('endDate').setCustomValidity('');
+                }
+            }
+        }
+
+        // Update character count
+        function updateCharacterCount() {
+            const description = document.getElementById('description').value;
+            document.getElementById('descriptionCount').textContent = description.length;
+        }
+
+        // Setup form validation
+        function setupFormValidation() {
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('startDate').min = today;
+            document.getElementById('endDate').min = today;
+        }
+
+        // Utility functions
+        function formatDateRange(startDate, endDate) {
+            const start = new Date(startDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            const end = new Date(endDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+            return `${start} - ${end}`;
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'draft': 'Rascunho',
+                'published': 'Publicada',
+                'closed': 'Encerrada'
+            };
+            return statusMap[status] || status;
+        }
+
+        function toggleExpeditionMenu(expeditionId) {
+            const menu = document.getElementById(`menu-${expeditionId}`);
+            // Close all other menus
+            document.querySelectorAll('[id^="menu-"]').forEach(m => {
+                if (m.id !== `menu-${expeditionId}`) {
+                    m.classList.add('hidden');
+                }
+            });
+            menu.classList.toggle('hidden');
+        }
+
+        function toggleUserMenu() {
+            document.getElementById('userDropdown').classList.toggle('hidden');
+        }
+
+        // Filter expeditions
+        function filterExpeditions() {
+            loadExpeditions(1);
+        }
+
+        // Render pagination
+        function renderPagination(totalResults, totalPages) {
+            const pageNumbersContainer = document.getElementById('pageNumbers');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const paginationControls = document.getElementById('paginationControls');
+
+            pageNumbersContainer.innerHTML = '';
+            
+            if (totalPages > 1) {
+                paginationControls.classList.remove('hidden');
+            } else {
+                paginationControls.classList.add('hidden');
+                return;
+            }
+
+            prevPageBtn.disabled = currentPage === 1;
+            prevPageBtn.onclick = () => loadExpeditions(currentPage - 1);
+
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.className = `px-3 py-2 rounded-md text-sm font-medium ${
+                    i === currentPage 
+                        ? 'bg-green-600 text-white' 
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`;
+                pageBtn.onclick = () => loadExpeditions(i);
+                pageNumbersContainer.appendChild(pageBtn);
+            }
+
+            nextPageBtn.disabled = currentPage === totalPages;
+            nextPageBtn.onclick = () => loadExpeditions(currentPage + 1);
+        }
+
+        // Placeholder functions for menu actions
+        function editExpedition(expeditionId) {
+            console.log('Edit expedition:', expeditionId);
+            // TODO: Implement edit functionality
+        }
+
+        function duplicateExpedition(expeditionId) {
+            console.log('Duplicate expedition:', expeditionId);
+            // TODO: Implement duplicate functionality
+        }
+
+        function viewParticipants(expeditionId) {
+            console.log('View participants:', expeditionId);
+            // TODO: Implement participants view
+        }
+
+        function closeExpedition(expeditionId) {
+            if (confirm('Tem certeza que deseja encerrar esta expedição?')) {
+                console.log('Close expedition:', expeditionId);
+                // TODO: Implement close functionality
+            }
+        }
+
+        function closeParticipantsModal() {
+            document.getElementById('participantsModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
+
