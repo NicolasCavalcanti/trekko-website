@@ -19,6 +19,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Organizar Expedições - Trekko</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Sistema de Autenticação -->
+    <script src="auth.js"></script>
+    <script src="auth-guard.js"></script>
     <style>
         .status-draft { @apply bg-gray-100 text-gray-800; }
         .status-published { @apply bg-green-100 text-green-800; }
@@ -67,10 +70,10 @@
                 <h1 class="text-3xl font-bold text-gray-900">Minhas Expedições</h1>
                 <p class="text-gray-600 mt-2">Gerencie suas expedições e organize grupos para trilhas</p>
             </div>
-            <button id="newExpeditionBtn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2">
+            <a href="nova-expedicao.html" id="newExpeditionBtn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2 guide-only">
                 <span>+</span>
                 <span>Nova Expedição</span>
-            </button>
+            </a>
         </div>
 
         <!-- Search and Filters -->
