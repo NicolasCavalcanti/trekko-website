@@ -208,9 +208,14 @@ class AuthManager {
                         </div>
                         
                         <div id="cadasturSection" class="hidden mb-4">
-                            <label for="cadasturNumber" class="block text-sm font-medium text-gray-700 mb-2">Numero CADASTUR</label>
-                            <input type="text" id="cadasturNumber" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <label for="cadasturNumber" class="block text-sm font-medium text-gray-700 mb-2">Número CADASTUR</label>
+                            <input type="text" id="cadasturNumber" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                   placeholder="Ex: 12345678901">
+                            <p class="text-xs text-gray-500 mt-1">
+                                CADASTUR é o registro obrigatório para guias de turismo no Brasil. 
+                                <a href="https://cadastur.turismo.gov.br/" target="_blank" class="text-green-600 hover:text-green-700">Saiba mais</a>
+                            </p>
                             <div id="cadasturValidation" class="mt-2 text-sm"></div>
                         </div>
                         
@@ -283,12 +288,40 @@ class AuthManager {
         // Mostrar/ocultar secao CADASTUR
         userTypeSelect.addEventListener('change', () => {
             const cadasturSection = document.getElementById('cadasturSection');
+            const cadasturInput = document.getElementById('cadasturNumber');
+            
             if (userTypeSelect.value === 'guia') {
                 cadasturSection.classList.remove('hidden');
+                cadasturInput.setAttribute('required', 'required');
+                // Adicionar indicador visual de campo obrigatório
+                const label = cadasturSection.querySelector('label');
+                if (label && !label.textContent.includes('*')) {
+                    label.textContent = 'Número CADASTUR *';
+                    label.style.color = '#dc2626'; // Vermelho para indicar obrigatório
+                }
             } else {
                 cadasturSection.classList.add('hidden');
+                cadasturInput.removeAttribute('required');
+                cadasturInput.value = ''; // Limpar o campo quando oculto
+                // Remover indicador visual
+                const label = cadasturSection.querySelector('label');
+                if (label) {
+                    label.textContent = 'Número CADASTUR';
+                    label.style.color = '#374151'; // Cor padrão
+                }
             }
         });
+
+        // Validação em tempo real do CADASTUR
+        const cadasturInput = document.getElementById('cadasturNumber');
+        if (cadasturInput) {
+            cadasturInput.addEventListener('input', (e) => {
+                // Formatar entrada (apenas números)
+                this.formatCadastur(e.target);
+                // Validar em tempo real
+                this.validateCadastur(e.target.value);
+            });
+        }
 
         // Fechar modal ao clicar fora
         modal.addEventListener('click', (e) => {
@@ -356,9 +389,16 @@ class AuthManager {
             return;
         }
 
-        if (userType === 'guia' && !cadastur) {
-            this.showError(errorDiv, 'Numero CADASTUR e obrigatorio para guias');
-            return;
+        if (userType === 'guia') {
+            if (!cadastur || cadastur.trim() === '') {
+                this.showError(errorDiv, 'Número CADASTUR é obrigatório para guias profissionais');
+                return;
+            }
+            
+            if (!this.validateCadastur(cadastur)) {
+                this.showError(errorDiv, 'Número CADASTUR inválido. Deve conter exatamente 11 dígitos');
+                return;
+            }
         }
 
         submitBtn.disabled = true;
@@ -477,4 +517,46 @@ document.addEventListener('DOMContentLoaded', () => {
     window.authManager = new AuthManager();
     console.log('Sistema de autenticacao inicializado');
 });
+
+
+    // Validar número CADASTUR
+    validateCadastur(cadastur) {
+        const validationDiv = document.getElementById('cadasturValidation');
+        if (!validationDiv) return false;
+
+        // Limpar validação anterior
+        validationDiv.innerHTML = '';
+        
+        if (!cadastur || cadastur.trim() === '') {
+            validationDiv.innerHTML = '<span class="text-red-600">⚠️ Número CADASTUR é obrigatório para guias</span>';
+            return false;
+        }
+
+        // Validação básica do formato (apenas números, 11 dígitos)
+        const cadasturClean = cadastur.replace(/\D/g, '');
+        
+        if (cadasturClean.length < 11) {
+            validationDiv.innerHTML = '<span class="text-yellow-600">⚠️ CADASTUR deve ter 11 dígitos</span>';
+            return false;
+        }
+        
+        if (cadasturClean.length > 11) {
+            validationDiv.innerHTML = '<span class="text-red-600">⚠️ CADASTUR não pode ter mais de 11 dígitos</span>';
+            return false;
+        }
+
+        // Se chegou até aqui, formato está correto
+        validationDiv.innerHTML = '<span class="text-green-600">✅ Formato válido</span>';
+        return true;
+    }
+
+    // Formatar número CADASTUR enquanto digita
+    formatCadastur(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length > 11) {
+            value = value.substring(0, 11);
+        }
+        input.value = value;
+        return value;
+    }
 
