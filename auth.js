@@ -1,8 +1,75 @@
-// auth.js - Sistema de autenticacao global
+// auth.js - Sistema de autenticacao global com validação de CADASTUR
 class AuthManager {
     constructor() {
         this.apiUrl = 'https://g8h3ilcvjnlq.manus.space/api';
+        this.guidesDatabase = this.loadGuidesDatabase();
         this.init();
+    }
+
+    // Base de dados de guias válidos (simulada)
+    loadGuidesDatabase() {
+        return [
+            {
+                name: "Carlos Silva Santos",
+                cadastur: "27123456789",
+                estado: "RJ",
+                especialidades: ["Montanha", "Trilhas"]
+            },
+            {
+                name: "Maria Fernanda Oliveira",
+                cadastur: "27987654321",
+                estado: "MG",
+                especialidades: ["Cachoeiras", "Ecoturismo"]
+            },
+            {
+                name: "João Pedro Montanha",
+                cadastur: "27456789123",
+                estado: "SP",
+                especialidades: ["Trekking", "Aventura"]
+            },
+            {
+                name: "Ana Carolina Rocha",
+                cadastur: "27789123456",
+                estado: "ES",
+                especialidades: ["Trilhas", "Natureza"]
+            },
+            {
+                name: "Roberto Carlos Lima",
+                cadastur: "27321654987",
+                estado: "BA",
+                especialidades: ["Montanha", "Expedições"]
+            },
+            {
+                name: "Fernanda Santos Costa",
+                cadastur: "27654987321",
+                estado: "PR",
+                especialidades: ["Ecoturismo", "Aventura"]
+            },
+            {
+                name: "Lucas Henrique Alves",
+                cadastur: "27147258369",
+                estado: "SC",
+                especialidades: ["Trilhas", "Montanha"]
+            },
+            {
+                name: "Juliana Pereira Souza",
+                cadastur: "27963852741",
+                estado: "GO",
+                especialidades: ["Natureza", "Trekking"]
+            },
+            {
+                name: "Rafael Augusto Ferreira",
+                cadastur: "27852741963",
+                estado: "RO",
+                especialidades: ["Expedições", "Aventura"]
+            },
+            {
+                name: "Camila Rodrigues Martins",
+                cadastur: "27741852963",
+                estado: "AM",
+                especialidades: ["Floresta", "Ecoturismo"]
+            }
+        ];
     }
 
     init() {
@@ -153,7 +220,7 @@ class AuthManager {
                     
                     <div class="mt-4 text-center">
                         <p class="text-sm text-gray-600">
-                            Nao tem uma conta? 
+                            Não tem uma conta? 
                             <button id="switchToRegister" class="text-green-600 hover:text-green-700 font-medium">Cadastre-se</button>
                         </p>
                     </div>
@@ -165,13 +232,13 @@ class AuthManager {
         this.setupLoginModalEvents();
     }
 
-    // Criar modal de cadastro
+    // Criar modal de cadastro com validação aprimorada
     createRegisterModal() {
         const modalHTML = `
             <div id="registerModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 max-h-screen overflow-y-auto">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-900">Cadastrar</h2>
+                        <h2 class="text-2xl font-bold text-gray-900">Cadastrar na Trekko</h2>
                         <button id="closeRegisterModal" class="text-gray-400 hover:text-gray-600">
                             <span class="text-2xl">&times;</span>
                         </button>
@@ -179,44 +246,54 @@ class AuthManager {
                     
                     <form id="registerForm">
                         <div class="mb-4">
-                            <label for="registerName" class="block text-sm font-medium text-gray-700 mb-2">Nome Completo</label>
+                            <label for="registerName" class="block text-sm font-medium text-gray-700 mb-2">Nome Completo *</label>
                             <input type="text" id="registerName" required 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                   placeholder="Digite seu nome completo">
+                            <div id="nameValidation" class="mt-1 text-sm"></div>
                         </div>
                         
                         <div class="mb-4">
-                            <label for="registerEmail" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <label for="registerEmail" class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                             <input type="email" id="registerEmail" required 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                   placeholder="seu@email.com">
                         </div>
                         
                         <div class="mb-4">
-                            <label for="registerPassword" class="block text-sm font-medium text-gray-700 mb-2">Senha</label>
+                            <label for="registerPassword" class="block text-sm font-medium text-gray-700 mb-2">Senha *</label>
                             <input type="password" id="registerPassword" required 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <p class="text-xs text-gray-500 mt-1">Minimo 8 caracteres, incluindo maiuscula, minuscula e numero</p>
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                   placeholder="Mínimo 8 caracteres">
+                            <p class="text-xs text-gray-500 mt-1">Mínimo 8 caracteres, incluindo maiúscula, minúscula e número</p>
                         </div>
                         
                         <div class="mb-4">
-                            <label for="userType" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Usuario</label>
+                            <label for="userType" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Usuário *</label>
                             <select id="userType" required 
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white text-gray-900">
-                                <option value="">Selecione o tipo de usuario...</option>
-                                <option value="trekker">Trekker (Usuario comum)</option>
-                                <option value="guia">Guia Profissional</option>
+                                <option value="">Selecione o tipo de usuário...</option>
+                                <option value="trekker">🥾 Trekker (Usuário comum)</option>
+                                <option value="guia">🧭 Guia Profissional</option>
                             </select>
                         </div>
                         
                         <div id="cadasturSection" class="hidden mb-4">
-                            <label for="cadasturNumber" class="block text-sm font-medium text-gray-700 mb-2">Número CADASTUR</label>
-                            <input type="text" id="cadasturNumber" required
+                            <label for="cadasturNumber" class="block text-sm font-medium text-red-600 mb-2">Número CADASTUR *</label>
+                            <input type="text" id="cadasturNumber"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                                   placeholder="Ex: 12345678901">
+                                   placeholder="Ex: 27123456789"
+                                   maxlength="11">
                             <p class="text-xs text-gray-500 mt-1">
                                 CADASTUR é o registro obrigatório para guias de turismo no Brasil. 
                                 <a href="https://cadastur.turismo.gov.br/" target="_blank" class="text-green-600 hover:text-green-700">Saiba mais</a>
                             </p>
                             <div id="cadasturValidation" class="mt-2 text-sm"></div>
+                        </div>
+                        
+                        <div id="validationSummary" class="hidden mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                            <h4 class="font-medium text-blue-800 mb-2">Validação de Guia Profissional:</h4>
+                            <div id="validationDetails" class="text-sm text-blue-700"></div>
                         </div>
                         
                         <div id="registerError" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"></div>
@@ -230,8 +307,8 @@ class AuthManager {
                     
                     <div class="mt-4 text-center">
                         <p class="text-sm text-gray-600">
-                            Ja tem uma conta? 
-                            <button id="switchToLogin" class="text-green-600 hover:text-green-700 font-medium">Faca login</button>
+                            Já tem uma conta? 
+                            <button id="switchToLogin" class="text-green-600 hover:text-green-700 font-medium">Faça login</button>
                         </p>
                     </div>
                 </div>
@@ -266,13 +343,15 @@ class AuthManager {
         });
     }
 
-    // Configurar eventos do modal de cadastro
+    // Configurar eventos do modal de cadastro com validação aprimorada
     setupRegisterModalEvents() {
         const modal = document.getElementById('registerModal');
         const closeBtn = document.getElementById('closeRegisterModal');
         const form = document.getElementById('registerForm');
         const switchBtn = document.getElementById('switchToLogin');
         const userTypeSelect = document.getElementById('userType');
+        const nameInput = document.getElementById('registerName');
+        const cadasturInput = document.getElementById('cadasturNumber');
 
         closeBtn.addEventListener('click', () => modal.remove());
         switchBtn.addEventListener('click', () => {
@@ -285,48 +364,169 @@ class AuthManager {
             await this.handleRegister();
         });
 
-        // Mostrar/ocultar secao CADASTUR
+        // Mostrar/ocultar seção CADASTUR
         userTypeSelect.addEventListener('change', () => {
             const cadasturSection = document.getElementById('cadasturSection');
-            const cadasturInput = document.getElementById('cadasturNumber');
             
             if (userTypeSelect.value === 'guia') {
                 cadasturSection.classList.remove('hidden');
                 cadasturInput.setAttribute('required', 'required');
-                // Adicionar indicador visual de campo obrigatório
-                const label = cadasturSection.querySelector('label');
-                if (label && !label.textContent.includes('*')) {
-                    label.textContent = 'Número CADASTUR *';
-                    label.style.color = '#dc2626'; // Vermelho para indicar obrigatório
-                }
+                // Validar dados existentes quando o tipo muda para guia
+                this.validateGuideData();
             } else {
                 cadasturSection.classList.add('hidden');
                 cadasturInput.removeAttribute('required');
-                cadasturInput.value = ''; // Limpar o campo quando oculto
-                // Remover indicador visual
-                const label = cadasturSection.querySelector('label');
-                if (label) {
-                    label.textContent = 'Número CADASTUR';
-                    label.style.color = '#374151'; // Cor padrão
-                }
+                cadasturInput.value = '';
+                this.clearValidation();
+            }
+        });
+
+        // Validação em tempo real do nome para guias
+        nameInput.addEventListener('input', () => {
+            if (userTypeSelect.value === 'guia') {
+                this.validateGuideData();
             }
         });
 
         // Validação em tempo real do CADASTUR
-        const cadasturInput = document.getElementById('cadasturNumber');
-        if (cadasturInput) {
-            cadasturInput.addEventListener('input', (e) => {
-                // Formatar entrada (apenas números)
-                this.formatCadastur(e.target);
-                // Validar em tempo real
-                this.validateCadastur(e.target.value);
-            });
-        }
+        cadasturInput.addEventListener('input', (e) => {
+            this.formatCadastur(e.target);
+            if (userTypeSelect.value === 'guia') {
+                this.validateGuideData();
+            }
+        });
 
         // Fechar modal ao clicar fora
         modal.addEventListener('click', (e) => {
             if (e.target === modal) modal.remove();
         });
+    }
+
+    // Validar dados do guia contra a base de dados
+    validateGuideData() {
+        const nameInput = document.getElementById('registerName');
+        const cadasturInput = document.getElementById('cadasturNumber');
+        const nameValidation = document.getElementById('nameValidation');
+        const cadasturValidation = document.getElementById('cadasturValidation');
+        const validationSummary = document.getElementById('validationSummary');
+        const validationDetails = document.getElementById('validationDetails');
+
+        const name = nameInput.value.trim();
+        const cadastur = cadasturInput.value.trim();
+
+        // Limpar validações anteriores
+        this.clearValidation();
+
+        if (!name && !cadastur) {
+            return;
+        }
+
+        // Buscar guia na base de dados
+        const guide = this.findGuideInDatabase(name, cadastur);
+
+        if (name && cadastur) {
+            if (guide) {
+                // Guia encontrado - validação bem-sucedida
+                nameValidation.innerHTML = '<span class="text-green-600">✓ Nome encontrado na base de dados</span>';
+                cadasturValidation.innerHTML = '<span class="text-green-600">✓ CADASTUR válido e verificado</span>';
+                
+                validationSummary.classList.remove('hidden');
+                validationDetails.innerHTML = `
+                    <div class="space-y-1">
+                        <div>✓ <strong>Nome:</strong> ${guide.name}</div>
+                        <div>✓ <strong>CADASTUR:</strong> ${guide.cadastur}</div>
+                        <div>✓ <strong>Estado:</strong> ${guide.estado}</div>
+                        <div>✓ <strong>Especialidades:</strong> ${guide.especialidades.join(', ')}</div>
+                    </div>
+                `;
+                
+                // Adicionar classe de sucesso aos campos
+                nameInput.classList.remove('border-red-300');
+                nameInput.classList.add('border-green-300');
+                cadasturInput.classList.remove('border-red-300');
+                cadasturInput.classList.add('border-green-300');
+                
+            } else {
+                // Guia não encontrado
+                nameValidation.innerHTML = '<span class="text-red-600">✗ Nome não encontrado na base de dados de guias certificados</span>';
+                cadasturValidation.innerHTML = '<span class="text-red-600">✗ CADASTUR não encontrado ou não corresponde ao nome</span>';
+                
+                validationSummary.classList.add('hidden');
+                
+                // Adicionar classe de erro aos campos
+                nameInput.classList.remove('border-green-300');
+                nameInput.classList.add('border-red-300');
+                cadasturInput.classList.remove('border-green-300');
+                cadasturInput.classList.add('border-red-300');
+            }
+        } else if (name) {
+            // Apenas nome preenchido
+            const nameMatches = this.guidesDatabase.filter(g => 
+                g.name.toLowerCase().includes(name.toLowerCase())
+            );
+            
+            if (nameMatches.length > 0) {
+                nameValidation.innerHTML = '<span class="text-yellow-600">⚠ Nome encontrado. Digite o CADASTUR para validação completa</span>';
+                nameInput.classList.remove('border-red-300');
+                nameInput.classList.add('border-yellow-300');
+            } else {
+                nameValidation.innerHTML = '<span class="text-red-600">✗ Nome não encontrado na base de dados</span>';
+                nameInput.classList.remove('border-green-300');
+                nameInput.classList.add('border-red-300');
+            }
+        } else if (cadastur && cadastur.length >= 10) {
+            // Apenas CADASTUR preenchido
+            const cadasturMatches = this.guidesDatabase.filter(g => g.cadastur === cadastur);
+            
+            if (cadasturMatches.length > 0) {
+                cadasturValidation.innerHTML = '<span class="text-yellow-600">⚠ CADASTUR encontrado. Confirme o nome completo</span>';
+                cadasturInput.classList.remove('border-red-300');
+                cadasturInput.classList.add('border-yellow-300');
+            } else {
+                cadasturValidation.innerHTML = '<span class="text-red-600">✗ CADASTUR não encontrado na base de dados</span>';
+                cadasturInput.classList.remove('border-green-300');
+                cadasturInput.classList.add('border-red-300');
+            }
+        }
+    }
+
+    // Buscar guia na base de dados
+    findGuideInDatabase(name, cadastur) {
+        return this.guidesDatabase.find(guide => {
+            const nameMatch = guide.name.toLowerCase() === name.toLowerCase();
+            const cadasturMatch = guide.cadastur === cadastur;
+            return nameMatch && cadasturMatch;
+        });
+    }
+
+    // Limpar validações
+    clearValidation() {
+        const nameValidation = document.getElementById('nameValidation');
+        const cadasturValidation = document.getElementById('cadasturValidation');
+        const validationSummary = document.getElementById('validationSummary');
+        const nameInput = document.getElementById('registerName');
+        const cadasturInput = document.getElementById('cadasturNumber');
+
+        if (nameValidation) nameValidation.innerHTML = '';
+        if (cadasturValidation) cadasturValidation.innerHTML = '';
+        if (validationSummary) validationSummary.classList.add('hidden');
+        
+        // Remover classes de validação
+        if (nameInput) {
+            nameInput.classList.remove('border-red-300', 'border-green-300', 'border-yellow-300');
+        }
+        if (cadasturInput) {
+            cadasturInput.classList.remove('border-red-300', 'border-green-300', 'border-yellow-300');
+        }
+    }
+
+    // Formatar CADASTUR (apenas números)
+    formatCadastur(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length > 11) {
+            value = value.substring(0, 11);
+        }
+        input.value = value;
     }
 
     // Processar login
@@ -357,65 +557,80 @@ class AuthManager {
                 localStorage.setItem('refreshToken', data.refresh_token);
                 localStorage.setItem('userData', JSON.stringify(data.user));
 
-                // Atualizar UI
-                this.showUserMenu(data.user);
+                // Fechar modal e atualizar interface
                 document.getElementById('loginModal').remove();
+                this.showUserMenu(data.user);
+                
+                // Redirecionar para perfil se necessário
+                if (window.location.pathname.includes('perfil.html')) {
+                    window.location.reload();
+                }
             } else {
                 this.showError(errorDiv, data.message || 'Erro ao fazer login');
             }
         } catch (error) {
-            this.showError(errorDiv, 'Erro de conexao. Tente novamente.');
+            console.error('Erro no login:', error);
+            this.showError(errorDiv, 'Erro de conexão. Tente novamente.');
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Entrar';
         }
     }
 
-    // Processar cadastro
+    // Processar cadastro com validação aprimorada
     async handleRegister() {
-        const name = document.getElementById('registerName').value;
-        const email = document.getElementById('registerEmail').value;
+        const name = document.getElementById('registerName').value.trim();
+        const email = document.getElementById('registerEmail').value.trim();
         const password = document.getElementById('registerPassword').value;
         const userType = document.getElementById('userType').value;
-        const cadastur = document.getElementById('cadasturNumber').value;
-        
+        const cadastur = document.getElementById('cadasturNumber').value.trim();
         const submitBtn = document.getElementById('registerSubmitBtn');
         const errorDiv = document.getElementById('registerError');
         const successDiv = document.getElementById('registerSuccess');
 
-        // Validacoes
-        if (!this.validatePassword(password)) {
-            this.showError(errorDiv, 'Senha deve ter pelo menos 8 caracteres, incluindo maiuscula, minuscula e numero');
+        // Validações básicas
+        if (!name || !email || !password || !userType) {
+            this.showError(errorDiv, 'Todos os campos obrigatórios devem ser preenchidos.');
             return;
         }
 
+        // Validação específica para guias
         if (userType === 'guia') {
-            if (!cadastur || cadastur.trim() === '') {
-                this.showError(errorDiv, 'Número CADASTUR é obrigatório para guias profissionais');
+            if (!cadastur) {
+                this.showError(errorDiv, 'CADASTUR é obrigatório para guias profissionais.');
                 return;
             }
-            
-            if (!this.validateCadastur(cadastur)) {
-                this.showError(errorDiv, 'Número CADASTUR inválido. Deve conter exatamente 11 dígitos');
+
+            // Verificar se o guia está na base de dados
+            const guide = this.findGuideInDatabase(name, cadastur);
+            if (!guide) {
+                this.showError(errorDiv, 'Nome e CADASTUR não encontrados na base de dados de guias certificados. Apenas guias registrados podem se cadastrar como profissionais.');
                 return;
             }
+        }
+
+        // Validação de senha
+        if (password.length < 8) {
+            this.showError(errorDiv, 'A senha deve ter pelo menos 8 caracteres.');
+            return;
         }
 
         submitBtn.disabled = true;
         submitBtn.textContent = 'Cadastrando...';
         this.hideError(errorDiv);
-        this.hideSuccess(successDiv);
+        this.hideError(successDiv);
 
         try {
-            const requestData = {
+            const userData = {
                 name,
                 email,
                 password,
                 user_type: userType
             };
 
+            // Adicionar CADASTUR se for guia
             if (userType === 'guia') {
-                requestData.cadastur_number = cadastur;
+                userData.cadastur = cadastur;
             }
 
             const response = await fetch(`${this.apiUrl}/auth/register`, {
@@ -423,30 +638,30 @@ class AuthManager {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(requestData)
+                body: JSON.stringify(userData)
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                this.showSuccess(successDiv, 'Cadastro realizado com sucesso! Voce ja esta logado.');
+                this.showSuccess(successDiv, 'Cadastro realizado com sucesso! Você pode fazer login agora.');
                 
-                // Salvar dados do usuario
-                localStorage.setItem('authToken', data.access_token);
-                localStorage.setItem('refreshToken', data.refresh_token);
-                localStorage.setItem('userData', JSON.stringify(data.user));
-
-                // Atualizar UI
-                this.showUserMenu(data.user);
+                // Limpar formulário
+                document.getElementById('registerForm').reset();
+                this.clearValidation();
                 
+                // Fechar modal após 2 segundos e abrir login
                 setTimeout(() => {
                     document.getElementById('registerModal').remove();
+                    this.openLoginModal();
                 }, 2000);
+                
             } else {
-                this.showError(errorDiv, data.message || 'Erro ao fazer cadastro');
+                this.showError(errorDiv, data.message || 'Erro ao realizar cadastro');
             }
         } catch (error) {
-            this.showError(errorDiv, 'Erro de conexao. Tente novamente.');
+            console.error('Erro no cadastro:', error);
+            this.showError(errorDiv, 'Erro de conexão. Tente novamente.');
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Cadastrar';
@@ -458,105 +673,60 @@ class AuthManager {
         localStorage.removeItem('authToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('userData');
-        
         this.showLoginButtons();
         
-        // Redirecionar para home se estiver em pagina protegida
-        if (window.location.pathname.includes('perfil.html')) {
+        // Redirecionar para home se estiver em página protegida
+        if (window.location.pathname.includes('perfil.html') || 
+            window.location.pathname.includes('admin.html')) {
             window.location.href = 'index.html';
         }
     }
 
-    // Validar senha
-    validatePassword(password) {
-        const minLength = password.length >= 8;
-        const hasUpper = /[A-Z]/.test(password);
-        const hasLower = /[a-z]/.test(password);
-        const hasNumber = /\d/.test(password);
-        
-        return minLength && hasUpper && hasLower && hasNumber;
-    }
-
-    // Verificar se usuario esta logado
-    isLoggedIn() {
-        return localStorage.getItem('authToken') !== null;
-    }
-
-    // Obter dados do usuario
-    getCurrentUser() {
-        const userData = localStorage.getItem('userData');
-        return userData ? JSON.parse(userData) : null;
-    }
-
     // Mostrar erro
     showError(element, message) {
-        element.textContent = message;
-        element.classList.remove('hidden');
+        if (element) {
+            element.textContent = message;
+            element.classList.remove('hidden');
+        }
     }
 
     // Ocultar erro
     hideError(element) {
-        element.classList.add('hidden');
+        if (element) {
+            element.classList.add('hidden');
+        }
     }
 
     // Mostrar sucesso
     showSuccess(element, message) {
-        element.textContent = message;
-        element.classList.remove('hidden');
+        if (element) {
+            element.textContent = message;
+            element.classList.remove('hidden');
+        }
     }
 
-    // Ocultar sucesso
-    hideSuccess(element) {
-        element.classList.add('hidden');
+    // Verificar se usuário está logado
+    isLoggedIn() {
+        return !!localStorage.getItem('authToken');
+    }
+
+    // Obter dados do usuário
+    getUserData() {
+        const userData = localStorage.getItem('userData');
+        return userData ? JSON.parse(userData) : null;
+    }
+
+    // Obter token de autenticação
+    getAuthToken() {
+        return localStorage.getItem('authToken');
     }
 }
 
-// Inicializar sistema de autenticacao quando a pagina carregar
+// Inicializar o sistema de autenticação quando a página carregar
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Inicializando sistema de autenticacao...');
     window.authManager = new AuthManager();
-    console.log('Sistema de autenticacao inicializado');
 });
 
-
-    // Validar número CADASTUR
-    validateCadastur(cadastur) {
-        const validationDiv = document.getElementById('cadasturValidation');
-        if (!validationDiv) return false;
-
-        // Limpar validação anterior
-        validationDiv.innerHTML = '';
-        
-        if (!cadastur || cadastur.trim() === '') {
-            validationDiv.innerHTML = '<span class="text-red-600">⚠️ Número CADASTUR é obrigatório para guias</span>';
-            return false;
-        }
-
-        // Validação básica do formato (apenas números, 11 dígitos)
-        const cadasturClean = cadastur.replace(/\D/g, '');
-        
-        if (cadasturClean.length < 11) {
-            validationDiv.innerHTML = '<span class="text-yellow-600">⚠️ CADASTUR deve ter 11 dígitos</span>';
-            return false;
-        }
-        
-        if (cadasturClean.length > 11) {
-            validationDiv.innerHTML = '<span class="text-red-600">⚠️ CADASTUR não pode ter mais de 11 dígitos</span>';
-            return false;
-        }
-
-        // Se chegou até aqui, formato está correto
-        validationDiv.innerHTML = '<span class="text-green-600">✅ Formato válido</span>';
-        return true;
-    }
-
-    // Formatar número CADASTUR enquanto digita
-    formatCadastur(input) {
-        let value = input.value.replace(/\D/g, '');
-        if (value.length > 11) {
-            value = value.substring(0, 11);
-        }
-        input.value = value;
-        return value;
-    }
+// Exportar para uso global
+window.AuthManager = AuthManager;
 
