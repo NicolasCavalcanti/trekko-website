@@ -884,8 +884,8 @@
             </div>
 
             <div class="nav-actions">
-                <a href="#" class="btn btn-secondary" onclick="openModal('login')">Entrar</a>
-                <a href="#" class="btn btn-primary" onclick="openModal('cadastro')">Cadastrar</a>
+                <a href="#" class="btn btn-secondary" data-auth="login">Entrar</a>
+                <a href="#" class="btn btn-primary" onclick="showCadastroModal()">Cadastrar</a>
             </div>
         </nav>
     </header>
@@ -1155,7 +1155,7 @@
                 <div class="footer-section">
                     <h3>Para Guias</h3>
                     <ul>
-                        <li><a href="#" onclick="openModal('guia')">Tornar-se guia</a></li>
+                        <li><a href="#" data-auth="register">Tornar-se guia</a></li>
                         <li><a href="/guias.html">Guias certificados</a></li>
                         <li><a href="#ajuda">Central de ajuda</a></li>
                         <li><a href="#suporte">Suporte técnico</a></li>
@@ -1187,9 +1187,7 @@
     </footer>
 
     <!-- Scripts -->
-    <!-- Sistema de Autenticação -->
-    <script src="auth.js"></script>
-    <script src="auth-guard.js"></script>
+    <!-- Sistema de Autenticação -->  <script src="auth-guard.js"></script>
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/homepage.js"></script>
@@ -1213,6 +1211,178 @@
         ]
     }
     </script>
+
+    </script>
 </body>
 </html>
+
+
+
+    <!-- New Authentication System -->
+    <link rel="stylesheet" href="new_auth.css">
+    <script src="new_auth.js"></script>
+
+    <!-- MODAL DE CADASTRO INLINE -->
+    <div id="cadastroModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; position: relative;">
+            <button onclick="closeCadastroModal()" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+            
+            <h2 style="text-align: center; margin-bottom: 25px; color: #2D5A27;">Cadastrar na Trekko</h2>
+            
+            <form id="cadastroForm" onsubmit="submitCadastro(event)">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Nome Completo</label>
+                    <input type="text" id="nome" required style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Email</label>
+                    <input type="email" id="email" required style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Senha</label>
+                    <input type="password" id="senha" required style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Tipo de Usuário</label>
+                    <select id="tipoUsuario" onchange="toggleCadastur()" required style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                        <option value="">Selecione...</option>
+                        <option value="trekker">🥾 Trekker (Usuário)</option>
+                        <option value="guia">🧭 Guia Profissional</option>
+                    </select>
+                </div>
+                
+                <div id="cadasturSection" style="display: none; margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2D5A27;">Número CADASTUR *</label>
+                    <input type="text" id="cadastur" placeholder="Digite seu número CADASTUR" style="width: 100%; padding: 12px; border: 2px solid #2D5A27; border-radius: 8px; font-size: 16px;">
+                    <div id="cadasturValidation" style="margin-top: 5px; font-size: 14px;"></div>
+                </div>
+                
+                <button type="submit" style="width: 100%; padding: 15px; background: #2D5A27; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px;">
+                    Cadastrar
+                </button>
+            </form>
+            
+            <p style="text-align: center; margin-top: 20px;">
+                Já tem conta? <a href="#" onclick="showLoginModal()" style="color: #2D5A27; text-decoration: none; font-weight: bold;">Faça login</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function showCadastroModal() {
+            document.getElementById('cadastroModal').style.display = 'flex';
+        }
+        
+        function closeCadastroModal() {
+            document.getElementById('cadastroModal').style.display = 'none';
+        }
+        
+        function toggleCadastur() {
+            const tipoUsuario = document.getElementById('tipoUsuario').value;
+            const cadasturSection = document.getElementById('cadasturSection');
+            const cadasturInput = document.getElementById('cadastur');
+            
+            if (tipoUsuario === 'guia') {
+                cadasturSection.style.display = 'block';
+                cadasturInput.required = true;
+                console.log('CADASTUR field shown for Guia Profissional');
+            } else {
+                cadasturSection.style.display = 'none';
+                cadasturInput.required = false;
+                cadasturInput.value = '';
+                document.getElementById('cadasturValidation').innerHTML = '';
+            }
+        }
+        
+        function validateCadastur() {
+            const cadastur = document.getElementById('cadastur').value;
+            const validation = document.getElementById('cadasturValidation');
+            
+            if (!cadastur) {
+                validation.innerHTML = '';
+                return;
+            }
+            
+            const cleanCadastur = cadastur.replace(/\D/g, '');
+            
+            if (cleanCadastur.length < 11) {
+                validation.innerHTML = '<span style="color: orange;">⚠️ CADASTUR deve ter 11 dígitos</span>';
+                return false;
+            } else if (cleanCadastur.length > 11) {
+                validation.innerHTML = '<span style="color: red;">❌ CADASTUR não pode ter mais de 11 dígitos</span>';
+                return false;
+            } else {
+                validation.innerHTML = '<span style="color: green;">✅ Formato válido</span>';
+                return true;
+            }
+        }
+        
+        // Add validation on input
+        document.addEventListener('DOMContentLoaded', function() {
+            const cadasturInput = document.getElementById('cadastur');
+            if (cadasturInput) {
+                cadasturInput.addEventListener('input', validateCadastur);
+            }
+        });
+        
+        async function submitCadastro(event) {
+            event.preventDefault();
+            
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const tipoUsuario = document.getElementById('tipoUsuario').value;
+            const cadastur = document.getElementById('cadastur').value;
+            
+            // Validate CADASTUR for guides
+            if (tipoUsuario === 'guia') {
+                if (!cadastur) {
+                    alert('CADASTUR é obrigatório para Guias Profissionais');
+                    return;
+                }
+                if (!validateCadastur()) {
+                    alert('Por favor, insira um CADASTUR válido');
+                    return;
+                }
+            }
+            
+            const data = {
+                name: nome,
+                email: email,
+                password: senha,
+                user_type: tipoUsuario,
+                cadastur_number: cadastur || null
+            };
+            
+            try {
+                const response = await fetch('https://5000-idy3pfholfyyw87mpn5tr-820c13bc.manusvm.computer/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Cadastro realizado com sucesso!');
+                    closeCadastroModal();
+                } else {
+                    alert('Erro: ' + result.message);
+                }
+            } catch (error) {
+                alert('Erro de conexão. Tente novamente.');
+                console.error('Error:', error);
+            }
+        }
+        
+        function showLoginModal() {
+            alert('Modal de login não implementado nesta versão');
+        }
+    </script>
+
 
