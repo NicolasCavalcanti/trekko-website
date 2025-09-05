@@ -1,7 +1,7 @@
 // New Authentication System with CADASTUR Support
 class TrekkoAuth {
     constructor() {
-        this.apiUrl = 'https://5000-idy3pfholfyyw87mpn5tr-820c13bc.manusvm.computer/api/auth';
+        this.apiUrl = 'https://5000-ibpp8roptl9en8w6ne0am-95675309.manusvm.computer/api/auth';
         this.init();
     }
 
@@ -26,14 +26,12 @@ class TrekkoAuth {
     }
 
     showLoginModal() {
-        const modal = this.createModal('login', 'Entrar na Trekko', this.getLoginForm());
-        document.body.appendChild(modal);
+        const modal = this.createModal(\'login\', \'Entrar no Trekko\', this.getLoginForm());     document.body.appendChild(modal);
         this.setupLoginHandlers(modal);
     }
 
     showRegisterModal() {
-        const modal = this.createModal('register', 'Cadastrar na Trekko', this.getRegisterForm());
-        document.body.appendChild(modal);
+        const modal = this.createModal(\'register\', \'Cadastrar no Trekko\', this.getRegisterForm());     document.body.appendChild(modal);
         this.setupRegisterHandlers(modal);
     }
 
