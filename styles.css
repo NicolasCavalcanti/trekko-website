@@ -176,6 +176,16 @@ a:hover {
     color: var(--branco);
 }
 
+#encontrarGuiasBtn {
+    background: var(--branco);
+    color: #000;
+}
+
+#encontrarGuiasBtn:hover {
+    background: var(--branco);
+    color: #000;
+}
+
 .btn-large {
     padding: var(--spacing-lg) var(--spacing-2xl);
     font-size: 1.125rem;
