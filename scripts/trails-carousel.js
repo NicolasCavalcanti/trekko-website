@@ -46,7 +46,7 @@ function createTrailCard(trail) {
   const imageAlt = window.trailImages ? window.trailImages.getAlt(trail.name) : trail.name;
 
   card.innerHTML = `
-    <img src="${coverImage || 'images/placeholder-trail.jpg'}" alt="${imageAlt}">
+    <img src="${coverImage || 'https://via.placeholder.com/400x300?text=Foto+indisponivel'}" alt="${imageAlt}">
     <div class="trilha-card-content">
       <h3 class="trilha-title">${trail.name}</h3>
       <p class="trilha-location"><i class="fas fa-map-marker-alt"></i> ${trail.location || ''}${trail.state ? ', ' + trail.state : ''}</p>
