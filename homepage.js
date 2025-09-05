@@ -136,128 +136,9 @@ class TrekkoHomepage {
     }
 
     loadData() {
-        this.loadTrilhas();
         this.loadGuias();
         this.loadEstados();
         this.loadDepoimentos();
-    }
-
-    loadTrilhas() {
-        // Top 10 trilhas mais bem avaliadas, priorizando MG, SP, RJ, ES em caso de empate
-        this.trilhas = [
-            {
-                id: 1,
-                name: "Pico da Bandeira",
-                location: "Alto Caparaó, MG",
-                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-                difficulty: "Difícil",
-                duration: "2 dias",
-                distance: "14 km",
-                rating: 4.9,
-                reviews: 247
-            },
-            {
-                id: 2,
-                name: "Pico dos Marins",
-                location: "Piquete, SP",
-                image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop",
-                difficulty: "Difícil",
-                duration: "1 dia",
-                distance: "12 km",
-                rating: 4.8,
-                reviews: 156
-            },
-            {
-                id: 3,
-                name: "Pedra do Sino",
-                location: "Teresópolis, RJ",
-                image: "https://images.unsplash.com/photo-1464822759844-d150baec4ba5?w=400&h=300&fit=crop",
-                difficulty: "Moderada",
-                duration: "1 dia",
-                distance: "8 km",
-                rating: 4.8,
-                reviews: 189
-            },
-            {
-                id: 4,
-                name: "Pedra Azul",
-                location: "Domingos Martins, ES",
-                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-                difficulty: "Moderada",
-                duration: "Meio dia",
-                distance: "6 km",
-                rating: 4.8,
-                reviews: 134
-            },
-            {
-                id: 5,
-                name: "Cachoeira do Tabuleiro",
-                location: "Conceição do Mato Dentro, MG",
-                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-                difficulty: "Fácil",
-                duration: "Meio dia",
-                distance: "4 km",
-                rating: 4.7,
-                reviews: 203
-            },
-            {
-                id: 6,
-                name: "Serra do Cipó",
-                location: "Santana do Riacho, MG",
-                image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop",
-                difficulty: "Moderada",
-                duration: "1 dia",
-                distance: "15 km",
-                rating: 4.7,
-                reviews: 167
-            },
-            {
-                id: 7,
-                name: "Pico das Agulhas Negras",
-                location: "Itatiaia, RJ",
-                image: "https://images.unsplash.com/photo-1464822759844-d150baec4ba5?w=400&h=300&fit=crop",
-                difficulty: "Difícil",
-                duration: "1 dia",
-                distance: "10 km",
-                rating: 4.7,
-                reviews: 178
-            },
-            {
-                id: 8,
-                name: "Pico do Itacolomi",
-                location: "Ouro Preto, MG",
-                image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop",
-                difficulty: "Moderada",
-                duration: "Meio dia",
-                distance: "5 km",
-                rating: 4.6,
-                reviews: 145
-            },
-            {
-                id: 9,
-                name: "Pedra da Gávea",
-                location: "Rio de Janeiro, RJ",
-                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-                difficulty: "Difícil",
-                duration: "1 dia",
-                distance: "6 km",
-                rating: 4.6,
-                reviews: 234
-            },
-            {
-                id: 10,
-                name: "Pico da Neblina",
-                location: "São Gabriel da Cachoeira, AM",
-                image: "https://images.unsplash.com/photo-1464822759844-d150baec4ba5?w=400&h=300&fit=crop",
-                difficulty: "Extrema",
-                duration: "7 dias",
-                distance: "50 km",
-                rating: 4.6,
-                reviews: 89
-            }
-        ];
-        
-        this.renderTrilhas();
     }
 
     loadGuias() {
@@ -381,43 +262,6 @@ class TrekkoHomepage {
         this.renderDepoimentos();
     }
 
-    renderTrilhas() {
-        const container = document.getElementById("trilhasCarousel");
-        if (!container) return;
-        
-        container.innerHTML = this.trilhas.map(trilha => `
-            <div class="trilha-card">
-                <img src="${trilha.image}" alt="${trilha.name}" onerror="this.src=\'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=320&h=200&fit=crop\'"/>
-                <div class="trilha-card-content">
-                    <h3 class="trilha-title">${trilha.name}</h3>
-                    <p class="trilha-location">
-                        <i class="fas fa-map-marker-alt"></i>
-                        ${trilha.location}
-                    </p>
-                    <div class="trilha-stats">
-                        <span class="trilha-stat">
-                            <i class="fas fa-chart-line"></i>
-                            ${trilha.difficulty}
-                        </span>
-                        <span class="trilha-stat">
-                            <i class="fas fa-clock"></i>
-                            ${trilha.duration}
-                        </span>
-                        <span class="trilha-stat">
-                            <i class="fas fa-route"></i>
-                            ${trilha.distance}
-                        </span>
-                    </div>
-                    <div class="trilha-rating">
-                        <div class="stars">
-                            ${this.generateStars(trilha.rating)}
-                        </div>
-                        <span>${trilha.rating} (${trilha.reviews} avaliações)</span>
-                    </div>
-                </div>
-            </div>
-        `).join("");
-    }
 
     renderGuias() {
         const container = document.getElementById("guiasGrid");
@@ -508,44 +352,12 @@ class TrekkoHomepage {
     }
 
     setupCarousels() {
-        const trilhasPrev = document.getElementById("trilhasPrev");
-        const trilhasNext = document.getElementById("trilhasNext");
-        
-        if (trilhasPrev && trilhasNext) {
-            trilhasPrev.addEventListener("click", () => this.prevTrilha());
-            trilhasNext.addEventListener("click", () => this.nextTrilha());
-        }
         
         setInterval(() => {
             this.nextDepoimento();
         }, 5000);
     }
 
-    prevTrilha() {
-        const container = document.getElementById("trilhasCarousel");
-        if (!container) return;
-        
-        this.currentTrilhaIndex = Math.max(0, this.currentTrilhaIndex - 1);
-        this.updateTrilhaCarousel();
-    }
-
-    nextTrilha() {
-        const container = document.getElementById("trilhasCarousel");
-        if (!container) return;
-        
-        const maxIndex = this.trilhas.length - 3; 
-        this.currentTrilhaIndex = Math.min(maxIndex, this.currentTrilhaIndex + 1);
-        this.updateTrilhaCarousel();
-    }
-
-    updateTrilhaCarousel() {
-        const container = document.getElementById("trilhasCarousel");
-        if (!container) return;
-        
-        const cardWidth = 320 + 24; 
-        const translateX = -this.currentTrilhaIndex * cardWidth;
-        container.style.transform = `translateX(${translateX}px)`;
-    }
 
     nextDepoimento() {
         this.currentDepoimentoIndex = (this.currentDepoimentoIndex + 1) % this.depoimentos.length;

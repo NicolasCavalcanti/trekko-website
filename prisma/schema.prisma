@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Difficulty {
+  EASY
+  MODERATE
+  HARD
+  EXTREME
+}
+
+model Trail {
+  id            String     @id @default(cuid())
+  name          String
+  state         String
+  city          String
+  regionOrPark  String?
+  distanceKm    Float?
+  elevationGainM Int?
+  difficulty    Difficulty
+  requiresGuide Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  media         Media[]    @relation("TrailMedia")
+}
+
+model Media {
+  id           String   @id @default(cuid())
+  url          String
+  type         String
+  caption      String?
+  isCover      Boolean  @default(false)
+  trailId      String?
+  expeditionId String?
+
+  trail        Trail?      @relation("TrailMedia", fields: [trailId], references: [id])
+  expedition   Expedition? @relation("ExpeditionMedia", fields: [expeditionId], references: [id])
+  createdAt    DateTime @default(now())
+
+  @@index([trailId, isCover])
+}
+
+model Expedition {
+  id    String @id @default(cuid())
+  media Media[] @relation("ExpeditionMedia")
+}
