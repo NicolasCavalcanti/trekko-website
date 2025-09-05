@@ -143,66 +143,117 @@ class TrekkoHomepage {
     }
 
     loadTrilhas() {
+        // Top 10 trilhas mais bem avaliadas, priorizando MG, SP, RJ, ES em caso de empate
         this.trilhas = [
             {
                 id: 1,
                 name: "Pico da Bandeira",
-                location: "Espírito Santo / Minas Gerais",
-                image: "images/trilhas/pico-bandeira-1.jpg",
+                location: "Alto Caparaó, MG",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
                 difficulty: "Difícil",
                 duration: "2 dias",
                 distance: "14 km",
-                rating: 4.8,
-                reviews: 127,
-                price: "R$ 280"
+                rating: 4.9,
+                reviews: 247
             },
             {
                 id: 2,
-                name: "Pedra do Sino",
-                location: "Rio de Janeiro",
-                image: "images/trilhas/pedra-sino-1.jpg",
-                difficulty: "Moderada",
+                name: "Pico dos Marins",
+                location: "Piquete, SP",
+                image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop",
+                difficulty: "Difícil",
                 duration: "1 dia",
-                distance: "8 km",
-                rating: 4.6,
-                reviews: 89,
-                price: "R$ 150"
+                distance: "12 km",
+                rating: 4.8,
+                reviews: 156
             },
             {
                 id: 3,
+                name: "Pedra do Sino",
+                location: "Teresópolis, RJ",
+                image: "https://images.unsplash.com/photo-1464822759844-d150baec4ba5?w=400&h=300&fit=crop",
+                difficulty: "Moderada",
+                duration: "1 dia",
+                distance: "8 km",
+                rating: 4.8,
+                reviews: 189
+            },
+            {
+                id: 4,
+                name: "Pedra Azul",
+                location: "Domingos Martins, ES",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+                difficulty: "Moderada",
+                duration: "Meio dia",
+                distance: "6 km",
+                rating: 4.8,
+                reviews: 134
+            },
+            {
+                id: 5,
                 name: "Cachoeira do Tabuleiro",
-                location: "Minas Gerais",
-                image: "images/trilhas/cachoeira-tabuleiro-1.jpg",
+                location: "Conceição do Mato Dentro, MG",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
                 difficulty: "Fácil",
                 duration: "Meio dia",
                 distance: "4 km",
                 rating: 4.7,
-                reviews: 156,
-                price: "R$ 80"
+                reviews: 203
             },
             {
-                id: 4,
-                name: "Pico dos Marins",
-                location: "São Paulo",
-                image: "images/trilhas/pico-marins-1.jpg",
+                id: 6,
+                name: "Serra do Cipó",
+                location: "Santana do Riacho, MG",
+                image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop",
+                difficulty: "Moderada",
+                duration: "1 dia",
+                distance: "15 km",
+                rating: 4.7,
+                reviews: 167
+            },
+            {
+                id: 7,
+                name: "Pico das Agulhas Negras",
+                location: "Itatiaia, RJ",
+                image: "https://images.unsplash.com/photo-1464822759844-d150baec4ba5?w=400&h=300&fit=crop",
                 difficulty: "Difícil",
                 duration: "1 dia",
-                distance: "12 km",
-                rating: 4.5,
-                reviews: 73,
-                price: "R$ 200"
+                distance: "10 km",
+                rating: 4.7,
+                reviews: 178
             },
             {
-                id: 5,
-                name: "Trilha do Ouro",
-                location: "Minas Gerais",
-                image: "images/trilhas/trilha-ouro-1.jpg",
+                id: 8,
+                name: "Pico do Itacolomi",
+                location: "Ouro Preto, MG",
+                image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop",
                 difficulty: "Moderada",
-                duration: "3 dias",
-                distance: "25 km",
-                rating: 4.9,
-                reviews: 45,
-                price: "R$ 450"
+                duration: "Meio dia",
+                distance: "5 km",
+                rating: 4.6,
+                reviews: 145
+            },
+            {
+                id: 9,
+                name: "Pedra da Gávea",
+                location: "Rio de Janeiro, RJ",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+                difficulty: "Difícil",
+                duration: "1 dia",
+                distance: "6 km",
+                rating: 4.6,
+                reviews: 234
+            },
+            {
+                id: 10,
+                name: "Pico da Neblina",
+                location: "São Gabriel da Cachoeira, AM",
+                image: "https://images.unsplash.com/photo-1464822759844-d150baec4ba5?w=400&h=300&fit=crop",
+                difficulty: "Extrema",
+                duration: "7 dias",
+                distance: "50 km",
+                rating: 4.6,
+                reviews: 89
             }
         ];
         
@@ -363,7 +414,6 @@ class TrekkoHomepage {
                         </div>
                         <span>${trilha.rating} (${trilha.reviews} avaliações)</span>
                     </div>
-                    <div class="trilha-price">${trilha.price}</div>
                 </div>
             </div>
         `).join("");
