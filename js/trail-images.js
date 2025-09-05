@@ -264,7 +264,7 @@ if (!document.querySelector('#gallery-styles')) {
 // Função para obter imagem de capa da trilha
 function getTrailCoverImage(trailName) {
     const trailKey = normalizeTrailName(trailName);
-    return trailImages[trailKey]?.cover || 'images/trilhas/default-trail.jpg';
+    return trailImages[trailKey]?.cover || 'https://via.placeholder.com/400x300?text=Foto+indisponivel';
 }
 
 // Função para obter galeria de imagens da trilha
