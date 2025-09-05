@@ -215,53 +215,6 @@
 
     </section>
 
-    <!-- Como Funciona -->
-    <section class="section como-funciona" id="como-funciona">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Como Funciona</h2>
-                <p class="section-subtitle">
-                    Três passos simples para sua próxima aventura na natureza
-                </p>
-            </div>
-            
-            <div class="steps-grid">
-                <div class="step" data-step="1">
-                    <div class="step-icon">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <h3 class="step-title">Encontre sua trilha</h3>
-                    <p class="step-description">
-                        Explore nossa seleção de trilhas em todo o Brasil. Filtre por localização, 
-                        dificuldade e duração para encontrar a aventura perfeita.
-                    </p>
-                </div>
-                
-                <div class="step" data-step="2">
-                    <div class="step-icon">
-                        <i class="fas fa-user-check"></i>
-                    </div>
-                    <h3 class="step-title">Escolha um guia certificado</h3>
-                    <p class="step-description">
-                        Conecte-se com guias profissionais certificados pelo CADASTUR. 
-                        Segurança e experiência garantidas para sua jornada.
-                    </p>
-                </div>
-                
-                <div class="step" data-step="3">
-                    <div class="step-icon">
-                        <i class="fas fa-mountain"></i>
-                    </div>
-                    <h3 class="step-title">Viva a experiência</h3>
-                    <p class="step-description">
-                        Reserve sua aventura e prepare-se para momentos inesquecíveis. 
-                        Descubra a beleza natural do Brasil com total segurança.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Trilhas em Destaque -->
     <section class="section trilhas-destaque" id="trilhas">
         <div class="container">
@@ -271,7 +224,7 @@
                     Descubra as trilhas mais procuradas e bem avaliadas do Brasil
                 </p>
             </div>
-            
+
             <div class="trilhas-carousel">
                 <div class="carousel-container" id="trilhasCarousel">
                     <!-- Trilhas serão carregadas dinamicamente -->
@@ -281,12 +234,59 @@
                 import { renderTrailsCarousel } from "/scripts/trails-carousel.js";
                 renderTrailsCarousel(document.getElementById("trilhasCarousel"));
             </script>
-            
+
             <div class="section-footer">
                 <a href="trilhas.html" class="btn btn-primary">
                     <i class="fas fa-hiking"></i>
                     Ver Todas as Trilhas
                 </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Como Funciona -->
+    <section class="section como-funciona" id="como-funciona">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Como Funciona</h2>
+                <p class="section-subtitle">
+                    Três passos simples para sua próxima aventura na natureza
+                </p>
+            </div>
+
+            <div class="steps-grid">
+                <div class="step" data-step="1">
+                    <div class="step-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="step-title">Encontre sua trilha</h3>
+                    <p class="step-description">
+                        Explore nossa seleção de trilhas em todo o Brasil. Filtre por localização,
+                        dificuldade e duração para encontrar a aventura perfeita.
+                    </p>
+                </div>
+
+                <div class="step" data-step="2">
+                    <div class="step-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <h3 class="step-title">Escolha um guia certificado</h3>
+                    <p class="step-description">
+                        Conecte-se com guias profissionais certificados pelo CADASTUR.
+                        Segurança e experiência garantidas para sua jornada.
+                    </p>
+                </div>
+
+                <div class="step" data-step="3">
+                    <div class="step-icon">
+                        <i class="fas fa-mountain"></i>
+                    </div>
+                    <h3 class="step-title">Viva a experiência</h3>
+                    <p class="step-description">
+                        Reserve sua aventura e prepare-se para momentos inesquecíveis.
+                        Descubra a beleza natural do Brasil com total segurança.
+                    </p>
+                </div>
             </div>
         </div>
     </section>
