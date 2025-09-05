@@ -5,7 +5,6 @@ class TrekkoHomepage {
         this.currentDepoimentoIndex = 0;
         this.trilhas = [];
         this.guias = [];
-        this.estados = [];
         this.depoimentos = [];
         
         this.init();
@@ -137,7 +136,6 @@ class TrekkoHomepage {
 
     loadData() {
         this.loadGuias();
-        this.loadEstados();
         this.loadDepoimentos();
     }
 
@@ -186,49 +184,6 @@ class TrekkoHomepage {
         ];
         
         this.renderGuias();
-    }
-
-    loadEstados() {
-        this.estados = [
-            {
-                name: "Rio de Janeiro",
-                image: "images/estados/rio-janeiro.jpg",
-                trilhas: 45,
-                destaque: "Pedra da Gávea, Pão de Açúcar"
-            },
-            {
-                name: "Minas Gerais",
-                image: "images/estados/minas-gerais.jpg",
-                trilhas: 67,
-                destaque: "Pico da Bandeira, Serra do Cipó"
-            },
-            {
-                name: "São Paulo",
-                image: "images/estados/sao-paulo.jpg",
-                trilhas: 38,
-                destaque: "Pico dos Marins, Pedra Grande"
-            },
-            {
-                name: "Espírito Santo",
-                image: "images/estados/espirito-santo.jpg",
-                trilhas: 29,
-                destaque: "Pedra Azul, Forno Grande"
-            },
-            {
-                name: "Bahia",
-                image: "images/estados/bahia.jpg",
-                trilhas: 52,
-                destaque: "Chapada Diamantina, Morro do Pai Inácio"
-            },
-            {
-                name: "Santa Catarina",
-                image: "images/estados/santa-catarina.jpg",
-                trilhas: 41,
-                destaque: "Morro da Igreja, Pedra Furada"
-            }
-        ];
-        
-        this.renderEstados();
     }
 
     loadDepoimentos() {
@@ -284,22 +239,6 @@ class TrekkoHomepage {
                         ${this.generateStars(guia.rating)}
                     </div>
                     <span>${guia.rating} • ${guia.expeditions} expedições</span>
-                </div>
-            </div>
-        `).join("");
-    }
-
-    renderEstados() {
-        const container = document.getElementById("estadosGrid");
-        if (!container) return;
-        
-        container.innerHTML = this.estados.map(estado => `
-            <div class="estado-card">
-                <img src="${estado.image}" alt="${estado.name}" onerror="this.src=\'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=250&h=150&fit=crop\'"/>
-                <div class="estado-card-content">
-                    <h3 class="estado-name">${estado.name}</h3>
-                    <p class="estado-count">${estado.trilhas} trilhas disponíveis</p>
-                    <p class="estado-destaque">${estado.destaque}</p>
                 </div>
             </div>
         `).join("");
