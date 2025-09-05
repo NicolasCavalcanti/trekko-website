@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "../lib/prisma";
 
 const SOURCE: Array<{
   name: string;
@@ -104,7 +104,7 @@ function mapDifficulty(pt: string) {
   return m[pt] ?? "MODERATE";
 }
 
-async function main() {
+export async function seedTrails() {
   for (const t of SOURCE) {
     const trail = await prisma.trail.upsert({
       where: {
@@ -160,7 +160,7 @@ async function main() {
   }
 }
 
-main()
+seedTrails()
   .then(() => process.exit(0))
   .catch((e) => {
     console.error(e);

@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  trekker
+  guide
+  admin
+}
+
 enum Difficulty {
   EASY
   MODERATE
@@ -14,37 +20,96 @@ enum Difficulty {
   EXTREME
 }
 
+enum ExpeditionStatus {
+  draft
+  published
+  closed
+}
+
+enum PaymentStatus {
+  pending
+  approved
+  refunded
+  cancelled
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  avatarUrl String?
+  role      Role     @default(trekker)
+  guide     Guide?
+  participants ExpeditionParticipant[]
+}
+
+model Guide {
+  id         String  @id
+  cadastur   String
+  bio        String?
+  isVerified Boolean @default(false)
+  user       User    @relation(fields: [id], references: [id])
+  expeditions Expedition[]
+}
+
 model Trail {
-  id            String     @id @default(cuid())
+  id            String   @id @default(uuid())
   name          String
-  state         String
+  state         String   @db.Char(2)
   city          String
+  slug          String   @unique @default(cuid())
   regionOrPark  String?
   distanceKm    Float?
   elevationGainM Int?
   difficulty    Difficulty
-  requiresGuide Boolean    @default(false)
-  createdAt     DateTime   @default(now())
-  media         Media[]    @relation("TrailMedia")
+  createdAt     DateTime @default(now())
+  media         Media[]
+  expeditions   Expedition[]
+  @@index([state, city, name])
 }
 
 model Media {
-  id           String   @id @default(cuid())
+  id           String   @id @default(uuid())
   url          String
   type         String
   caption      String?
   isCover      Boolean  @default(false)
   trailId      String?
   expeditionId String?
-
-  trail        Trail?      @relation("TrailMedia", fields: [trailId], references: [id])
-  expedition   Expedition? @relation("ExpeditionMedia", fields: [expeditionId], references: [id])
+  trail        Trail?      @relation(fields: [trailId], references: [id])
+  expedition   Expedition? @relation(fields: [expeditionId], references: [id])
   createdAt    DateTime @default(now())
-
   @@index([trailId, isCover])
 }
 
 model Expedition {
-  id    String @id @default(cuid())
-  media Media[] @relation("ExpeditionMedia")
+  id          String   @id @default(uuid())
+  trailId     String
+  guideId     String
+  startDate   DateTime
+  endDate     DateTime
+  priceCents  Int
+  maxPeople   Int
+  description String
+  status      ExpeditionStatus @default(draft)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  trail       Trail    @relation(fields: [trailId], references: [id])
+  guide       Guide    @relation(fields: [guideId], references: [id])
+  media       Media[]
+  participants ExpeditionParticipant[]
+  @@index([trailId, startDate])
+}
+
+model ExpeditionParticipant {
+  id            String   @id @default(uuid())
+  expeditionId  String
+  userId        String
+  paymentStatus PaymentStatus @default(pending)
+  mpPreferenceId String?
+  mpPaymentId   String?
+  createdAt     DateTime @default(now())
+  expedition    Expedition @relation(fields: [expeditionId], references: [id])
+  user          User       @relation(fields: [userId], references: [id])
+  @@unique([expeditionId, userId])
 }

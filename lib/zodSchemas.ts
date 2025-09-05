@@ -76,3 +76,10 @@ export const reviewCreateSchema = z.object({
   trailId: z.string().nullable().optional(),
   expeditionId: z.string().nullable().optional(),
 }).refine(v => v.trailId || v.expeditionId, { message: "trailId or expeditionId required" });
+
+export const filterExpeditionsSchema = z.object({
+  from: z.string().optional(),
+  to: z.string().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(15).default(15),
+});
