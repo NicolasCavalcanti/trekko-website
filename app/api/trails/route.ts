@@ -21,10 +21,15 @@ export async function GET(req: NextRequest) {
       skip: (page - 1) * pageSize,
       take: pageSize,
       orderBy: { createdAt: "desc" },
+      include: { media: { where: { isCover: true }, take: 1 } },
     }),
     prisma.trail.count({ where }),
   ]);
-  return NextResponse.json({ items, total, page, pageSize });
+  const withCovers = items.map((t) => ({
+    ...t,
+    coverImageUrl: t.media?.[0]?.url ?? null,
+  }));
+  return NextResponse.json({ items: withCovers, total, page, pageSize });
 }
 
 export async function POST(req: NextRequest) {

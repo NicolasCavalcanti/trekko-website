@@ -276,13 +276,11 @@
                 <div class="carousel-container" id="trilhasCarousel">
                     <!-- Trilhas serão carregadas dinamicamente -->
                 </div>
-                <button class="carousel-btn carousel-prev" id="trilhasPrev">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="carousel-btn carousel-next" id="trilhasNext">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
             </div>
+            <script type="module">
+                import { renderTrailsCarousel } from "/scripts/trails-carousel.js";
+                renderTrailsCarousel(document.getElementById("trilhasCarousel"));
+            </script>
             
             <div class="section-footer">
                 <a href="trilhas.html" class="btn btn-primary">
