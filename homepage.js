@@ -16,49 +16,64 @@ class TrekkoHomepage {
         this.loadData();
         this.setupAnimations();
         this.setupCarousels();
-        this.animateStats();
+        // this.animateStats(); // Removed as per user request
     }
 
     setupEventListeners() {
         // Header scroll effect
-        window.addEventListener('scroll', () => this.handleScroll());
+        window.addEventListener("scroll", () => this.handleScroll());
         
         // Mobile menu
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenuBtn = document.getElementById("mobileMenuBtn");
         if (mobileMenuBtn) {
-            mobileMenuBtn.addEventListener('click', () => this.toggleMobileMenu());
+            mobileMenuBtn.addEventListener("click", () => this.toggleMobileMenu());
         }
         
         // Search functionality
-        const searchBtn = document.querySelector('.search-btn');
-        if (searchBtn) {
-            searchBtn.addEventListener('click', () => this.handleSearch());
+        const searchHomepageBtn = document.getElementById("searchHomepageBtn");
+        if (searchHomepageBtn) {
+            searchHomepageBtn.addEventListener("click", () => this.handleSearch());
         }
         
         // Newsletter form
-        const newsletterForm = document.getElementById('newsletterForm');
+        const newsletterForm = document.getElementById("newsletterForm");
         if (newsletterForm) {
-            newsletterForm.addEventListener('submit', (e) => this.handleNewsletter(e));
+            newsletterForm.addEventListener("submit", (e) => this.handleNewsletter(e));
         }
         
         // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(link => {
-            link.addEventListener('click', (e) => this.handleSmoothScroll(e));
+        document.querySelectorAll("a[href^=\"#\"]").forEach(link => {
+            link.addEventListener("click", (e) => this.handleSmoothScroll(e));
         });
         
         // Tornar-se guia button
-        const tornarGuiaBtn = document.getElementById('tornarGuiaBtn');
+        const tornarGuiaBtn = document.getElementById("tornarGuiaBtn");
         if (tornarGuiaBtn) {
-            tornarGuiaBtn.addEventListener('click', () => this.handleTornarGuia());
+            tornarGuiaBtn.addEventListener("click", () => this.handleTornarGuia());
+        }
+
+        // Botões Explorar Trilhas e Encontrar Guias
+        const explorarTrilhasBtn = document.getElementById("explorarTrilhasBtn");
+        if (explorarTrilhasBtn) {
+            explorarTrilhasBtn.addEventListener("click", () => {
+                window.location.href = "trilhas.html";
+            });
+        }
+
+        const encontrarGuiasBtn = document.getElementById("encontrarGuiasBtn");
+        if (encontrarGuiasBtn) {
+            encontrarGuiasBtn.addEventListener("click", () => {
+                window.location.href = "guias.html";
+            });
         }
     }
 
     handleScroll() {
-        const header = document.getElementById('header');
+        const header = document.getElementById("header");
         if (window.scrollY > 100) {
-            header.classList.add('scrolled');
+            header.classList.add("scrolled");
         } else {
-            header.classList.remove('scrolled');
+            header.classList.remove("scrolled");
         }
         
         // Animate elements on scroll
@@ -66,58 +81,55 @@ class TrekkoHomepage {
     }
 
     toggleMobileMenu() {
-        const navMenu = document.getElementById('navMenu');
-        navMenu.classList.toggle('mobile-open');
+        const navMenu = document.getElementById("navMenu");
+        navMenu.classList.toggle("mobile-open");
     }
 
     handleSmoothScroll(e) {
-        const href = e.target.getAttribute('href');
-        if (href.startsWith('#')) {
+        const href = e.target.getAttribute("href");
+        if (href.startsWith("#")) {
             e.preventDefault();
             const target = document.querySelector(href);
             if (target) {
                 target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
+                    behavior: "smooth",
+                    block: "start"
                 });
             }
         }
     }
 
     handleSearch() {
-        const location = document.getElementById('searchLocation').value;
-        const difficulty = document.getElementById('searchDifficulty').value;
-        const duration = document.getElementById('searchDuration').value;
+        const searchInput = document.getElementById("searchInput").value;
+        const estado = document.getElementById("estadoSelect").value;
+        const dificuldade = document.getElementById("dificuldadeSelect").value;
+        const distancia = document.getElementById("distanciaInput").value;
         
-        // Build search URL with parameters
         const params = new URLSearchParams();
-        if (location) params.append('location', location);
-        if (difficulty) params.append('difficulty', difficulty);
-        if (duration) params.append('duration', duration);
+        if (searchInput) params.append("search", searchInput);
+        if (estado) params.append("estado", estado);
+        if (dificuldade) params.append("dificuldade", dificuldade);
+        if (distancia) params.append("distancia", distancia);
         
-        // Redirect to trilhas page with search parameters
         window.location.href = `trilhas.html?${params.toString()}`;
     }
 
     handleNewsletter(e) {
         e.preventDefault();
-        const email = e.target.querySelector('input[type="email"]').value;
+        const email = e.target.querySelector("input[type=\"email\"]").value;
         
-        // Simulate newsletter subscription
-        this.showNotification('Obrigado! Você foi inscrito em nossa newsletter.', 'success');
+        this.showNotification("Obrigado! Você foi inscrito em nossa newsletter.", "success");
         e.target.reset();
     }
 
     handleTornarGuia() {
-        // Open registration modal with guide type pre-selected
         if (window.authManager) {
             window.authManager.openRegisterModal();
-            // Pre-select guide type after modal opens
             setTimeout(() => {
-                const userTypeSelect = document.getElementById('userType');
+                const userTypeSelect = document.getElementById("userType");
                 if (userTypeSelect) {
-                    userTypeSelect.value = 'guia';
-                    userTypeSelect.dispatchEvent(new Event('change'));
+                    userTypeSelect.value = "guia";
+                    userTypeSelect.dispatchEvent(new Event("change"));
                 }
             }, 100);
         }
@@ -131,67 +143,66 @@ class TrekkoHomepage {
     }
 
     loadTrilhas() {
-        // Sample trail data
         this.trilhas = [
             {
                 id: 1,
-                name: 'Pico da Bandeira',
-                location: 'Espírito Santo / Minas Gerais',
-                image: 'images/trilhas/pico-bandeira-1.jpg',
-                difficulty: 'Difícil',
-                duration: '2 dias',
-                distance: '14 km',
+                name: "Pico da Bandeira",
+                location: "Espírito Santo / Minas Gerais",
+                image: "images/trilhas/pico-bandeira-1.jpg",
+                difficulty: "Difícil",
+                duration: "2 dias",
+                distance: "14 km",
                 rating: 4.8,
                 reviews: 127,
-                price: 'R$ 280'
+                price: "R$ 280"
             },
             {
                 id: 2,
-                name: 'Pedra do Sino',
-                location: 'Rio de Janeiro',
-                image: 'images/trilhas/pedra-sino-1.jpg',
-                difficulty: 'Moderada',
-                duration: '1 dia',
-                distance: '8 km',
+                name: "Pedra do Sino",
+                location: "Rio de Janeiro",
+                image: "images/trilhas/pedra-sino-1.jpg",
+                difficulty: "Moderada",
+                duration: "1 dia",
+                distance: "8 km",
                 rating: 4.6,
                 reviews: 89,
-                price: 'R$ 150'
+                price: "R$ 150"
             },
             {
                 id: 3,
-                name: 'Cachoeira do Tabuleiro',
-                location: 'Minas Gerais',
-                image: 'images/trilhas/cachoeira-tabuleiro-1.jpg',
-                difficulty: 'Fácil',
-                duration: 'Meio dia',
-                distance: '4 km',
+                name: "Cachoeira do Tabuleiro",
+                location: "Minas Gerais",
+                image: "images/trilhas/cachoeira-tabuleiro-1.jpg",
+                difficulty: "Fácil",
+                duration: "Meio dia",
+                distance: "4 km",
                 rating: 4.7,
                 reviews: 156,
-                price: 'R$ 80'
+                price: "R$ 80"
             },
             {
                 id: 4,
-                name: 'Pico dos Marins',
-                location: 'São Paulo',
-                image: 'images/trilhas/pico-marins-1.jpg',
-                difficulty: 'Difícil',
-                duration: '1 dia',
-                distance: '12 km',
+                name: "Pico dos Marins",
+                location: "São Paulo",
+                image: "images/trilhas/pico-marins-1.jpg",
+                difficulty: "Difícil",
+                duration: "1 dia",
+                distance: "12 km",
                 rating: 4.5,
                 reviews: 73,
-                price: 'R$ 200'
+                price: "R$ 200"
             },
             {
                 id: 5,
-                name: 'Trilha do Ouro',
-                location: 'Minas Gerais',
-                image: 'images/trilhas/trilha-ouro-1.jpg',
-                difficulty: 'Moderada',
-                duration: '3 dias',
-                distance: '25 km',
+                name: "Trilha do Ouro",
+                location: "Minas Gerais",
+                image: "images/trilhas/trilha-ouro-1.jpg",
+                difficulty: "Moderada",
+                duration: "3 dias",
+                distance: "25 km",
                 rating: 4.9,
                 reviews: 45,
-                price: 'R$ 450'
+                price: "R$ 450"
             }
         ];
         
@@ -199,45 +210,44 @@ class TrekkoHomepage {
     }
 
     loadGuias() {
-        // Sample guide data
         this.guias = [
             {
                 id: 1,
-                name: 'Carlos Silva Santos',
-                location: 'Rio de Janeiro, RJ',
-                avatar: 'images/guias/carlos-silva.jpg',
-                cadastur: '27123456789',
-                specialties: ['Montanha', 'Trilhas'],
+                name: "Carlos Silva Santos",
+                location: "Rio de Janeiro, RJ",
+                avatar: "images/guias/carlos-silva.jpg",
+                cadastur: "27123456789",
+                specialties: ["Montanha", "Trilhas"],
                 rating: 4.9,
                 expeditions: 127
             },
             {
                 id: 2,
-                name: 'Maria Fernanda Oliveira',
-                location: 'Belo Horizonte, MG',
-                avatar: 'images/guias/maria-fernanda.jpg',
-                cadastur: '27987654321',
-                specialties: ['Cachoeiras', 'Ecoturismo'],
+                name: "Maria Fernanda Oliveira",
+                location: "Belo Horizonte, MG",
+                avatar: "images/guias/maria-fernanda.jpg",
+                cadastur: "27987654321",
+                specialties: ["Cachoeiras", "Ecoturismo"],
                 rating: 4.8,
                 expeditions: 89
             },
             {
                 id: 3,
-                name: 'João Pedro Montanha',
-                location: 'São Paulo, SP',
-                avatar: 'images/guias/joao-pedro.jpg',
-                cadastur: '27456789123',
-                specialties: ['Trekking', 'Aventura'],
+                name: "João Pedro Montanha",
+                location: "São Paulo, SP",
+                avatar: "images/guias/joao-pedro.jpg",
+                cadastur: "27456789123",
+                specialties: ["Trekking", "Aventura"],
                 rating: 4.7,
                 expeditions: 156
             },
             {
                 id: 4,
-                name: 'Ana Carolina Rocha',
-                location: 'Vitória, ES',
-                avatar: 'images/guias/ana-carolina.jpg',
-                cadastur: '27789123456',
-                specialties: ['Trilhas', 'Natureza'],
+                name: "Ana Carolina Rocha",
+                location: "Vitória, ES",
+                avatar: "images/guias/ana-carolina.jpg",
+                cadastur: "27789123456",
+                specialties: ["Trilhas", "Natureza"],
                 rating: 4.9,
                 expeditions: 203
             }
@@ -247,43 +257,42 @@ class TrekkoHomepage {
     }
 
     loadEstados() {
-        // Sample state data
         this.estados = [
             {
-                name: 'Rio de Janeiro',
-                image: 'images/estados/rio-janeiro.jpg',
+                name: "Rio de Janeiro",
+                image: "images/estados/rio-janeiro.jpg",
                 trilhas: 45,
-                destaque: 'Pedra da Gávea, Pão de Açúcar'
+                destaque: "Pedra da Gávea, Pão de Açúcar"
             },
             {
-                name: 'Minas Gerais',
-                image: 'images/estados/minas-gerais.jpg',
+                name: "Minas Gerais",
+                image: "images/estados/minas-gerais.jpg",
                 trilhas: 67,
-                destaque: 'Pico da Bandeira, Serra do Cipó'
+                destaque: "Pico da Bandeira, Serra do Cipó"
             },
             {
-                name: 'São Paulo',
-                image: 'images/estados/sao-paulo.jpg',
+                name: "São Paulo",
+                image: "images/estados/sao-paulo.jpg",
                 trilhas: 38,
-                destaque: 'Pico dos Marins, Pedra Grande'
+                destaque: "Pico dos Marins, Pedra Grande"
             },
             {
-                name: 'Espírito Santo',
-                image: 'images/estados/espirito-santo.jpg',
+                name: "Espírito Santo",
+                image: "images/estados/espirito-santo.jpg",
                 trilhas: 29,
-                destaque: 'Pedra Azul, Forno Grande'
+                destaque: "Pedra Azul, Forno Grande"
             },
             {
-                name: 'Bahia',
-                image: 'images/estados/bahia.jpg',
+                name: "Bahia",
+                image: "images/estados/bahia.jpg",
                 trilhas: 52,
-                destaque: 'Chapada Diamantina, Morro do Pai Inácio'
+                destaque: "Chapada Diamantina, Morro do Pai Inácio"
             },
             {
-                name: 'Santa Catarina',
-                image: 'images/estados/santa-catarina.jpg',
+                name: "Santa Catarina",
+                image: "images/estados/santa-catarina.jpg",
                 trilhas: 41,
-                destaque: 'Morro da Igreja, Pedra Furada'
+                destaque: "Morro da Igreja, Pedra Furada"
             }
         ];
         
@@ -291,30 +300,29 @@ class TrekkoHomepage {
     }
 
     loadDepoimentos() {
-        // Sample testimonials
         this.depoimentos = [
             {
                 id: 1,
-                text: 'Experiência incrível! O guia Carlos foi excepcional, muito conhecimento e segurança. A trilha do Pico da Bandeira foi desafiadora mas valeu cada passo.',
-                author: 'Marina Santos',
-                location: 'São Paulo, SP',
-                avatar: 'images/depoimentos/marina-santos.jpg',
+                text: "Experiência incrível! O guia Carlos foi excepcional, muito conhecimento e segurança. A trilha do Pico da Bandeira foi desafiadora mas valeu cada passo.",
+                author: "Marina Santos",
+                location: "São Paulo, SP",
+                avatar: "images/depoimentos/marina-santos.jpg",
                 rating: 5
             },
             {
                 id: 2,
-                text: 'Primeira vez fazendo uma trilha e me senti super segura com a Maria Fernanda. Ela explicou tudo sobre a natureza local e foi muito atenciosa.',
-                author: 'Roberto Lima',
-                location: 'Belo Horizonte, MG',
-                avatar: 'images/depoimentos/roberto-lima.jpg',
+                text: "Primeira vez fazendo uma trilha e me senti super segura com a Maria Fernanda. Ela explicou tudo sobre a natureza local e foi muito atenciosa.",
+                author: "Roberto Lima",
+                location: "Belo Horizonte, MG",
+                avatar: "images/depoimentos/roberto-lima.jpg",
                 rating: 5
             },
             {
                 id: 3,
-                text: 'A plataforma Trekko facilitou muito encontrar um guia certificado. Recomendo para todos que querem explorar a natureza com segurança.',
-                author: 'Juliana Costa',
-                location: 'Rio de Janeiro, RJ',
-                avatar: 'images/depoimentos/juliana-costa.jpg',
+                text: "A plataforma Trekko facilitou muito encontrar um guia certificado. Recomendo para todos que querem explorar a natureza com segurança.",
+                author: "Juliana Costa",
+                location: "Rio de Janeiro, RJ",
+                avatar: "images/depoimentos/juliana-costa.jpg",
                 rating: 5
             }
         ];
@@ -323,12 +331,12 @@ class TrekkoHomepage {
     }
 
     renderTrilhas() {
-        const container = document.getElementById('trilhasCarousel');
+        const container = document.getElementById("trilhasCarousel");
         if (!container) return;
         
         container.innerHTML = this.trilhas.map(trilha => `
             <div class="trilha-card">
-                <img src="${trilha.image}" alt="${trilha.name}" onerror="this.src='https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=320&h=200&fit=crop'">
+                <img src="${trilha.image}" alt="${trilha.name}" onerror="this.src=\'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=320&h=200&fit=crop\'"/>
                 <div class="trilha-card-content">
                     <h3 class="trilha-title">${trilha.name}</h3>
                     <p class="trilha-location">
@@ -358,16 +366,16 @@ class TrekkoHomepage {
                     <div class="trilha-price">${trilha.price}</div>
                 </div>
             </div>
-        `).join('');
+        `).join("");
     }
 
     renderGuias() {
-        const container = document.getElementById('guiasGrid');
+        const container = document.getElementById("guiasGrid");
         if (!container) return;
         
         container.innerHTML = this.guias.map(guia => `
             <div class="guia-card">
-                <img src="${guia.avatar}" alt="${guia.name}" class="guia-avatar" onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face'">
+                <img src="${guia.avatar}" alt="${guia.name}" class="guia-avatar" onerror="this.src=\'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face\'"/>
                 <h3 class="guia-name">${guia.name}</h3>
                 <p class="guia-location">
                     <i class="fas fa-map-marker-alt"></i>
@@ -375,7 +383,7 @@ class TrekkoHomepage {
                 </p>
                 <div class="guia-badges">
                     <span class="badge cadastur">CADASTUR</span>
-                    ${guia.specialties.map(specialty => `<span class="badge">${specialty}</span>`).join('')}
+                    ${guia.specialties.map(specialty => `<span class="badge">${specialty}</span>`).join("")}
                 </div>
                 <div class="guia-stats">
                     <div class="stars">
@@ -384,28 +392,28 @@ class TrekkoHomepage {
                     <span>${guia.rating} • ${guia.expeditions} expedições</span>
                 </div>
             </div>
-        `).join('');
+        `).join("");
     }
 
     renderEstados() {
-        const container = document.getElementById('estadosGrid');
+        const container = document.getElementById("estadosGrid");
         if (!container) return;
         
         container.innerHTML = this.estados.map(estado => `
             <div class="estado-card">
-                <img src="${estado.image}" alt="${estado.name}" onerror="this.src='https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=250&h=150&fit=crop'">
+                <img src="${estado.image}" alt="${estado.name}" onerror="this.src=\'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=250&h=150&fit=crop\'"/>
                 <div class="estado-card-content">
                     <h3 class="estado-name">${estado.name}</h3>
                     <p class="estado-count">${estado.trilhas} trilhas disponíveis</p>
                     <p class="estado-destaque">${estado.destaque}</p>
                 </div>
             </div>
-        `).join('');
+        `).join("");
     }
 
     renderDepoimentos() {
-        const container = document.getElementById('depoimentosCarousel');
-        const indicators = document.getElementById('depoimentosIndicators');
+        const container = document.getElementById("depoimentosCarousel");
+        const indicators = document.getElementById("depoimentosIndicators");
         
         if (!container || !indicators) return;
         
@@ -413,7 +421,7 @@ class TrekkoHomepage {
             <div class="depoimento">
                 <p class="depoimento-text">"${depoimento.text}"</p>
                 <div class="depoimento-author">
-                    <img src="${depoimento.avatar}" alt="${depoimento.author}" class="author-avatar" onerror="this.src='https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'">
+                    <img src="${depoimento.avatar}" alt="${depoimento.author}" class="author-avatar" onerror="this.src=\'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face\'"/>
                     <div class="author-info">
                         <h4>${depoimento.author}</h4>
                         <p>${depoimento.location}</p>
@@ -423,15 +431,14 @@ class TrekkoHomepage {
                     </div>
                 </div>
             </div>
-        `).join('');
+        `).join("");
         
         indicators.innerHTML = this.depoimentos.map((_, index) => `
-            <span class="indicator ${index === 0 ? 'active' : ''}" data-index="${index}"></span>
-        `).join('');
+            <span class="indicator ${index === 0 ? "active" : ""}" data-index="${index}"></span>
+        `).join("");
         
-        // Add click events to indicators
-        indicators.querySelectorAll('.indicator').forEach(indicator => {
-            indicator.addEventListener('click', (e) => {
+        indicators.querySelectorAll(".indicator").forEach(indicator => {
+            indicator.addEventListener("click", (e) => {
                 const index = parseInt(e.target.dataset.index);
                 this.goToDepoimento(index);
             });
@@ -444,30 +451,28 @@ class TrekkoHomepage {
         const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
         
         return [
-            ...Array(fullStars).fill('<i class="fas fa-star"></i>'),
-            ...(hasHalfStar ? ['<i class="fas fa-star-half-alt"></i>'] : []),
-            ...Array(emptyStars).fill('<i class="far fa-star"></i>')
-        ].join('');
+            ...Array(fullStars).fill("<i class=\"fas fa-star\"></i>"),
+            ...(hasHalfStar ? ["<i class=\"fas fa-star-half-alt\"></i>"] : []),
+            ...Array(emptyStars).fill("<i class=\"far fa-star\"></i>")
+        ].join("");
     }
 
     setupCarousels() {
-        // Trilhas carousel
-        const trilhasPrev = document.getElementById('trilhasPrev');
-        const trilhasNext = document.getElementById('trilhasNext');
+        const trilhasPrev = document.getElementById("trilhasPrev");
+        const trilhasNext = document.getElementById("trilhasNext");
         
         if (trilhasPrev && trilhasNext) {
-            trilhasPrev.addEventListener('click', () => this.prevTrilha());
-            trilhasNext.addEventListener('click', () => this.nextTrilha());
+            trilhasPrev.addEventListener("click", () => this.prevTrilha());
+            trilhasNext.addEventListener("click", () => this.nextTrilha());
         }
         
-        // Auto-rotate depoimentos
         setInterval(() => {
             this.nextDepoimento();
         }, 5000);
     }
 
     prevTrilha() {
-        const container = document.getElementById('trilhasCarousel');
+        const container = document.getElementById("trilhasCarousel");
         if (!container) return;
         
         this.currentTrilhaIndex = Math.max(0, this.currentTrilhaIndex - 1);
@@ -475,19 +480,19 @@ class TrekkoHomepage {
     }
 
     nextTrilha() {
-        const container = document.getElementById('trilhasCarousel');
+        const container = document.getElementById("trilhasCarousel");
         if (!container) return;
         
-        const maxIndex = this.trilhas.length - 3; // Show 3 cards at once
+        const maxIndex = this.trilhas.length - 3; 
         this.currentTrilhaIndex = Math.min(maxIndex, this.currentTrilhaIndex + 1);
         this.updateTrilhaCarousel();
     }
 
     updateTrilhaCarousel() {
-        const container = document.getElementById('trilhasCarousel');
+        const container = document.getElementById("trilhasCarousel");
         if (!container) return;
         
-        const cardWidth = 320 + 24; // card width + gap
+        const cardWidth = 320 + 24; 
         const translateX = -this.currentTrilhaIndex * cardWidth;
         container.style.transform = `translateX(${translateX}px)`;
     }
@@ -500,23 +505,22 @@ class TrekkoHomepage {
     goToDepoimento(index) {
         this.currentDepoimentoIndex = index;
         
-        const container = document.getElementById('depoimentosCarousel');
-        const indicators = document.getElementById('depoimentosIndicators');
+        const container = document.getElementById("depoimentosCarousel");
+        const indicators = document.getElementById("depoimentosIndicators");
         
         if (!container || !indicators) return;
         
-        const cardWidth = 400 + 32; // card width + gap
+        const cardWidth = 400 + 32; 
         const translateX = -index * cardWidth;
         container.style.transform = `translateX(${translateX}px)`;
         
-        // Update indicators
-        indicators.querySelectorAll('.indicator').forEach((indicator, i) => {
-            indicator.classList.toggle('active', i === index);
+        indicators.querySelectorAll(".indicator").forEach((indicator, i) => {
+            indicator.classList.toggle("active", i === index);
         });
     }
 
     animateStats() {
-        const stats = document.querySelectorAll('.stat-number');
+        const stats = document.querySelectorAll(".stat-number");
         
         const animateNumber = (element) => {
             const target = parseInt(element.dataset.count);
@@ -534,47 +538,43 @@ class TrekkoHomepage {
             }, 16);
         };
         
-        // Animate when stats come into view
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    const statNumber = entry.target.querySelector('.stat-number');
+                    const statNumber = entry.target.querySelector(".stat-number");
                     if (statNumber && !statNumber.dataset.animated) {
-                        statNumber.dataset.animated = 'true';
+                        statNumber.dataset.animated = "true";
                         animateNumber(statNumber);
                     }
                 }
             });
         });
         
-        const heroStats = document.querySelector('.hero-stats');
+        const heroStats = document.querySelector(".hero-stats");
         if (heroStats) {
             observer.observe(heroStats);
         }
     }
 
     setupAnimations() {
-        // Intersection Observer for scroll animations
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-fade-in-up');
+                    entry.target.classList.add("animate-fade-in-up");
                 }
             });
         }, {
             threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
+            rootMargin: "0px 0px -50px 0px"
         });
         
-        // Observe elements for animation
-        document.querySelectorAll('.step, .trilha-card, .guia-card, .estado-card').forEach(el => {
+        document.querySelectorAll(".step, .trilha-card, .guia-card, .estado-card").forEach(el => {
             observer.observe(el);
         });
     }
 
     animateOnScroll() {
-        // Add parallax effect to hero background
-        const hero = document.querySelector('.hero-background');
+        const hero = document.querySelector(".hero-background");
         if (hero) {
             const scrolled = window.pageYOffset;
             const rate = scrolled * -0.5;
@@ -582,13 +582,12 @@ class TrekkoHomepage {
         }
     }
 
-    showNotification(message, type = 'info') {
-        // Create notification element
-        const notification = document.createElement('div');
+    showNotification(message, type = "info") {
+        const notification = document.createElement("div");
         notification.className = `notification notification-${type}`;
         notification.innerHTML = `
             <div class="notification-content">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                <i class="fas fa-${type === "success" ? "check-circle" : "info-circle"}"></i>
                 <span>${message}</span>
             </div>
             <button class="notification-close">
@@ -596,12 +595,11 @@ class TrekkoHomepage {
             </button>
         `;
         
-        // Add styles
         notification.style.cssText = `
             position: fixed;
             top: 100px;
             right: 20px;
-            background: ${type === 'success' ? 'var(--verde-sucesso)' : 'var(--azul-petroleo)'};
+            background: ${type === "success" ? "var(--verde-sucesso)" : "var(--azul-petroleo)"};
             color: white;
             padding: 1rem 1.5rem;
             border-radius: var(--radius-md);
@@ -615,8 +613,7 @@ class TrekkoHomepage {
             animation: slideInRight 0.3s ease-out;
         `;
         
-        // Add close functionality
-        const closeBtn = notification.querySelector('.notification-close');
+        const closeBtn = notification.querySelector(".notification-close");
         closeBtn.style.cssText = `
             background: none;
             border: none;
@@ -625,14 +622,12 @@ class TrekkoHomepage {
             padding: 0.25rem;
         `;
         
-        closeBtn.addEventListener('click', () => {
+        closeBtn.addEventListener("click", () => {
             notification.remove();
         });
         
-        // Add to page
         document.body.appendChild(notification);
         
-        // Auto remove after 5 seconds
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.remove();
@@ -641,13 +636,11 @@ class TrekkoHomepage {
     }
 }
 
-// Initialize homepage when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
     window.trekkoHomepage = new TrekkoHomepage();
 });
 
-// Add CSS for notifications
-const notificationStyles = document.createElement('style');
+const notificationStyles = document.createElement("style");
 notificationStyles.textContent = `
     @keyframes slideInRight {
         from {

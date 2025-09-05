@@ -56,8 +56,8 @@
             </a>
             
             <div class="nav-menu" id="navMenu">
-                <a href="#trilhas" class="nav-link">Trilhas</a>
-                <a href="#guias" class="nav-link">Guias</a>
+                <a href="trilhas.html" class="nav-link">Trilhas</a>
+                <a href="guias.html" class="nav-link">Guias</a>
                 <a href="#como-funciona" class="nav-link">Como Funciona</a>
                 <a href="#sobre" class="nav-link">Sobre</a>
             </div>
@@ -130,19 +130,55 @@
             
             <div class="hero-search">
                 <div class="search-container">
-                    <div class="search-field">
-                        <label for="searchLocation">
-                            <i class="fas fa-map-marker-alt"></i>
-                            Destino
+                    <div class="search-field search-input-field">
+                        <label for="searchInput">
+                            <i class="fas fa-search"></i>
+                            Buscar
                         </label>
-                        <input type="text" id="searchLocation" placeholder="Ex: Rio de Janeiro, Minas Gerais...">
+                        <input type="text" id="searchInput" placeholder="Nome da trilha, cidade, ponto turístico...">
                     </div>
                     <div class="search-field">
-                        <label for="searchDifficulty">
+                        <label for="estadoSelect">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Estado
+                        </label>
+                        <select id="estadoSelect">
+                            <option value="">Todos os Estados</option>
+                            <option value="AC">Acre</option>
+                            <option value="AL">Alagoas</option>
+                            <option value="AP">Amapá</option>
+                            <option value="AM">Amazonas</option>
+                            <option value="BA">Bahia</option>
+                            <option value="CE">Ceará</option>
+                            <option value="DF">Distrito Federal</option>
+                            <option value="ES">Espírito Santo</option>
+                            <option value="GO">Goiás</option>
+                            <option value="MA">Maranhão</option>
+                            <option value="MT">Mato Grosso</option>
+                            <option value="MS">Mato Grosso do Sul</option>
+                            <option value="MG">Minas Gerais</option>
+                            <option value="PA">Pará</option>
+                            <option value="PB">Paraíba</option>
+                            <option value="PR">Paraná</option>
+                            <option value="PE">Pernambuco</option>
+                            <option value="PI">Piauí</option>
+                            <option value="RJ">Rio de Janeiro</option>
+                            <option value="RN">Rio Grande do Norte</option>
+                            <option value="RS">Rio Grande do Sul</option>
+                            <option value="RO">Rondônia</option>
+                            <option value="RR">Roraima</option>
+                            <option value="SC">Santa Catarina</option>
+                            <option value="SP">São Paulo</option>
+                            <option value="SE">Sergipe</option>
+                            <option value="TO">Tocantins</option>
+                        </select>
+                    </div>
+                    <div class="search-field">
+                        <label for="dificuldadeSelect">
                             <i class="fas fa-chart-line"></i>
                             Dificuldade
                         </label>
-                        <select id="searchDifficulty">
+                        <select id="dificuldadeSelect">
                             <option value="">Todas</option>
                             <option value="facil">Fácil</option>
                             <option value="moderada">Moderada</option>
@@ -151,19 +187,13 @@
                         </select>
                     </div>
                     <div class="search-field">
-                        <label for="searchDuration">
-                            <i class="fas fa-clock"></i>
-                            Duração
+                        <label for="distanciaInput">
+                            <i class="fas fa-route"></i>
+                            Distância (km)
                         </label>
-                        <select id="searchDuration">
-                            <option value="">Qualquer</option>
-                            <option value="meio-dia">Meio dia</option>
-                            <option value="1-dia">1 dia</option>
-                            <option value="2-3-dias">2-3 dias</option>
-                            <option value="mais-3-dias">Mais de 3 dias</option>
-                        </select>
+                        <input type="number" id="distanciaInput" placeholder="Ex: 10">
                     </div>
-                    <button class="search-btn">
+                    <button class="search-btn" id="searchHomepageBtn">
                         <i class="fas fa-search"></i>
                         Buscar Trilhas
                     </button>
@@ -171,35 +201,18 @@
             </div>
             
             <div class="hero-actions">
-                <a href="#trilhas" class="btn btn-primary btn-large">
+                <a href="trilhas.html" class="btn btn-primary btn-large" id="explorarTrilhasBtn">
                     <i class="fas fa-hiking"></i>
                     Explorar Trilhas
                 </a>
-                <a href="#guias" class="btn btn-secondary btn-large">
+                <a href="guias.html" class="btn btn-secondary btn-large" id="encontrarGuiasBtn">
                     <i class="fas fa-compass"></i>
                     Encontrar Guias
                 </a>
             </div>
         </div>
         
-        <div class="hero-stats">
-            <div class="stat">
-                <span class="stat-number" data-count="150">0</span>
-                <span class="stat-label">Trilhas</span>
-            </div>
-            <div class="stat">
-                <span class="stat-number" data-count="89">0</span>
-                <span class="stat-label">Guias Certificados</span>
-            </div>
-            <div class="stat">
-                <span class="stat-number" data-count="26">0</span>
-                <span class="stat-label">Estados</span>
-            </div>
-            <div class="stat">
-                <span class="stat-number" data-count="2500">0</span>
-                <span class="stat-label">Aventureiros</span>
-            </div>
-        </div>
+
     </section>
 
     <!-- Como Funciona -->
