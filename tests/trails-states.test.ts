@@ -57,10 +57,13 @@ test('GET /api/trails/states returns counts and first trail per state', async ()
 
   const mgState = json.items.find((i: any) => i.state === 'MG');
   const spState = json.items.find((i: any) => i.state === 'SP');
+  const rjState = json.items.find((i: any) => i.state === 'RJ');
 
   assert.equal(mgState.count, 1);
   assert.equal(mgState.trailName, 'MG Trail');
   assert.equal(spState.count, 2);
   assert.equal(spState.trailName, 'SP Early');
   assert.equal(spState.coverImageUrl, 'https://example.com/cover.jpg');
+  assert.equal(rjState.count, 0);
+  assert.equal(rjState.trailName, null);
 });
