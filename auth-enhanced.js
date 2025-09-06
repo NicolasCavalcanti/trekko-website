@@ -518,8 +518,12 @@ class TrekkoAuthManager {
             return false;
         }
 
-        if (cadastur.length !== 11) {
-            this.showValidationMessage(cadasturValidation, 'CADASTUR deve ter exatamente 11 dígitos', 'error');
+        if (!/^\d{11}$/.test(cadastur)) {
+            this.showValidationMessage(
+                cadasturValidation,
+                'CADASTUR deve ter exatamente 11 dígitos numéricos',
+                'error'
+            );
             cadasturInput.classList.add('error');
             validationSummary.classList.add('hidden');
             return false;
