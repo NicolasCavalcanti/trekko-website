@@ -65,3 +65,17 @@ COMMIT;
 SET FOREIGN_KEY_CHECKS = 1;
 SET UNIQUE_CHECKS = 1;
 SET AUTOCOMMIT = 1;
+
+-- Validação de integridade para número CADASTUR e nome do guia
+SELECT COUNT(*) AS cadastur_invalidos
+FROM `guias_cadastur`
+WHERE `número_do_certificado` IS NULL
+   OR TRIM(`número_do_certificado`) = ''
+   OR `número_do_certificado` = '-'
+   OR LENGTH(REGEXP_REPLACE(`número_do_certificado`, '[^0-9]', '')) <> 11;
+
+SELECT COUNT(*) AS nomes_invalidos
+FROM `guias_cadastur`
+WHERE `nome_completo` IS NULL
+   OR TRIM(`nome_completo`) = ''
+   OR `nome_completo` = '-';
