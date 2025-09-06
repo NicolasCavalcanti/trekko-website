@@ -60,6 +60,7 @@ class User(db.Model):
         if not cadastur_number:
             return False, "Número CADASTUR é obrigatório para guias"
         
+        # Sanitiza mantendo apenas dígitos e aceita qualquer comprimento
         clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
 
         if not clean_cadastur:
