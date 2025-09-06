@@ -10,22 +10,33 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 def register():
     """Register a new user with CADASTUR support for guides"""
     try:
-        data = request.get_json()
-        
+        data = request.get_json() or {}
+
+        # Accept both English and Portuguese field names
+        name = (data.get('name') or data.get('nome') or '').strip()
+        email = (data.get('email') or '').strip().lower()
+        password = data.get('password')
+        user_type = data.get('user_type')
+        cadastur_number = (
+            data.get('cadastur_number')
+            or data.get('cadastur')
+            or data.get('cadasturNumber')
+            or ''
+        ).strip()
+
         # Validate required fields
-        required_fields = ['name', 'email', 'password', 'user_type']
-        for field in required_fields:
-            if not data.get(field):
+        required_fields = {
+            'name': name,
+            'email': email,
+            'password': password,
+            'user_type': user_type,
+        }
+        for field, value in required_fields.items():
+            if not value:
                 return jsonify({
                     'success': False,
                     'message': f'Campo {field} é obrigatório'
                 }), 400
-        
-        name = data['name'].strip()
-        email = data['email'].strip().lower()
-        password = data['password']
-        user_type = data['user_type']
-        cadastur_number = data.get('cadastur_number', '').strip()
         
         # Validate email format
         email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
@@ -159,9 +170,14 @@ def login():
 def validate_cadastur():
     """Validate CADASTUR number"""
     try:
-        data = request.get_json()
-        cadastur_number = data.get('cadastur_number', '').strip()
-        name = data.get('name', '').strip()
+        data = request.get_json() or {}
+        cadastur_number = (
+            data.get('cadastur_number')
+            or data.get('cadastur')
+            or data.get('cadasturNumber')
+            or ''
+        ).strip()
+        name = (data.get('name') or data.get('nome') or '').strip()
 
         if not cadastur_number or not name:
             return jsonify({'valid': False, 'message': 'Número CADASTUR e nome são obrigatórios'}), 400
