@@ -68,6 +68,16 @@ class AuthManager {
                 cadastur: "27741852963",
                 estado: "AM",
                 especialidades: ["Floresta", "Ecoturismo"]
+            },
+            {
+                name: "Julieli Ferrari dos Santos",
+                cadastur: "21467985879",
+                estado: "RS",
+                especialidades: [
+                    "Ecoturismo",
+                    "Turismo Cultural",
+                    "Turismo de Negócios e Eventos"
+                ]
             }
         ];
     }
