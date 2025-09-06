@@ -60,16 +60,14 @@ class User(db.Model):
         if not cadastur_number:
             return False, "Número CADASTUR é obrigatório para guias"
         
-        # Remove non-digits
-        clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
-        
-        if len(clean_cadastur) != 11:
-            return False, "CADASTUR deve ter exatamente 11 dígitos"
-        
-        # Basic validation - could be enhanced with real CADASTUR validation
-        if clean_cadastur == '00000000000' or clean_cadastur == '11111111111':
+        clean_cadastur = cadastur_number.strip()
+
+        if not clean_cadastur.isdigit():
+            return False, "CADASTUR deve conter apenas números"
+
+        if len(set(clean_cadastur)) == 1:
             return False, "Número CADASTUR inválido"
-        
+
         return True, "CADASTUR válido"
     
     def __repr__(self):
