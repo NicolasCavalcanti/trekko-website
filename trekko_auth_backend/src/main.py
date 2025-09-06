@@ -18,7 +18,23 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 app.register_blueprint(auth_bp)
 
 # Database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}"
+database_url = os.getenv('DATABASE_URL')
+if database_url:
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    # Try default MySQL database with CADASTUR data
+    default_mysql = 'mysql+pymysql://root:@localhost/trekko_db'
+    try:
+        from sqlalchemy import create_engine
+        create_engine(default_mysql).connect()
+        app.config['SQLALCHEMY_DATABASE_URI'] = default_mysql
+        print(f'Connected to MySQL database: {default_mysql}')
+    except Exception:
+        # Fallback to bundled SQLite database
+        sqlite_path = os.path.join(os.path.dirname(__file__), 'database', 'app.db')
+        app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{sqlite_path}'
+        print('MySQL connection failed; using SQLite database')
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 

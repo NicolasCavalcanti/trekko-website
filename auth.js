@@ -347,6 +347,8 @@ class AuthManager {
         const validationSummary = document.getElementById('validationSummary');
 
         const cadastur = cadasturInput.value.trim();
+        const nameInput = document.getElementById('registerName');
+        const name = nameInput ? nameInput.value.trim() : '';
 
         this.clearValidation();
 
@@ -364,10 +366,17 @@ class AuthManager {
             return;
         }
 
+        if (!name) {
+            cadasturValidation.innerHTML = '<span class="text-red-600">✗ Informe seu nome para validar o CADASTUR</span>';
+            cadasturInput.classList.add('border-red-300');
+            validationSummary.classList.add('hidden');
+            return;
+        }
+
         fetch(`${this.apiUrl}/auth/validate-cadastur`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cadastur_number: cadastur })
+            body: JSON.stringify({ cadastur_number: cadastur, name })
         })
             .then(resp => resp.json())
             .then(result => {
@@ -492,7 +501,7 @@ class AuthManager {
                 const resp = await fetch(`${this.apiUrl}/auth/validate-cadastur`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cadastur_number: cadastur })
+                    body: JSON.stringify({ cadastur_number: cadastur, name })
                 });
                 const result = await resp.json();
                 if (!result.valid) {

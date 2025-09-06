@@ -59,9 +59,12 @@ class User(db.Model):
         """Validate CADASTUR number format"""
         if not cadastur_number:
             return False, "Número CADASTUR é obrigatório para guias"
-        
 
-        if len(set(clean_cadastur)) == 1:
+        # Keep only digits
+        clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
+
+        # CADASTUR numbers have 11 digits and cannot be all the same
+        if len(clean_cadastur) != 11 or len(set(clean_cadastur)) == 1:
             return False, "Número CADASTUR inválido"
 
         return True, "CADASTUR válido"

@@ -68,12 +68,12 @@ def register():
 
             clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
 
-            # Check if CADASTUR exists in official database
+            # Check if CADASTUR exists in official database and matches provided name
             cadastur_entry = GuiaCadastur.query.filter_by(numero_do_certificado=clean_cadastur).first()
-            if not cadastur_entry:
+            if not cadastur_entry or not cadastur_entry.nome_completo or cadastur_entry.nome_completo.strip().lower() != name.lower():
                 return jsonify({
                     'success': False,
-                    'message': 'Número CADASTUR não encontrado na base oficial'
+                    'message': 'Número CADASTUR e nome não encontrados na base oficial'
                 }), 400
 
             # Check if CADASTUR is already in use
@@ -161,7 +161,11 @@ def validate_cadastur():
     try:
         data = request.get_json()
         cadastur_number = data.get('cadastur_number', '').strip()
-        
+        name = data.get('name', '').strip()
+
+        if not cadastur_number or not name:
+            return jsonify({'valid': False, 'message': 'Número CADASTUR e nome são obrigatórios'}), 400
+
         is_valid, message = User.validate_cadastur(cadastur_number)
 
         # Normalize cadastur for database lookups
@@ -170,9 +174,9 @@ def validate_cadastur():
         # Check in official Cadastur table if number exists
         if is_valid:
             cadastur_entry = GuiaCadastur.query.filter_by(numero_do_certificado=clean_cadastur).first()
-            if not cadastur_entry:
+            if not cadastur_entry or not cadastur_entry.nome_completo or cadastur_entry.nome_completo.strip().lower() != name.lower():
                 is_valid = False
-                message = "Número CADASTUR não encontrado na base oficial"
+                message = "Número CADASTUR e nome não encontrados na base oficial"
 
         # Check if CADASTUR is already in use by a registered user
         if is_valid:

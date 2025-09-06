@@ -196,7 +196,7 @@ class TrekkoAuth {
 
         // Validate CADASTUR for guides
         if (data.user_type === 'guia') {
-            const isValid = await this.validateCadasturAPI(data.cadastur_number);
+            const isValid = await this.validateCadasturAPI(data.cadastur_number, data.name);
             if (!isValid) {
                 return; // Validation message already shown
             }
@@ -250,14 +250,14 @@ class TrekkoAuth {
         return true;
     }
 
-    async validateCadasturAPI(cadasturNumber) {
+    async validateCadasturAPI(cadasturNumber, name) {
         try {
             const response = await fetch(`${this.apiUrl}/validate-cadastur`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ cadastur_number: cadasturNumber })
+                body: JSON.stringify({ cadastur_number: cadasturNumber, name })
             });
 
             const result = await response.json();
