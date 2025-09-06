@@ -348,10 +348,15 @@
                     Trilhas incríveis em todos os estados brasileiros
                 </p>
             </div>
-            
-            <div class="estados-grid" id="estadosGrid">
-                <!-- Estados serão carregados dinamicamente -->
+            <div class="estados-carousel">
+                <div class="carousel-container" id="estadosCarousel">
+                    <!-- Estados serão carregados dinamicamente -->
+                </div>
             </div>
+            <script type="module">
+                import { renderStatesCarousel } from "/scripts/states-carousel.js";
+                renderStatesCarousel(document.getElementById("estadosCarousel"));
+            </script>
         </div>
     </section>
 
@@ -455,7 +460,6 @@
 
     <!-- Scripts -->
     <script src="auth-enhanced.js"></script>
-    <script type="module" src="/scripts/states-grid.js"></script>
     <script src="homepage.js"></script>
 </body>
 </html>
