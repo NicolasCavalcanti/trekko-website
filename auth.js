@@ -6,80 +6,9 @@ class AuthManager {
         this.init();
     }
 
-    // Base de dados de guias válidos (simulada)
+    // Base local de guias descontinuada; validação agora via API
     loadGuidesDatabase() {
-        return [
-            {
-                name: "Carlos Silva Santos",
-                cadastur: "27123456789",
-                estado: "RJ",
-                especialidades: ["Montanha", "Trilhas"]
-            },
-            {
-                name: "Maria Fernanda Oliveira",
-                cadastur: "27987654321",
-                estado: "MG",
-                especialidades: ["Cachoeiras", "Ecoturismo"]
-            },
-            {
-                name: "João Pedro Montanha",
-                cadastur: "27456789123",
-                estado: "SP",
-                especialidades: ["Trekking", "Aventura"]
-            },
-            {
-                name: "Ana Carolina Rocha",
-                cadastur: "27789123456",
-                estado: "ES",
-                especialidades: ["Trilhas", "Natureza"]
-            },
-            {
-                name: "Roberto Carlos Lima",
-                cadastur: "27321654987",
-                estado: "BA",
-                especialidades: ["Montanha", "Expedições"]
-            },
-            {
-                name: "Fernanda Santos Costa",
-                cadastur: "27654987321",
-                estado: "PR",
-                especialidades: ["Ecoturismo", "Aventura"]
-            },
-            {
-                name: "Lucas Henrique Alves",
-                cadastur: "27147258369",
-                estado: "SC",
-                especialidades: ["Trilhas", "Montanha"]
-            },
-            {
-                name: "Juliana Pereira Souza",
-                cadastur: "27963852741",
-                estado: "GO",
-                especialidades: ["Natureza", "Trekking"]
-            },
-            {
-                name: "Rafael Augusto Ferreira",
-                cadastur: "27852741963",
-                estado: "RO",
-                especialidades: ["Expedições", "Aventura"]
-            },
-            {
-                name: "Camila Rodrigues Martins",
-                cadastur: "27741852963",
-                estado: "AM",
-                especialidades: ["Floresta", "Ecoturismo"]
-            },
-            {
-                name: "Julieli Ferrari dos Santos",
-                cadastur: "21467985879",
-                estado: "RS",
-                especialidades: [
-                    "Ecoturismo",
-                    "Turismo Cultural",
-                    "Turismo de Negócios e Eventos"
-                ]
-            }
-        ];
+        return [];
     }
 
     init() {
@@ -381,8 +310,8 @@ class AuthManager {
             if (userTypeSelect.value === 'guia') {
                 cadasturSection.classList.remove('hidden');
                 cadasturInput.setAttribute('required', 'required');
-                // Validar dados existentes quando o tipo muda para guia
-                this.validateGuideData();
+                // Validar CADASTUR existente quando o tipo muda para guia
+                this.validateCadastur();
             } else {
                 cadasturSection.classList.add('hidden');
                 cadasturInput.removeAttribute('required');
@@ -391,10 +320,10 @@ class AuthManager {
             }
         });
 
-        // Validação em tempo real do nome para guias
+        // Limpar validação ao alterar o nome
         nameInput.addEventListener('input', () => {
             if (userTypeSelect.value === 'guia') {
-                this.validateGuideData();
+                this.clearValidation();
             }
         });
 
@@ -402,7 +331,7 @@ class AuthManager {
         cadasturInput.addEventListener('input', (e) => {
             this.formatCadastur(e.target);
             if (userTypeSelect.value === 'guia') {
-                this.validateGuideData();
+                this.validateCadastur();
             }
         });
 
@@ -412,101 +341,53 @@ class AuthManager {
         });
     }
 
-    // Validar dados do guia contra a base de dados
-    validateGuideData() {
-        const nameInput = document.getElementById('registerName');
+    // Validar número CADASTUR via API oficial
+    validateCadastur() {
         const cadasturInput = document.getElementById('cadasturNumber');
-        const nameValidation = document.getElementById('nameValidation');
         const cadasturValidation = document.getElementById('cadasturValidation');
         const validationSummary = document.getElementById('validationSummary');
-        const validationDetails = document.getElementById('validationDetails');
 
-        const name = nameInput.value.trim();
         const cadastur = cadasturInput.value.trim();
 
-        // Limpar validações anteriores
         this.clearValidation();
 
-        if (!name && !cadastur) {
+        if (!cadastur) {
+            cadasturValidation.innerHTML = '<span class="text-red-600">✗ CADASTUR é obrigatório para guias</span>';
+            cadasturInput.classList.add('border-red-300');
+            validationSummary.classList.add('hidden');
             return;
         }
 
-        // Buscar guia na base de dados
-        const guide = this.findGuideInDatabase(name, cadastur);
-
-        if (name && cadastur) {
-            if (guide) {
-                // Guia encontrado - validação bem-sucedida
-                nameValidation.innerHTML = '<span class="text-green-600">✓ Nome encontrado na base de dados</span>';
-                cadasturValidation.innerHTML = '<span class="text-green-600">✓ CADASTUR válido e verificado</span>';
-                
-                validationSummary.classList.remove('hidden');
-                validationDetails.innerHTML = `
-                    <div class="space-y-1">
-                        <div>✓ <strong>Nome:</strong> ${guide.name}</div>
-                        <div>✓ <strong>CADASTUR:</strong> ${guide.cadastur}</div>
-                        <div>✓ <strong>Estado:</strong> ${guide.estado}</div>
-                        <div>✓ <strong>Especialidades:</strong> ${guide.especialidades.join(', ')}</div>
-                    </div>
-                `;
-                
-                // Adicionar classe de sucesso aos campos
-                nameInput.classList.remove('border-red-300');
-                nameInput.classList.add('border-green-300');
-                cadasturInput.classList.remove('border-red-300');
-                cadasturInput.classList.add('border-green-300');
-                
-            } else {
-                // Guia não encontrado
-                nameValidation.innerHTML = '<span class="text-red-600">✗ Nome não encontrado na base de dados de guias certificados</span>';
-                cadasturValidation.innerHTML = '<span class="text-red-600">✗ CADASTUR não encontrado ou não corresponde ao nome</span>';
-                
-                validationSummary.classList.add('hidden');
-                
-                // Adicionar classe de erro aos campos
-                nameInput.classList.remove('border-green-300');
-                nameInput.classList.add('border-red-300');
-                cadasturInput.classList.remove('border-green-300');
-                cadasturInput.classList.add('border-red-300');
-            }
-        } else if (name) {
-            // Apenas nome preenchido
-            const nameMatches = this.guidesDatabase.filter(g => 
-                g.name.toLowerCase().includes(name.toLowerCase())
-            );
-            
-            if (nameMatches.length > 0) {
-                nameValidation.innerHTML = '<span class="text-yellow-600">⚠ Nome encontrado. Digite o CADASTUR para validação completa</span>';
-                nameInput.classList.remove('border-red-300');
-                nameInput.classList.add('border-yellow-300');
-            } else {
-                nameValidation.innerHTML = '<span class="text-red-600">✗ Nome não encontrado na base de dados</span>';
-                nameInput.classList.remove('border-green-300');
-                nameInput.classList.add('border-red-300');
-            }
-        } else if (cadastur && cadastur.length >= 10) {
-            // Apenas CADASTUR preenchido
-            const cadasturMatches = this.guidesDatabase.filter(g => g.cadastur === cadastur);
-            
-            if (cadasturMatches.length > 0) {
-                cadasturValidation.innerHTML = '<span class="text-yellow-600">⚠ CADASTUR encontrado. Confirme o nome completo</span>';
-                cadasturInput.classList.remove('border-red-300');
-                cadasturInput.classList.add('border-yellow-300');
-            } else {
-                cadasturValidation.innerHTML = '<span class="text-red-600">✗ CADASTUR não encontrado na base de dados</span>';
-                cadasturInput.classList.remove('border-green-300');
-                cadasturInput.classList.add('border-red-300');
-            }
+        if (!/^\d{11}$/.test(cadastur)) {
+            cadasturValidation.innerHTML = '<span class="text-red-600">✗ CADASTUR deve ter 11 dígitos numéricos</span>';
+            cadasturInput.classList.add('border-red-300');
+            validationSummary.classList.add('hidden');
+            return;
         }
-    }
 
-    // Buscar guia na base de dados
-    findGuideInDatabase(name, cadastur) {
-        return this.guidesDatabase.find(guide => {
-            const nameMatch = guide.name.toLowerCase() === name.toLowerCase();
-            const cadasturMatch = guide.cadastur === cadastur;
-            return nameMatch && cadasturMatch;
-        });
+        fetch(`${this.apiUrl}/auth/validate-cadastur`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cadastur_number: cadastur })
+        })
+            .then(resp => resp.json())
+            .then(result => {
+                if (result.valid) {
+                    cadasturValidation.innerHTML = '<span class="text-green-600">✓ CADASTUR válido e verificado</span>';
+                    cadasturInput.classList.remove('border-red-300');
+                    cadasturInput.classList.add('border-green-300');
+                } else {
+                    cadasturValidation.innerHTML = `<span class="text-red-600">✗ ${result.message || 'CADASTUR não encontrado na base oficial'}</span>`;
+                    cadasturInput.classList.remove('border-green-300');
+                    cadasturInput.classList.add('border-red-300');
+                }
+                validationSummary.classList.add('hidden');
+            })
+            .catch(() => {
+                cadasturValidation.innerHTML = '<span class="text-red-600">✗ Erro ao validar CADASTUR</span>';
+                cadasturInput.classList.add('border-red-300');
+                validationSummary.classList.add('hidden');
+            });
     }
 
     // Limpar validações
