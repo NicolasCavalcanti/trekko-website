@@ -492,7 +492,7 @@ class AuthManager {
                 const resp = await fetch(`${this.apiUrl}/auth/validate-cadastur`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cadastur_number: cadastur })
+                    body: JSON.stringify({ cadastur_number: cadastur, name })
                 });
                 const result = await resp.json();
                 if (!result.valid) {
