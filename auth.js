@@ -31,9 +31,8 @@ class AuthManager {
     // Configurar event listeners
     setupEventListeners() {
         console.log('Configurando event listeners...');
-        
-        // Aguardar um pouco para garantir que os elementos estejam carregados
-        setTimeout(() => {
+
+        const bindElements = () => {
             // Botoes de login/cadastro
             const loginBtn = document.getElementById('loginBtn');
             const registerBtn = document.getElementById('registerBtn');
@@ -53,14 +52,14 @@ class AuthManager {
                     this.openLoginModal();
                 });
             }
-            
+
             if (registerBtn) {
                 registerBtn.addEventListener('click', () => {
                     console.log('Abrindo modal de cadastro...');
                     this.openRegisterModal();
                 });
             }
-            
+
             if (logoutBtn) logoutBtn.addEventListener('click', () => this.logout());
             if (userMenuBtn) userMenuBtn.addEventListener('click', () => this.toggleUserDropdown());
 
@@ -71,7 +70,14 @@ class AuthManager {
                     if (dropdown) dropdown.classList.add('hidden');
                 }
             });
-        }, 100);
+        };
+
+        // Garantir que os elementos existam antes de vincular
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bindElements);
+        } else {
+            bindElements();
+        }
     }
 
     // Mostrar menu do usuario

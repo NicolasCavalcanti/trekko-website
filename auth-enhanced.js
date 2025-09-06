@@ -11,93 +11,6 @@ class TrekkoAuthManager {
         this.init();
     }
 
-    // Base de dados de guias válidos com CADASTUR
-    loadGuidesDatabase() {
-        return [
-            {
-                name: "Carlos Silva Santos",
-                cadastur: "27123456789",
-                estado: "RJ",
-                especialidades: ["Montanha", "Trilhas"],
-                ativo: true
-            },
-            {
-                name: "Maria Fernanda Oliveira",
-                cadastur: "27987654321",
-                estado: "MG",
-                especialidades: ["Cachoeiras", "Ecoturismo"],
-                ativo: true
-            },
-            {
-                name: "João Pedro Montanha",
-                cadastur: "27456789123",
-                estado: "SP",
-                especialidades: ["Trekking", "Aventura"],
-                ativo: true
-            },
-            {
-                name: "Ana Carolina Rocha",
-                cadastur: "27789123456",
-                estado: "ES",
-                especialidades: ["Trilhas", "Natureza"],
-                ativo: true
-            },
-            {
-                name: "Roberto Carlos Lima",
-                cadastur: "27321654987",
-                estado: "BA",
-                especialidades: ["Montanha", "Expedições"],
-                ativo: true
-            },
-            {
-                name: "Fernanda Santos Costa",
-                cadastur: "27654987321",
-                estado: "PR",
-                especialidades: ["Ecoturismo", "Aventura"],
-                ativo: true
-            },
-            {
-                name: "Lucas Henrique Alves",
-                cadastur: "27147258369",
-                estado: "SC",
-                especialidades: ["Trilhas", "Montanha"],
-                ativo: true
-            },
-            {
-                name: "Juliana Pereira Souza",
-                cadastur: "27963852741",
-                estado: "GO",
-                especialidades: ["Natureza", "Trekking"],
-                ativo: true
-            },
-            {
-                name: "Rafael Augusto Ferreira",
-                cadastur: "27852741963",
-                estado: "RO",
-                especialidades: ["Expedições", "Aventura"],
-                ativo: true
-            },
-            {
-                name: "Camila Rodrigues Martins",
-                cadastur: "27741852963",
-                estado: "AM",
-                especialidades: ["Floresta", "Ecoturismo"],
-                ativo: true
-            },
-            {
-                name: "Julieli Ferrari dos Santos",
-                cadastur: "21467985879",
-                estado: "RS",
-                especialidades: [
-                    "Ecoturismo",
-                    "Turismo Cultural",
-                    "Turismo de Negócios e Eventos"
-                ],
-                ativo: true
-            }
-        ];
-    }
-
     init() {
         this.checkAuthStatus();
         this.setupEventListeners();
@@ -142,11 +55,13 @@ class TrekkoAuthManager {
     // Configurar event listeners
     setupEventListeners() {
         console.log('Configurando event listeners de autenticação...');
-        
-        // Aguardar carregamento dos elementos
-        setTimeout(() => {
+
+        // Garantir que os botões existam antes de vincular eventos
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.bindAuthButtons());
+        } else {
             this.bindAuthButtons();
-        }, 100);
+        }
     }
 
     bindAuthButtons() {

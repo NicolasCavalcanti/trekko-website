@@ -59,7 +59,6 @@ class User(db.Model):
         """Validate CADASTUR number format"""
         if not cadastur_number:
             return False, "Número CADASTUR é obrigatório para guias"
-        
 
         if len(set(clean_cadastur)) == 1:
             return False, "Número CADASTUR inválido"
