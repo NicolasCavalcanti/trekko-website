@@ -355,8 +355,7 @@ class TrekkoAuthManager {
                                 Número CADASTUR *
                             </label>
                             <input type="text" id="cadasturNumber"
-                                   placeholder="Ex: 27123456789"
-                                   maxlength="11">
+                                   placeholder="Ex: 27123456789">
                             <div class="cadastur-info">
                                 <small>
                                     <i class="fas fa-info-circle"></i>
@@ -518,10 +517,10 @@ class TrekkoAuthManager {
             return false;
         }
 
-        if (!/^\d{11}$/.test(cadastur)) {
+        if (!/^\d+$/.test(cadastur)) {
             this.showValidationMessage(
                 cadasturValidation,
-                'CADASTUR deve ter exatamente 11 dígitos numéricos',
+                'CADASTUR deve conter apenas números',
                 'error'
             );
             cadasturInput.classList.add('error');
@@ -603,10 +602,7 @@ class TrekkoAuthManager {
 
     // Formatar CADASTUR (apenas números)
     formatCadastur(input) {
-        let value = input.value.replace(/\D/g, '');
-        if (value.length > 11) {
-            value = value.substring(0, 11);
-        }
+        const value = input.value.replace(/\D/g, '');
         input.value = value;
     }
 

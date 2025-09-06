@@ -221,8 +221,7 @@ class AuthManager {
                             <label for="cadasturNumber" class="block text-sm font-medium text-red-600 mb-2">Número CADASTUR *</label>
                             <input type="text" id="cadasturNumber"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                                   placeholder="Ex: 27123456789"
-                                   maxlength="11">
+                                   placeholder="Ex: 27123456789">
                             <p class="text-xs text-gray-500 mt-1">
                                 CADASTUR é o registro obrigatório para guias de turismo no Brasil. 
                                 <a href="https://cadastur.turismo.gov.br/" target="_blank" class="text-green-600 hover:text-green-700">Saiba mais</a>
@@ -358,8 +357,8 @@ class AuthManager {
             return;
         }
 
-        if (!/^\d{11}$/.test(cadastur)) {
-            cadasturValidation.innerHTML = '<span class="text-red-600">✗ CADASTUR deve ter 11 dígitos numéricos</span>';
+        if (!/^\d+$/.test(cadastur)) {
+            cadasturValidation.innerHTML = '<span class="text-red-600">✗ CADASTUR deve conter apenas números</span>';
             cadasturInput.classList.add('border-red-300');
             validationSummary.classList.add('hidden');
             return;
@@ -413,10 +412,7 @@ class AuthManager {
 
     // Formatar CADASTUR (apenas números)
     formatCadastur(input) {
-        let value = input.value.replace(/\D/g, '');
-        if (value.length > 11) {
-            value = value.substring(0, 11);
-        }
+        const value = input.value.replace(/\D/g, '');
         input.value = value;
     }
 
