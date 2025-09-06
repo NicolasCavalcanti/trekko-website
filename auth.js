@@ -209,7 +209,7 @@ class TrekkoAuth {
         const data = Object.fromEntries(formData);
 
         if (data.user_type === 'guia') {
-            const isValid = await this.validateCadasturAPI(data.cadastur_number, data.name);
+            const isValid = await this.validateCadasturAPI(data.cadastur_number);
             if (!isValid) {
                 return;
             }
@@ -260,12 +260,12 @@ class TrekkoAuth {
         return true;
     }
 
-    async validateCadasturAPI(cadasturNumber, name) {
+    async validateCadasturAPI(cadasturNumber) {
         try {
             const response = await fetch(`${this.apiUrl}/validate-cadastur`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cadastur_number: cadasturNumber, name })
+                body: JSON.stringify({ cadastur_number: cadasturNumber })
             });
 
             const result = await response.json();
