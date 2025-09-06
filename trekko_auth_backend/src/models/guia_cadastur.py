@@ -1,5 +1,4 @@
 from src.database import db
-from sqlalchemy import func
 from src.models.user import User
 
 class GuiaCadastur(db.Model):
@@ -22,18 +21,15 @@ class GuiaCadastur(db.Model):
         return GuiaCadastur.query.filter_by(numero_do_certificado=clean).first()
 
     @staticmethod
-    def find_with_user(numero: str, nome: str):
-        """Fetch Cadastur entry and any associated user in a single query."""
+    def find_with_user(numero: str):
+        """Fetch Cadastur entry and any associated user by certificate number."""
         clean = ''.join(filter(str.isdigit, numero))
-        if not clean or not nome:
+        if not clean:
             return None
         return (
             db.session.query(GuiaCadastur, User)
             .outerjoin(User, GuiaCadastur.numero_do_certificado == User.cadastur_number)
-            .filter(
-                GuiaCadastur.numero_do_certificado == clean,
-                func.lower(GuiaCadastur.nome_completo) == nome.lower()
-            )
+            .filter(GuiaCadastur.numero_do_certificado == clean)
             .first()
         )
 

@@ -3,8 +3,17 @@ from src.models.user import User
 from src.models.guia_cadastur import GuiaCadastur
 from src.database import db
 import re
+import unicodedata
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
+
+
+def normalize_name(name: str) -> str:
+    """Normalize a name for comparison by removing accents and case."""
+    if not name:
+        return ''
+    nfkd = unicodedata.normalize('NFKD', name)
+    return ''.join(c for c in nfkd if not unicodedata.combining(c)).strip().lower()
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
@@ -63,17 +72,20 @@ def register():
             if not is_valid:
                 return jsonify({'success': False, 'message': message}), 400
 
-            result = GuiaCadastur.find_with_user(cadastur_number, name)
+            result = GuiaCadastur.find_with_user(cadastur_number)
             clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
             if not result:
                 return jsonify({
                     'success': False,
-                    'message': 'Número CADASTUR e nome não encontrados na base oficial'
+                    'message': 'Número CADASTUR não encontrado na base oficial'
                 }), 400
 
             guia_entry, existing_user = result
             if existing_user is not None:
                 return jsonify({'success': False, 'message': 'Número CADASTUR já está em uso'}), 400
+
+            if normalize_name(guia_entry.nome_completo) != normalize_name(name):
+                return jsonify({'success': False, 'message': 'Nome não corresponde ao CADASTUR fornecido'}), 400
 
             cadastur_number = clean_cadastur
         else:
@@ -161,15 +173,18 @@ def validate_cadastur():
         clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
 
         if is_valid:
-            result = GuiaCadastur.find_with_user(clean_cadastur, name)
+            result = GuiaCadastur.find_with_user(clean_cadastur)
             if not result:
                 is_valid = False
-                message = "Número CADASTUR e nome não encontrados na base oficial"
+                message = "Número CADASTUR não encontrado na base oficial"
             else:
                 guia_entry, existing_user = result
                 if existing_user is not None:
                     is_valid = False
                     message = "Número CADASTUR já está em uso"
+                elif normalize_name(guia_entry.nome_completo) != normalize_name(name):
+                    is_valid = False
+                    message = "Nome não corresponde ao CADASTUR fornecido"
 
         return jsonify({
             'valid': is_valid,
