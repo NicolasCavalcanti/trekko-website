@@ -1,4 +1,6 @@
 from src.database import db
+from sqlalchemy import func
+from src.models.user import User
 
 class GuiaCadastur(db.Model):
     """Model for the guias_cadastur table"""
@@ -18,6 +20,22 @@ class GuiaCadastur(db.Model):
         if not clean:
             return None
         return GuiaCadastur.query.filter_by(numero_do_certificado=clean).first()
+
+    @staticmethod
+    def find_with_user(numero: str, nome: str):
+        """Fetch Cadastur entry and any associated user in a single query."""
+        clean = ''.join(filter(str.isdigit, numero))
+        if not clean or not nome:
+            return None
+        return (
+            db.session.query(GuiaCadastur, User)
+            .outerjoin(User, GuiaCadastur.numero_do_certificado == User.cadastur_number)
+            .filter(
+                GuiaCadastur.numero_do_certificado == clean,
+                func.lower(GuiaCadastur.nome_completo) == nome.lower()
+            )
+            .first()
+        )
 
     def to_dict(self):
         return {
