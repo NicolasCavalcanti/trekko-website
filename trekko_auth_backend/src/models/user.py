@@ -56,18 +56,39 @@ class User(db.Model):
     
     @staticmethod
     def validate_cadastur(cadastur_number):
-        """Validate CADASTUR number format"""
+        """Validate CADASTUR number format and existence"""
         if not cadastur_number:
             return False, "Número CADASTUR é obrigatório para guias"
 
         # Keep only digits
         clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
 
-        # CADASTUR numbers have 11 digits and cannot be all the same
-        if len(clean_cadastur) != 11 or len(set(clean_cadastur)) == 1:
-            return False, "Número CADASTUR inválido"
+        # CADASTUR must have at least some digits and cannot be all the same
+        if len(clean_cadastur) < 3:
+            return False, "Número CADASTUR deve ter pelo menos 3 dígitos"
+        
+        if len(set(clean_cadastur)) == 1:
+            return False, "Número CADASTUR não pode ter todos os dígitos iguais"
 
-        return True, "CADASTUR válido"
+        # Import here to avoid circular imports
+        from src.models.guia_cadastur import GuiaCadastur
+        
+        # Check if CADASTUR exists in official database
+        exists, message = GuiaCadastur.validate_cadastur_exists(clean_cadastur)
+        if not exists:
+            return False, message
+        
+        # Check if CADASTUR is available (not used by another user)
+        available, message = GuiaCadastur.validate_cadastur_available(clean_cadastur)
+        if not available:
+            return False, message
+        
+        # Check certificate validity
+        valid, message = GuiaCadastur.validate_certificate_validity(clean_cadastur)
+        if not valid:
+            return False, message
+
+        return True, "CADASTUR válido e disponível"
     
     def __repr__(self):
         return f'<User {self.email}>'

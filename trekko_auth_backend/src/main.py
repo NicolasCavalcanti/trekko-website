@@ -21,7 +21,7 @@ app.register_blueprint(auth_bp)
 database_url = os.getenv('DATABASE_URL')
 if not database_url:
     db_user = os.getenv('DB_USER', 'root')
-    db_password = os.getenv('DB_PASSWORD', '')
+    db_password = os.getenv('DB_PASSWORD', 'password123')  # Default password for our setup
     db_host = os.getenv('DB_HOST', 'localhost')
     db_name = os.getenv('DB_NAME', 'trekko_db')
     database_url = f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}?charset=utf8mb4"

@@ -63,19 +63,8 @@ def register():
             if not is_valid:
                 return jsonify({'success': False, 'message': message}), 400
 
-            result = GuiaCadastur.find_with_user(cadastur_number)
-            clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
-            if not result:
-                return jsonify({
-                    'success': False,
-                    'message': 'Número CADASTUR não encontrado na base oficial'
-                }), 400
-
-            _, existing_user = result
-            if existing_user is not None:
-                return jsonify({'success': False, 'message': 'Número CADASTUR já está em uso'}), 400
-
-            cadastur_number = clean_cadastur
+            # Clean the CADASTUR number for storage
+            cadastur_number = ''.join(filter(str.isdigit, cadastur_number))
         else:
             cadastur_number = None  # Ensure trekkers don't have CADASTUR
         
@@ -157,18 +146,6 @@ def validate_cadastur():
             return jsonify({'valid': False, 'message': 'Número CADASTUR é obrigatório'}), 400
 
         is_valid, message = User.validate_cadastur(cadastur_number)
-        clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
-
-        if is_valid:
-            result = GuiaCadastur.find_with_user(clean_cadastur)
-            if not result:
-                is_valid = False
-                message = "Número CADASTUR não encontrado na base oficial"
-            else:
-                _, existing_user = result
-                if existing_user is not None:
-                    is_valid = False
-                    message = "Número CADASTUR já está em uso"
 
         return jsonify({
             'valid': is_valid,
@@ -194,5 +171,67 @@ def get_users():
         return jsonify({
             'success': False,
             'message': f'Erro ao buscar usuários: {str(e)}'
+        }), 500
+
+@auth_bp.route('/cadastur-info/<numero>', methods=['GET'])
+def get_cadastur_info(numero):
+    """Get complete CADASTUR information"""
+    try:
+        info = GuiaCadastur.get_guide_info(numero)
+        if not info:
+            return jsonify({
+                'success': False,
+                'message': 'CADASTUR não encontrado'
+            }), 404
+        
+        return jsonify({
+            'success': True,
+            'guide_info': info
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Erro ao buscar informações do CADASTUR: {str(e)}'
+        }), 500
+
+@auth_bp.route('/search-guides', methods=['POST'])
+def search_guides():
+    """Search guides by name or location"""
+    try:
+        data = request.get_json()
+        nome = data.get('nome', '').strip()
+        uf = data.get('uf', '').strip()
+        municipio = data.get('municipio', '').strip()
+        limit = min(data.get('limit', 10), 50)  # Max 50 results
+        
+        results = []
+        
+        if nome:
+            guides = GuiaCadastur.search_by_name(nome, limit)
+            results.extend([guide.to_dict() for guide in guides])
+        
+        if uf or municipio:
+            guides = GuiaCadastur.search_by_location(uf, municipio, limit)
+            results.extend([guide.to_dict() for guide in guides])
+        
+        # Remove duplicates based on certificate number
+        unique_results = []
+        seen_certificates = set()
+        for guide in results:
+            cert = guide['numero_certificado']
+            if cert not in seen_certificates:
+                seen_certificates.add(cert)
+                unique_results.append(guide)
+        
+        return jsonify({
+            'success': True,
+            'guides': unique_results[:limit],
+            'total_found': len(unique_results)
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Erro ao buscar guias: {str(e)}'
         }), 500
 
