@@ -61,28 +61,18 @@ def register():
         if user_type == 'guia':
             is_valid, message = User.validate_cadastur(cadastur_number)
             if not is_valid:
-                return jsonify({
-                    'success': False,
-                    'message': message
-                }), 400
+                return jsonify({'success': False, 'message': message}), 400
 
-            clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
-
-            # Check if CADASTUR exists in official database and matches provided name
-            cadastur_entry = GuiaCadastur.query.filter_by(numero_do_certificado=clean_cadastur).first()
+            cadastur_entry = GuiaCadastur.find_by_certificado(cadastur_number)
             if not cadastur_entry or not cadastur_entry.nome_completo or cadastur_entry.nome_completo.strip().lower() != name.lower():
                 return jsonify({
                     'success': False,
                     'message': 'Número CADASTUR e nome não encontrados na base oficial'
                 }), 400
 
-            # Check if CADASTUR is already in use
-            existing_cadastur = User.query.filter_by(cadastur_number=clean_cadastur).first()
-            if existing_cadastur:
-                return jsonify({
-                    'success': False,
-                    'message': 'Número CADASTUR já está em uso'
-                }), 400
+            clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
+            if User.query.filter_by(cadastur_number=clean_cadastur).first():
+                return jsonify({'success': False, 'message': 'Número CADASTUR já está em uso'}), 400
 
             cadastur_number = clean_cadastur
         else:
@@ -167,23 +157,17 @@ def validate_cadastur():
             return jsonify({'valid': False, 'message': 'Número CADASTUR e nome são obrigatórios'}), 400
 
         is_valid, message = User.validate_cadastur(cadastur_number)
-
-        # Normalize cadastur for database lookups
         clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
 
-        # Check in official Cadastur table if number exists
         if is_valid:
-            cadastur_entry = GuiaCadastur.query.filter_by(numero_do_certificado=clean_cadastur).first()
-            if not cadastur_entry or not cadastur_entry.nome_completo or cadastur_entry.nome_completo.strip().lower() != name.lower():
+            entry = GuiaCadastur.find_by_certificado(clean_cadastur)
+            if not entry or not entry.nome_completo or entry.nome_completo.strip().lower() != name.lower():
                 is_valid = False
                 message = "Número CADASTUR e nome não encontrados na base oficial"
 
-        # Check if CADASTUR is already in use by a registered user
-        if is_valid:
-            existing_user = User.query.filter_by(cadastur_number=clean_cadastur).first()
-            if existing_user:
-                is_valid = False
-                message = "Número CADASTUR já está em uso"
+        if is_valid and User.query.filter_by(cadastur_number=clean_cadastur).first():
+            is_valid = False
+            message = "Número CADASTUR já está em uso"
         
         return jsonify({
             'valid': is_valid,
