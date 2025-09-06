@@ -1,14 +1,11 @@
-// Use relative path so the carousel works in any deployment environment
-const API_BASE_URL = '';
+// Fetches from local API; relative path supports any deployment environment
 const FALLBACK = (w = 400, h = 250) =>
   `https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=${w}&h=${h}&fit=crop`;
 
 export async function renderStatesCarousel(container) {
   if (!container) return;
   try {
-    const response = await fetch(`${API_BASE_URL}/api/trails/states`, {
-      cache: 'no-store',
-    });
+    const response = await fetch('/api/trails/states', { cache: 'no-store' });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
