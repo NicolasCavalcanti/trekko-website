@@ -569,7 +569,7 @@
                     
                     try {
                         // Buscar dados do guia na API do CADASTUR
-                        const response = await fetch(`https://g8h3ilcvjnlq.manus.space/api/guides?cadastur=${currentUser.cadastur}`);
+                        const response = await fetch(`http://localhost:5000/api/guides?cadastur=${currentUser.cadastur}`);
                         const guides = await response.json();
                         
                         if (guides && guides.length > 0) {

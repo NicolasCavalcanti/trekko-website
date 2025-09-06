@@ -3,7 +3,7 @@
 
 class TrekkoAuthManager {
     constructor() {
-        this.apiUrl = 'https://g8h3ilcvjnlq.manus.space/api';
+        this.apiUrl = 'http://localhost:5000/api';
         // Base local de guias não é mais utilizada
         this.currentUser = null;
         this.authToken = null;
