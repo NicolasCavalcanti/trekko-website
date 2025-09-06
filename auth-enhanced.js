@@ -83,6 +83,13 @@ class TrekkoAuthManager {
                 estado: "AM",
                 especialidades: ["Floresta", "Ecoturismo"],
                 ativo: true
+            },
+            {
+                name: "Paulo Ricardo Gomes",
+                cadastur: "21467985879",
+                estado: "SP",
+                especialidades: ["Trilhas", "Montanha"],
+                ativo: true
             }
         ];
     }
