@@ -62,14 +62,14 @@ class User(db.Model):
         
         # Remove non-digits
         clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
-        
-        if len(clean_cadastur) != 11:
-            return False, "CADASTUR deve ter exatamente 11 dígitos"
-        
-        # Basic validation - could be enhanced with real CADASTUR validation
-        if clean_cadastur == '00000000000' or clean_cadastur == '11111111111':
+
+        if not clean_cadastur:
             return False, "Número CADASTUR inválido"
-        
+
+        # Basic validation - could be enhanced with real CADASTUR validation
+        if len(set(clean_cadastur)) == 1:
+            return False, "Número CADASTUR inválido"
+
         return True, "CADASTUR válido"
     
     def __repr__(self):
