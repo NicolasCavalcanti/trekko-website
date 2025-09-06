@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from src.models.user import User
+from src.models.guia_cadastur import GuiaCadastur
 from src.database import db
 import re
 
@@ -64,14 +65,26 @@ def register():
                     'success': False,
                     'message': message
                 }), 400
-            
+
+            clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
+
+            # Check if CADASTUR exists in official database
+            cadastur_entry = GuiaCadastur.query.filter_by(numero_do_certificado=clean_cadastur).first()
+            if not cadastur_entry:
+                return jsonify({
+                    'success': False,
+                    'message': 'Número CADASTUR não encontrado na base oficial'
+                }), 400
+
             # Check if CADASTUR is already in use
-            existing_cadastur = User.query.filter_by(cadastur_number=cadastur_number).first()
+            existing_cadastur = User.query.filter_by(cadastur_number=clean_cadastur).first()
             if existing_cadastur:
                 return jsonify({
                     'success': False,
                     'message': 'Número CADASTUR já está em uso'
                 }), 400
+
+            cadastur_number = clean_cadastur
         else:
             cadastur_number = None  # Ensure trekkers don't have CADASTUR
         
@@ -150,10 +163,20 @@ def validate_cadastur():
         cadastur_number = data.get('cadastur_number', '').strip()
         
         is_valid, message = User.validate_cadastur(cadastur_number)
-        
-        # Check if CADASTUR is already in use
+
+        # Normalize cadastur for database lookups
+        clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
+
+        # Check in official Cadastur table if number exists
         if is_valid:
-            existing_user = User.query.filter_by(cadastur_number=cadastur_number).first()
+            cadastur_entry = GuiaCadastur.query.filter_by(numero_do_certificado=clean_cadastur).first()
+            if not cadastur_entry:
+                is_valid = False
+                message = "Número CADASTUR não encontrado na base oficial"
+
+        # Check if CADASTUR is already in use by a registered user
+        if is_valid:
+            existing_user = User.query.filter_by(cadastur_number=clean_cadastur).first()
             if existing_user:
                 is_valid = False
                 message = "Número CADASTUR já está em uso"

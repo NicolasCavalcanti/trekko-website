@@ -4,98 +4,11 @@
 class TrekkoAuthManager {
     constructor() {
         this.apiUrl = 'https://g8h3ilcvjnlq.manus.space/api';
-        this.guidesDatabase = this.loadGuidesDatabase();
+        // Base local de guias não é mais utilizada
         this.currentUser = null;
         this.authToken = null;
         
         this.init();
-    }
-
-    // Base de dados de guias válidos com CADASTUR
-    loadGuidesDatabase() {
-        return [
-            {
-                name: "Carlos Silva Santos",
-                cadastur: "27123456789",
-                estado: "RJ",
-                especialidades: ["Montanha", "Trilhas"],
-                ativo: true
-            },
-            {
-                name: "Maria Fernanda Oliveira",
-                cadastur: "27987654321",
-                estado: "MG",
-                especialidades: ["Cachoeiras", "Ecoturismo"],
-                ativo: true
-            },
-            {
-                name: "João Pedro Montanha",
-                cadastur: "27456789123",
-                estado: "SP",
-                especialidades: ["Trekking", "Aventura"],
-                ativo: true
-            },
-            {
-                name: "Ana Carolina Rocha",
-                cadastur: "27789123456",
-                estado: "ES",
-                especialidades: ["Trilhas", "Natureza"],
-                ativo: true
-            },
-            {
-                name: "Roberto Carlos Lima",
-                cadastur: "27321654987",
-                estado: "BA",
-                especialidades: ["Montanha", "Expedições"],
-                ativo: true
-            },
-            {
-                name: "Fernanda Santos Costa",
-                cadastur: "27654987321",
-                estado: "PR",
-                especialidades: ["Ecoturismo", "Aventura"],
-                ativo: true
-            },
-            {
-                name: "Lucas Henrique Alves",
-                cadastur: "27147258369",
-                estado: "SC",
-                especialidades: ["Trilhas", "Montanha"],
-                ativo: true
-            },
-            {
-                name: "Juliana Pereira Souza",
-                cadastur: "27963852741",
-                estado: "GO",
-                especialidades: ["Natureza", "Trekking"],
-                ativo: true
-            },
-            {
-                name: "Rafael Augusto Ferreira",
-                cadastur: "27852741963",
-                estado: "RO",
-                especialidades: ["Expedições", "Aventura"],
-                ativo: true
-            },
-            {
-                name: "Camila Rodrigues Martins",
-                cadastur: "27741852963",
-                estado: "AM",
-                especialidades: ["Floresta", "Ecoturismo"],
-                ativo: true
-            },
-            {
-                name: "Julieli Ferrari dos Santos",
-                cadastur: "21467985879",
-                estado: "RS",
-                especialidades: [
-                    "Ecoturismo",
-                    "Turismo Cultural",
-                    "Turismo de Negócios e Eventos"
-                ],
-                ativo: true
-            }
-        ];
     }
 
     init() {
@@ -142,11 +55,13 @@ class TrekkoAuthManager {
     // Configurar event listeners
     setupEventListeners() {
         console.log('Configurando event listeners de autenticação...');
-        
-        // Aguardar carregamento dos elementos
-        setTimeout(() => {
+
+        // Garantir que os botões existam antes de vincular eventos
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.bindAuthButtons());
+        } else {
             this.bindAuthButtons();
-        }, 100);
+        }
     }
 
     bindAuthButtons() {
@@ -355,8 +270,7 @@ class TrekkoAuthManager {
                                 Número CADASTUR *
                             </label>
                             <input type="text" id="cadasturNumber"
-                                   placeholder="Ex: 27123456789"
-                                   maxlength="11">
+                                   placeholder="Ex: 27123456789">
                             <div class="cadastur-info">
                                 <small>
                                     <i class="fas fa-info-circle"></i>
@@ -504,67 +418,62 @@ class TrekkoAuthManager {
     }
 
     // Validar CADASTUR em tempo real
-    validateCadastur() {
+    async validateCadastur() {
         const cadasturInput = document.getElementById('cadasturNumber');
         const cadasturValidation = document.getElementById('cadasturValidation');
-        const nameInput = document.getElementById('registerName');
         const validationSummary = document.getElementById('validationSummary');
-        const validationDetails = document.getElementById('validationDetails');
-        
+
         const cadastur = cadasturInput.value.trim();
-        const name = nameInput.value.trim();
-        
+
         if (!cadastur) {
             this.showValidationMessage(cadasturValidation, 'CADASTUR é obrigatório para guias', 'error');
             cadasturInput.classList.add('error');
             validationSummary.classList.add('hidden');
             return false;
         }
-        
-        if (cadastur.length !== 11) {
-            this.showValidationMessage(cadasturValidation, 'CADASTUR deve ter exatamente 11 dígitos', 'error');
+
+        if (!/^\d+$/.test(cadastur)) {
+            this.showValidationMessage(
+                cadasturValidation,
+                'CADASTUR deve conter apenas números',
+                'error'
+            );
             cadasturInput.classList.add('error');
             validationSummary.classList.add('hidden');
             return false;
         }
-        
-        // Verificar se o guia está na base de dados
-        const guide = this.findGuideInDatabase(name, cadastur);
-        
-        if (!guide) {
-            this.showValidationMessage(cadasturValidation, 'Nome e CADASTUR não encontrados na base de dados de guias certificados', 'error');
+
+        try {
+            const resp = await fetch(`${this.apiUrl}/auth/validate-cadastur`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cadastur_number: cadastur })
+            });
+            const result = await resp.json();
+
+            if (!result.valid) {
+                this.showValidationMessage(cadasturValidation, result.message || 'CADASTUR inválido', 'error');
+                cadasturInput.classList.add('error');
+                validationSummary.classList.add('hidden');
+                return false;
+            }
+
+            this.showValidationMessage(cadasturValidation, 'CADASTUR válido e verificado', 'success');
+            cadasturInput.classList.remove('error');
+            cadasturInput.classList.add('success');
+            validationSummary.classList.add('hidden');
+            return true;
+        } catch (err) {
+            console.error('Erro ao validar CADASTUR:', err);
+            this.showValidationMessage(cadasturValidation, 'Erro ao validar CADASTUR', 'error');
             cadasturInput.classList.add('error');
             validationSummary.classList.add('hidden');
             return false;
         }
-        
-        // Guia encontrado - mostrar informações de validação
-        this.showValidationMessage(cadasturValidation, 'CADASTUR válido e verificado', 'success');
-        cadasturInput.classList.remove('error');
-        cadasturInput.classList.add('success');
-        
-        // Mostrar resumo da validação
-        validationDetails.innerHTML = `
-            <div class="guide-info">
-                <p><strong>Nome:</strong> ${guide.name}</p>
-                <p><strong>CADASTUR:</strong> ${guide.cadastur}</p>
-                <p><strong>Estado:</strong> ${guide.estado}</p>
-                <p><strong>Especialidades:</strong> ${guide.especialidades.join(', ')}</p>
-            </div>
-        `;
-        validationSummary.classList.remove('hidden');
-        
-        return true;
     }
 
-    // Encontrar guia na base de dados
-    findGuideInDatabase(name, cadastur) {
-        return this.guidesDatabase.find(guide => {
-            const nameMatch = this.normalizeString(guide.name) === this.normalizeString(name);
-            const cadasturMatch = guide.cadastur === cadastur;
-            return nameMatch && cadasturMatch && guide.ativo;
-        });
-    }
+    // (Descontinuado) Função de busca local de guias
+    // A validação agora é feita diretamente com o backend oficial
 
     // Normalizar string para comparação
     normalizeString(str) {
@@ -608,10 +517,7 @@ class TrekkoAuthManager {
 
     // Formatar CADASTUR (apenas números)
     formatCadastur(input) {
-        let value = input.value.replace(/\D/g, '');
-        if (value.length > 11) {
-            value = value.substring(0, 11);
-        }
+        const value = input.value.replace(/\D/g, '');
         input.value = value;
     }
 
@@ -692,10 +598,20 @@ class TrekkoAuthManager {
                 return;
             }
 
-            // Verificar se o guia está na base de dados
-            const guide = this.findGuideInDatabase(name, cadastur);
-            if (!guide) {
-                this.showMessage(errorDiv, 'Nome e CADASTUR não encontrados na base de dados de guias certificados. Apenas guias registrados podem se cadastrar como profissionais.', 'error');
+            try {
+                const resp = await fetch(`${this.apiUrl}/auth/validate-cadastur`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cadastur_number: cadastur })
+                });
+                const result = await resp.json();
+                if (!result.valid) {
+                    this.showMessage(errorDiv, result.message || 'CADASTUR inválido', 'error');
+                    return;
+                }
+            } catch (err) {
+                console.error('Erro ao validar CADASTUR:', err);
+                this.showMessage(errorDiv, 'Erro ao validar CADASTUR. Tente novamente.', 'error');
                 return;
             }
         }

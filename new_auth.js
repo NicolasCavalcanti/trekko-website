@@ -196,6 +196,7 @@ class TrekkoAuth {
 
         // Validate CADASTUR for guides
         if (data.user_type === 'guia') {
+            data.cadastur_number = data.cadastur_number.replace(/\D/g, '');
             const isValid = await this.validateCadasturAPI(data.cadastur_number);
             if (!isValid) {
                 return; // Validation message already shown
@@ -240,27 +241,25 @@ class TrekkoAuth {
         }
 
         const cleanCadastur = cadasturNumber.replace(/\D/g, '');
-        
-        if (cleanCadastur.length < 11) {
-            validationDiv.innerHTML = '<span class="trekko-validation-warning">⚠️ CADASTUR deve ter 11 dígitos</span>';
+
+        if (!cleanCadastur) {
+            validationDiv.innerHTML = '<span class="trekko-validation-error">❌ CADASTUR deve conter apenas números</span>';
             return false;
-        } else if (cleanCadastur.length > 11) {
-            validationDiv.innerHTML = '<span class="trekko-validation-error">❌ CADASTUR não pode ter mais de 11 dígitos</span>';
-            return false;
-        } else {
-            validationDiv.innerHTML = '<span class="trekko-validation-success">✅ Formato válido</span>';
-            return true;
         }
+
+        validationDiv.innerHTML = '<span class="trekko-validation-success">✅ Formato válido</span>';
+        return true;
     }
 
     async validateCadasturAPI(cadasturNumber) {
+        const cleanCadastur = cadasturNumber.replace(/\D/g, '');
         try {
-            const response = await fetch(`${this.apiUrl}/validate-cadastur`, {
+            const response = await fetch(`${this.apiUrl}/auth/validate-cadastur`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ cadastur_number: cadasturNumber })
+                body: JSON.stringify({ cadastur_number: cleanCadastur })
             });
 
             const result = await response.json();
