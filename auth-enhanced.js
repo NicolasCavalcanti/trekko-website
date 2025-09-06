@@ -85,10 +85,14 @@ class TrekkoAuthManager {
                 ativo: true
             },
             {
-                name: "Paulo Ricardo Gomes",
+                name: "Julieli Ferrari dos Santos",
                 cadastur: "21467985879",
-                estado: "SP",
-                especialidades: ["Trilhas", "Montanha"],
+                estado: "RS",
+                especialidades: [
+                    "Ecoturismo",
+                    "Turismo Cultural",
+                    "Turismo de Negócios e Eventos"
+                ],
                 ativo: true
             }
         ];
