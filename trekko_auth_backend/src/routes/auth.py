@@ -63,15 +63,16 @@ def register():
             if not is_valid:
                 return jsonify({'success': False, 'message': message}), 400
 
-            cadastur_entry = GuiaCadastur.find_by_certificado(cadastur_number)
-            if not cadastur_entry or not cadastur_entry.nome_completo or cadastur_entry.nome_completo.strip().lower() != name.lower():
+            result = GuiaCadastur.find_with_user(cadastur_number)
+            clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
+            if not result or not GuiaCadastur.names_match(result[0].nome_completo, name):
                 return jsonify({
                     'success': False,
                     'message': 'Número CADASTUR e nome não encontrados na base oficial'
                 }), 400
 
-            clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
-            if User.query.filter_by(cadastur_number=clean_cadastur).first():
+            guia_entry, existing_user = result
+            if existing_user is not None:
                 return jsonify({'success': False, 'message': 'Número CADASTUR já está em uso'}), 400
 
             cadastur_number = clean_cadastur
@@ -160,15 +161,16 @@ def validate_cadastur():
         clean_cadastur = ''.join(filter(str.isdigit, cadastur_number))
 
         if is_valid:
-            entry = GuiaCadastur.find_by_certificado(clean_cadastur)
-            if not entry or not entry.nome_completo or entry.nome_completo.strip().lower() != name.lower():
+            result = GuiaCadastur.find_with_user(clean_cadastur)
+            if not result or not GuiaCadastur.names_match(result[0].nome_completo, name):
                 is_valid = False
                 message = "Número CADASTUR e nome não encontrados na base oficial"
+            else:
+                guia_entry, existing_user = result
+                if existing_user is not None:
+                    is_valid = False
+                    message = "Número CADASTUR já está em uso"
 
-        if is_valid and User.query.filter_by(cadastur_number=clean_cadastur).first():
-            is_valid = False
-            message = "Número CADASTUR já está em uso"
-        
         return jsonify({
             'valid': is_valid,
             'message': message
