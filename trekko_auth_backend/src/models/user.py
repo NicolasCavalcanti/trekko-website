@@ -60,10 +60,6 @@ class User(db.Model):
         if not cadastur_number:
             return False, "Número CADASTUR é obrigatório para guias"
         
-        clean_cadastur = cadastur_number.strip()
-
-        if not clean_cadastur.isdigit():
-            return False, "CADASTUR deve conter apenas números"
 
         if len(set(clean_cadastur)) == 1:
             return False, "Número CADASTUR inválido"

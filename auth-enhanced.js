@@ -516,13 +516,6 @@ class TrekkoAuthManager {
             validationSummary.classList.add('hidden');
             return false;
         }
-
-        if (!/^\d+$/.test(cadastur)) {
-            this.showValidationMessage(
-                cadasturValidation,
-                'CADASTUR deve conter apenas números',
-                'error'
-            );
             cadasturInput.classList.add('error');
             validationSummary.classList.add('hidden');
             return false;

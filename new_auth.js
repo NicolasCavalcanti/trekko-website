@@ -240,17 +240,14 @@ class TrekkoAuth {
         }
 
         const cleanCadastur = cadasturNumber.replace(/\D/g, '');
-        
-        if (cleanCadastur.length < 11) {
-            validationDiv.innerHTML = '<span class="trekko-validation-warning">⚠️ CADASTUR deve ter 11 dígitos</span>';
+
+        if (!cleanCadastur) {
+            validationDiv.innerHTML = '<span class="trekko-validation-error">❌ CADASTUR deve conter apenas números</span>';
             return false;
-        } else if (cleanCadastur.length > 11) {
-            validationDiv.innerHTML = '<span class="trekko-validation-error">❌ CADASTUR não pode ter mais de 11 dígitos</span>';
-            return false;
-        } else {
-            validationDiv.innerHTML = '<span class="trekko-validation-success">✅ Formato válido</span>';
-            return true;
         }
+
+        validationDiv.innerHTML = '<span class="trekko-validation-success">✅ Formato válido</span>';
+        return true;
     }
 
     async validateCadasturAPI(cadasturNumber) {
