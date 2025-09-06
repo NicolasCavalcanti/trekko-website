@@ -2,7 +2,7 @@
 class AuthManager {
     constructor() {
         this.apiUrl = 'https://g8h3ilcvjnlq.manus.space/api';
-        this.guidesDatabase = this.loadGuidesDatabase();
+        // Base local de guias removida em favor da validação via API
         this.init();
     }
 
@@ -611,10 +611,20 @@ class AuthManager {
                 return;
             }
 
-            // Verificar se o guia está na base de dados
-            const guide = this.findGuideInDatabase(name, cadastur);
-            if (!guide) {
-                this.showError(errorDiv, 'Nome e CADASTUR não encontrados na base de dados de guias certificados. Apenas guias registrados podem se cadastrar como profissionais.');
+            try {
+                const resp = await fetch(`${this.apiUrl}/auth/validate-cadastur`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cadastur_number: cadastur })
+                });
+                const result = await resp.json();
+                if (!result.valid) {
+                    this.showError(errorDiv, result.message || 'CADASTUR inválido');
+                    return;
+                }
+            } catch (err) {
+                console.error('Erro ao validar CADASTUR:', err);
+                this.showError(errorDiv, 'Erro ao validar CADASTUR. Tente novamente.');
                 return;
             }
         }
@@ -640,7 +650,7 @@ class AuthManager {
 
             // Adicionar CADASTUR se for guia
             if (userType === 'guia') {
-                userData.cadastur = cadastur;
+                userData.cadastur_number = cadastur;
             }
 
             const response = await fetch(`${this.apiUrl}/auth/register`, {
