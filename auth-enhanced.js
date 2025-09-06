@@ -516,10 +516,6 @@ class TrekkoAuthManager {
             validationSummary.classList.add('hidden');
             return false;
         }
-            cadasturInput.classList.add('error');
-            validationSummary.classList.add('hidden');
-            return false;
-        }
 
         try {
             const resp = await fetch(`${this.apiUrl}/auth/validate-cadastur`, {
