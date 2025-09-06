@@ -885,6 +885,43 @@ a:hover {
     margin-top: var(--spacing-xs);
 }
 
+.estados-carousel {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.estados-carousel .estado-card {
+    min-width: 300px;
+}
+
+.estados-carousel .estado-card img {
+    height: 200px;
+}
+
+.estado-name-overlay {
+    position: absolute;
+    top: var(--spacing-md);
+    left: var(--spacing-md);
+    background: rgba(0, 0, 0, 0.6);
+    color: var(--branco);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+}
+
+.estado-trilha-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    color: var(--branco);
+    padding: var(--spacing-sm);
+    text-align: center;
+    font-size: 0.875rem;
+}
+
 /* Depoimentos Section */
 .depoimentos-carousel {
     position: relative;
