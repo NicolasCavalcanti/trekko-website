@@ -2,7 +2,7 @@
 // Funcionalidades principais da nova homepage
 
 // API Configuration
-const API_BASE_URL = 'https://g8h3ilcvjnlq.manus.space/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 // Authentication state
 let currentUser = null;
@@ -88,7 +88,7 @@ function loadHomepageData() {
 async function loadRealCounts() {
     try {
         // Load trilhas count
-        const trilhasResponse = await fetch('https://g8h3ilcvjnlq.manus.space/api/trails?limit=1');
+        const trilhasResponse = await fetch('http://localhost:5000/api/trails?limit=1');
         
         if (trilhasResponse.ok) {
             const trilhasData = await trilhasResponse.json();
@@ -104,7 +104,7 @@ async function loadRealCounts() {
         }
         
         // Load guias count  
-        const guiasResponse = await fetch('https://g8h3ilcvjnlq.manus.space/api/guides?limit=1');
+        const guiasResponse = await fetch('http://localhost:5000/api/guides?limit=1');
         
         if (guiasResponse.ok) {
             const guiasData = await guiasResponse.json();
@@ -169,7 +169,7 @@ async function loadEstados() {
     for (const estado of estadosData) {
         try {
             // Get actual trails for this state to count them correctly
-            const response = await fetch(`https://g8h3ilcvjnlq.manus.space/api/trails?uf=${estado.sigla}&limit=1000`);
+            const response = await fetch(`http://localhost:5000/api/trails?uf=${estado.sigla}&limit=1000`);
             
             if (!response.ok) {
                 console.warn(`API response not ok for ${estado.sigla}:`, response.status);
@@ -893,7 +893,7 @@ async function loadNearbyTrails() {
         console.log('🔍 Buscando trilhas próximas...');
         
         // Fetch all trails from API
-        const response = await fetch('https://g8h3ilcvjnlq.manus.space/api/trails?limit=1000');
+        const response = await fetch('http://localhost:5000/api/trails?limit=1000');
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -934,7 +934,7 @@ async function loadAllTrails() {
     try {
         console.log('🔍 Carregando todas as trilhas...');
         
-        const response = await fetch('https://g8h3ilcvjnlq.manus.space/api/trails?limit=100');
+        const response = await fetch('http://localhost:5000/api/trails?limit=100');
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
