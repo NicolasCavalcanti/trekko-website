@@ -3,6 +3,16 @@ import { seedTrails } from "../scripts/seed_trails";
 
 async function main() {
   await seedTrails();
+  await prisma.user.upsert({
+    where: { email: "nicolas_cavalcanti@hotmail.com" },
+    update: { role: "admin" },
+    create: {
+      name: "Nicolas Cavalcanti",
+      email: "nicolas_cavalcanti@hotmail.com",
+      avatarUrl: null,
+      role: "admin",
+    },
+  });
   // create example guide
   const user = await prisma.user.upsert({
     where: { email: "guide@example.com" },
