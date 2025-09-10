@@ -5,9 +5,10 @@ class TrekkoAuthManager {
     constructor() {
         const localApi = 'http://localhost:5000/api';
         const productionApi = 'https://p9hwiqcldgkm.manus.space/api';
-        this.apiUrl = ['localhost', '127.0.0.1'].includes(window.location.hostname)
-            ? localApi
-            : productionApi;
+        // Detectar ambiente local (incluindo file://)
+        const isLocal = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) || 
+                       window.location.protocol === 'file:';
+        this.apiUrl = isLocal ? localApi : productionApi;
         // Base local de guias não é mais utilizada
         this.currentUser = null;
         this.authToken = null;
