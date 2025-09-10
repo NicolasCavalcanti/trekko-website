@@ -7,6 +7,7 @@ from flask import Flask, send_from_directory
 from flask_cors import CORS
 from src.database import db
 from src.routes.auth import auth_bp
+from sqlalchemy import create_engine
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
@@ -25,6 +26,12 @@ if not database_url:
     db_host = os.getenv('DB_HOST', 'localhost')
     db_name = os.getenv('DB_NAME', 'trekko_db')
     database_url = f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}?charset=utf8mb4"
+    try:
+        engine = create_engine(database_url)
+        engine.connect()
+    except Exception:
+        db_path = os.path.join(os.path.dirname(__file__), 'database', 'app.db')
+        database_url = f"sqlite:///{db_path}"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
