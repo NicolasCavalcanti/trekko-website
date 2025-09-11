@@ -10,8 +10,14 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 def register():
     """Register a new user with CADASTUR support for guides"""
     try:
-        data = request.get_json()
-        
+        # Ensure request contains JSON data
+        data = request.get_json(silent=True)
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': 'Dados de cadastro inválidos ou ausentes'
+            }), 400
+
         # Validate required fields
         required_fields = ['name', 'email', 'password', 'user_type']
         for field in required_fields:
@@ -97,8 +103,14 @@ def register():
 def login():
     """Login user"""
     try:
-        data = request.get_json()
-        
+        # Parse JSON data safely
+        data = request.get_json(silent=True)
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': 'Dados de login inválidos ou ausentes'
+            }), 400
+
         email = data.get('email', '').strip().lower()
         password = data.get('password', '')
         
@@ -139,7 +151,10 @@ def login():
 def validate_cadastur():
     """Validate CADASTUR number"""
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True)
+        if not data:
+            return jsonify({'valid': False, 'message': 'Dados inválidos ou ausentes'}), 400
+
         cadastur_number = data.get('cadastur_number', '').strip()
 
         if not cadastur_number:
