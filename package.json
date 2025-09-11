@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "pretest": "npx prisma generate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -11,7 +12,7 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "ts-node --esm prisma/seed.ts",
-    "test": "prisma generate && node --loader ts-node/esm --test tests/*.ts",
+    "test": "node --loader ts-node/esm --test tests/*.ts",
     "test:e2e": "echo 'e2e tests placeholder'"
   },
   "dependencies": {
