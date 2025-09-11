@@ -4,5 +4,8 @@
   },
   "dependencies": {
     "@prisma/client": "^6.16.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
