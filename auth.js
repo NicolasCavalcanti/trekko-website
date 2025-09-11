@@ -5,6 +5,7 @@
 class TrekkoAuth {
     constructor() {
         this.apiUrl = '/api/auth';
+        this.authToken = null;
         this.injectStyles();
         this.init();
     }
@@ -21,11 +22,14 @@ class TrekkoAuth {
     init() {
         this.setupEventListeners();
         const userData = localStorage.getItem('userData');
+        const token = localStorage.getItem('authToken');
         if (userData) {
             try {
                 this.updateUIForLoggedUser(JSON.parse(userData));
+                if (token) this.authToken = token;
             } catch {
                 localStorage.removeItem('userData');
+                localStorage.removeItem('authToken');
             }
         }
     }
@@ -191,6 +195,10 @@ class TrekkoAuth {
 
             if (result.success) {
                 this.showSuccess('Login realizado com sucesso!');
+                if (result.access_token) {
+                    this.authToken = result.access_token;
+                    localStorage.setItem('authToken', this.authToken);
+                }
                 localStorage.setItem('userData', JSON.stringify(result.user));
                 modal.remove();
                 this.updateUIForLoggedUser(result.user);
@@ -228,6 +236,10 @@ class TrekkoAuth {
 
             if (result.success) {
                 this.showSuccess('Cadastro realizado com sucesso!');
+                if (result.access_token) {
+                    this.authToken = result.access_token;
+                    localStorage.setItem('authToken', this.authToken);
+                }
                 localStorage.setItem('userData', JSON.stringify(result.user));
                 modal.remove();
                 this.updateUIForLoggedUser(result.user);
@@ -301,7 +313,7 @@ class TrekkoAuth {
     hideLoading(form) {
         const submitBtn = form.querySelector('button[type="submit"]');
         submitBtn.disabled = false;
-        submitBtn.textContent = submitBtn.id.includes('login') ? 'Entrar' : 'Cadastrar';
+        submitBtn.textContent = form.id.includes('login') ? 'Entrar' : 'Cadastrar';
     }
 
     showError(message) {
@@ -335,6 +347,8 @@ class TrekkoAuth {
 
     logout() {
         localStorage.removeItem('userData');
+        localStorage.removeItem('authToken');
+        this.authToken = null;
         location.reload();
     }
 }
