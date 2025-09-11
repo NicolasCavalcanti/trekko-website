@@ -40,13 +40,13 @@ class AuthGuard {
     // Redirecionar para login
     redirectToLogin(message) {
         alert(message);
-        window.location.href = 'index.html';
+        window.location.href = 'https://www.trekko.com.br/';
     }
 
     // Redirecionar para home
     redirectToHome(message) {
         alert(message);
-        window.location.href = 'index.html';
+        window.location.href = 'https://www.trekko.com.br/';
     }
 
     // Mostrar conteúdo da página
