@@ -3,579 +3,464 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trekko - Sua plataforma de trekking no Brasil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .hero-bg {
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
-                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23059669" width="1200" height="800"/><path fill="%23047857" d="M0,400 Q300,200 600,400 T1200,400 L1200,800 L0,800 Z"/></svg>');
-            background-size: cover;
-            background-position: center;
-        }
-    </style>
-<!-- Código do Google AdSense -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2482023752745520"
-     crossorigin="anonymous"></script>
-    <!-- Google tag (gtag.js) -->
-<meta name="google-adsense-account" content="ca-pub-2482023752745520">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <title>Trekko – Trilhas e guias no Brasil | Conecte-se com a natureza</title>
+    <meta name="description" content="Descubra trilhas incríveis, encontre guias experientes certificados CADASTUR e planeje sua próxima aventura na natureza brasileira.">
+    <meta name="keywords" content="trilhas, trekking, guias, natureza, aventura, brasil, cadastur, montanha, cachoeira">
+    
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-S816P190VN');
+    </script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2482023752745520" crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-2482023752745520">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.trekko.com.br/">
+    <meta property="og:title" content="Trekko – Trilhas e guias no Brasil">
+    <meta property="og:description" content="Descubra trilhas incríveis, encontre guias experientes certificados CADASTUR e planeje sua próxima aventura na natureza brasileira.">
+    <meta property="og:image" content="https://www.trekko.com.br/images/og-image.jpg">
 
-  gtag('config', 'G-S816P190VN');
-</script>
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.trekko.com.br/">
+    <meta property="twitter:title" content="Trekko – Trilhas e guias no Brasil">
+    <meta property="twitter:description" content="Descubra trilhas incríveis, encontre guias experientes certificados CADASTUR e planeje sua próxima aventura na natureza brasileira.">
+    <meta property="twitter:image" content="https://www.trekko.com.br/images/og-image.jpg">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-gray-50">
+<body>
     <!-- Header -->
-    <header class="bg-white shadow-sm">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <span class="text-2xl font-bold text-green-600">Trekko</span>
+    <header class="header" id="header">
+        <nav class="nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-mountain"></i>
+                Trekko
+            </a>
+            
+            <div class="nav-menu" id="navMenu">
+                <a href="trilhas.html" class="nav-link">Trilhas</a>
+                <a href="guias.html" class="nav-link">Guias</a>
+                <a href="#como-funciona" class="nav-link">Como Funciona</a>
+                <a href="/sobre.html" class="nav-link">Sobre</a>
+            </div>
+            
+            <div class="nav-actions">
+                <!-- Botões de autenticação (mostrados quando não logado) -->
+                <div id="authButtons" class="auth-buttons">
+                    <button id="loginBtn" class="btn btn-secondary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Entrar
+                    </button>
+                    <button id="registerBtn" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i>
+                        Cadastrar
+                    </button>
                 </div>
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="#" class="text-gray-900 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Início</a>
-                        <a href="trilhas.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Trilhas</a>
-                        <a href="guias.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Guias</a>
-                        <a href="#" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Sobre</a>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button id="loginBtn" class="text-green-600 hover:text-green-700 px-3 py-2 rounded-md text-sm font-medium">Entrar</button>
-                    <button id="registerBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">Cadastrar</button>
-                    
-                    <!-- User Menu (hidden by default) -->
-                    <div id="userMenu" class="hidden relative">
-                        <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-green-600">
-                            <span id="userName" class="font-medium"></span>
-                            <span class="text-sm">▼</span>
+                
+                <!-- Menu do usuário (mostrado quando logado) -->
+                <div id="userMenu" class="user-menu hidden">
+                    <button id="userMenuBtn" class="user-menu-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="userName">Usuário</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div id="userDropdown" class="user-dropdown hidden">
+                        <a href="perfil.html" class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            Meu Perfil
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-heart"></i>
+                            Favoritos
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-history"></i>
+                            Histórico
+                        </a>
+                        <hr class="dropdown-divider">
+                        <button id="logoutBtn" class="dropdown-item logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sair
                         </button>
-                        <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                            <a href="perfil.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Meu Perfil</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configurações</a>
-                            <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sair</button>
-                        </div>
                     </div>
                 </div>
+                
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
         </nav>
     </header>
 
     <!-- Hero Section -->
-    <section class="hero-bg h-96 flex items-center justify-center text-center text-white">
-        <div class="max-w-4xl mx-auto px-4">
-            <h1 class="text-4xl md:text-6xl font-bold mb-4">
-                Conecte-se com a <span class="text-orange-400">natureza</span>
-            </h1>
-            <p class="text-xl md:text-2xl mb-8">
-                Descubra trilhas incríveis, encontre guias experientes e planeje suas próximas aventuras no Brasil
-            </p>
-            <a href="guias.html" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg text-lg font-semibold inline-block">
-                Buscar Aventuras
-            </a>
+    <section class="hero" id="hero">
+        <div class="hero-background">
+            <div class="hero-overlay"></div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">
+                    Descubra as mais belas
+                    <span class="highlight">trilhas do Brasil</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Conecte-se com guias certificados CADASTUR e viva experiências únicas na natureza brasileira. 
+                    Sua próxima aventura começa aqui.
+                </p>
+            </div>
+            
+            <div class="hero-search">
+                <div class="search-container">
+                    <div class="search-field search-input-field">
+                        <label for="searchInput">
+                            <i class="fas fa-search"></i>
+                            Buscar
+                        </label>
+                        <input type="text" id="searchInput" placeholder="Nome da trilha, cidade, ponto turístico...">
+                    </div>
+                    <div class="search-field">
+                        <label for="estadoSelect">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Estado
+                        </label>
+                        <select id="estadoSelect">
+                            <option value="">Todos os Estados</option>
+                            <option value="AC">Acre</option>
+                            <option value="AL">Alagoas</option>
+                            <option value="AP">Amapá</option>
+                            <option value="AM">Amazonas</option>
+                            <option value="BA">Bahia</option>
+                            <option value="CE">Ceará</option>
+                            <option value="DF">Distrito Federal</option>
+                            <option value="ES">Espírito Santo</option>
+                            <option value="GO">Goiás</option>
+                            <option value="MA">Maranhão</option>
+                            <option value="MT">Mato Grosso</option>
+                            <option value="MS">Mato Grosso do Sul</option>
+                            <option value="MG">Minas Gerais</option>
+                            <option value="PA">Pará</option>
+                            <option value="PB">Paraíba</option>
+                            <option value="PR">Paraná</option>
+                            <option value="PE">Pernambuco</option>
+                            <option value="PI">Piauí</option>
+                            <option value="RJ">Rio de Janeiro</option>
+                            <option value="RN">Rio Grande do Norte</option>
+                            <option value="RS">Rio Grande do Sul</option>
+                            <option value="RO">Rondônia</option>
+                            <option value="RR">Roraima</option>
+                            <option value="SC">Santa Catarina</option>
+                            <option value="SP">São Paulo</option>
+                            <option value="SE">Sergipe</option>
+                            <option value="TO">Tocantins</option>
+                        </select>
+                    </div>
+                    <div class="search-field">
+                        <label for="dificuldadeSelect">
+                            <i class="fas fa-chart-line"></i>
+                            Dificuldade
+                        </label>
+                        <select id="dificuldadeSelect">
+                            <option value="">Todas</option>
+                            <option value="facil">Fácil</option>
+                            <option value="moderada">Moderada</option>
+                            <option value="dificil">Difícil</option>
+                            <option value="extrema">Extrema</option>
+                        </select>
+                    </div>
+                    <div class="search-field">
+                        <label for="distanciaInput">
+                            <i class="fas fa-route"></i>
+                            Distância (km)
+                        </label>
+                        <input type="number" id="distanciaInput" placeholder="Ex: 10">
+                    </div>
+                    <button class="search-btn" id="searchHomepageBtn">
+                        <i class="fas fa-search"></i>
+                        Buscar Trilhas
+                    </button>
+                </div>
+            </div>
+            
+            <div class="hero-actions">
+                <a href="trilhas.html" class="btn btn-primary btn-large" id="explorarTrilhasBtn">
+                    <i class="fas fa-hiking"></i>
+                    Explorar Trilhas
+                </a>
+                <a href="guias.html" class="btn btn-secondary btn-large" id="encontrarGuiasBtn">
+                    <i class="fas fa-compass"></i>
+                    Encontrar Guias
+                </a>
+            </div>
+        </div>
+        
+
+    </section>
+
+    <!-- Trilhas em Destaque -->
+    <section class="section trilhas-destaque" id="trilhas">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Trilhas em Destaque</h2>
+                <p class="section-subtitle">
+                    Descubra as trilhas mais procuradas e bem avaliadas do Brasil
+                </p>
+            </div>
+
+            <div class="trilhas-carousel">
+                <div class="carousel-container" id="trilhasCarousel">
+                    <!-- Trilhas serão carregadas dinamicamente -->
+                </div>
+            </div>
+            <script src="js/trail-images.js"></script>
+            <script type="module">
+                import { renderTrailsCarousel } from "/scripts/trails-carousel.js";
+                renderTrailsCarousel(document.getElementById("trilhasCarousel"));
+            </script>
+
+            <div class="section-footer">
+                <a href="trilhas.html" class="btn btn-primary">
+                    <i class="fas fa-hiking"></i>
+                    Ver Todas as Trilhas
+                </a>
+            </div>
         </div>
     </section>
 
-    <!-- Login Modal -->
-    <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-900">Entrar</h2>
-                <button id="closeLoginModal" class="text-gray-400 hover:text-gray-600">
-                    <span class="text-2xl">&times;</span>
-                </button>
-            </div>
-            
-            <form id="loginForm">
-                <div class="mb-4">
-                    <label for="loginEmail" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" id="loginEmail" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                </div>
-                
-                <div class="mb-6">
-                    <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-2">Senha</label>
-                    <input type="password" id="loginPassword" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                </div>
-                
-                <div id="loginError" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"></div>
-                
-                <button type="submit" id="loginSubmit" 
-                        class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md font-medium">
-                    Entrar
-                </button>
-            </form>
-            
-            <div class="mt-4 text-center">
-                <p class="text-sm text-gray-600">
-                    Não tem uma conta? 
-                    <button id="switchToRegister" class="text-green-600 hover:text-green-700 font-medium">Cadastre-se</button>
+    <!-- Como Funciona -->
+    <section class="section como-funciona" id="como-funciona">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Como Funciona</h2>
+                <p class="section-subtitle">
+                    Três passos simples para sua próxima aventura na natureza
                 </p>
             </div>
-        </div>
-    </div>
 
-    <!-- Register Modal -->
-    <div id="registerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 max-h-screen overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-900">Cadastrar</h2>
-                <button id="closeRegisterModal" class="text-gray-400 hover:text-gray-600">
-                    <span class="text-2xl">&times;</span>
-                </button>
+            <div class="steps-grid">
+                <div class="step" data-step="1">
+                    <div class="step-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="step-title">Encontre sua trilha</h3>
+                    <p class="step-description">
+                        Explore nossa seleção de trilhas em todo o Brasil. Filtre por localização,
+                        dificuldade e duração para encontrar a aventura perfeita.
+                    </p>
+                </div>
+
+                <div class="step" data-step="2">
+                    <div class="step-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <h3 class="step-title">Escolha um guia certificado</h3>
+                    <p class="step-description">
+                        Conecte-se com guias profissionais certificados pelo CADASTUR.
+                        Segurança e experiência garantidas para sua jornada.
+                    </p>
+                </div>
+
+                <div class="step" data-step="3">
+                    <div class="step-icon">
+                        <i class="fas fa-mountain"></i>
+                    </div>
+                    <h3 class="step-title">Viva a experiência</h3>
+                    <p class="step-description">
+                        Reserve sua aventura e prepare-se para momentos inesquecíveis.
+                        Descubra a beleza natural do Brasil com total segurança.
+                    </p>
+                </div>
             </div>
-            
-            <form id="registerForm">
-                <div class="mb-4">
-                    <label for="registerName" class="block text-sm font-medium text-gray-700 mb-2">Nome Completo</label>
-                    <input type="text" id="registerName" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                </div>
-                
-                <div class="mb-4">
-                    <label for="registerEmail" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" id="registerEmail" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                </div>
-                
-                <div class="mb-4">
-                    <label for="registerPassword" class="block text-sm font-medium text-gray-700 mb-2">Senha</label>
-                    <input type="password" id="registerPassword" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <p class="text-xs text-gray-500 mt-1">Mínimo 8 caracteres, com maiúscula, minúscula e número</p>
-                </div>
-                
-                <div class="mb-4">
-                    <label for="registerUserType" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Usuário</label>
-                    <select id="registerUserType" required 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white text-gray-900">
-                        <option value="" class="text-gray-500">Selecione o tipo de usuário...</option>
-                        <option value="trekker" class="text-gray-900">🥾 Trekker (Usuário)</option>
-                        <option value="guia" class="text-gray-900">🧭 Guia Profissional</option>
-                    </select>
-                </div>
-                
-                <!-- CADASTUR Field (hidden by default) -->
-                <div id="cadasturField" class="hidden mb-4">
-                    <label for="registerCadastur" class="block text-sm font-medium text-gray-700 mb-2">Número CADASTUR</label>
-                    <input type="text" id="registerCadastur" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                           placeholder="Digite seu número CADASTUR">
-                    <p class="text-xs text-gray-500 mt-1">Obrigatório para guias profissionais</p>
-                    
-                    <!-- CADASTUR Validation Status -->
-                    <div id="cadasturValidation" class="hidden mt-2"></div>
-                </div>
-                
-                <div id="registerError" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"></div>
-                <div id="registerSuccess" class="hidden mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded"></div>
-                
-                <button type="submit" id="registerSubmit" 
-                        class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md font-medium">
-                    Cadastrar
-                </button>
-            </form>
-            
-            <div class="mt-4 text-center">
-                <p class="text-sm text-gray-600">
-                    Já tem uma conta? 
-                    <button id="switchToLogin" class="text-green-600 hover:text-green-700 font-medium">Faça login</button>
+        </div>
+    </section>
+
+    <section class="section guias-certificados" id="guias">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Guias Certificados CADASTUR</h2>
+                <p class="section-subtitle">
+                    Profissionais qualificados e certificados para garantir sua segurança e experiência única
                 </p>
             </div>
-        </div>
-    </div>
-
-    <!-- Footer -->>
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Trekko</h3>
-                    <p class="text-gray-400">A plataforma mais completa para conectar trilheiros e guias em todo o Brasil.</p>
+            
+            <div class="certificacao-info">
+                <div class="certificacao-card">
+                    <div class="certificacao-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <div class="certificacao-content">
+                        <h3>O que é CADASTUR?</h3>
+                        <p>
+                            O CADASTUR é o registro obrigatório de pessoas físicas e jurídicas que atuam no setor do turismo. 
+                            Todos os nossos guias são certificados e registrados no Ministério do Turismo.
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Trilhas</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white">Descobrir Trilhas</a></li>
-                        <li><a href="#" class="hover:text-white">Trilhas Populares</a></li>
-                        <li><a href="#" class="hover:text-white">Trilhas por Estado</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Guias</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="guias.html" class="hover:text-white">Encontrar Guias</a></li>
-                        <li><a href="#" class="hover:text-white">Tornar-se Guia</a></li>
-                        <li><a href="#" class="hover:text-white">Certificação</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Suporte</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white">Central de Ajuda</a></li>
-                        <li><a href="#" class="hover:text-white">Contato</a></li>
-                        <li><a href="#" class="hover:text-white">Termos de Uso</a></li>
-                        <li><a href="#" class="hover:text-white">Privacidade</a></li>
+                
+                <div class="certificacao-benefits">
+                    <h4>Benefícios da Certificação:</h4>
+                    <ul>
+                        <li><i class="fas fa-shield-alt"></i> Segurança garantida</li>
+                        <li><i class="fas fa-graduation-cap"></i> Conhecimento especializado</li>
+                        <li><i class="fas fa-first-aid"></i> Treinamento em primeiros socorros</li>
+                        <li><i class="fas fa-leaf"></i> Consciência ambiental</li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2025 Trekko. Todos os direitos reservados.</p>
+            
+            <div class="section-footer">
+                <a href="guias.html" class="btn btn-secondary">
+                    <i class="fas fa-compass"></i>
+                    Ver Todos os Guias
+                </a>
+                <a href="#" class="btn btn-primary" id="tornarGuiaBtn">
+                    <i class="fas fa-user-plus"></i>
+                    Tornar-se um Guia
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Estados e Destinos -->
+    <section class="section estados-destinos">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Explore o Brasil</h2>
+                <p class="section-subtitle">
+                    Trilhas incríveis em todos os estados brasileiros
+                </p>
+            </div>
+            <div class="estados-carousel">
+                <div class="carousel-container" id="estadosCarousel">
+                    <!-- Estados serão carregados dinamicamente -->
+                </div>
+            </div>
+            <script type="module">
+                import { renderStatesCarousel } from "/scripts/states-carousel.js";
+                renderStatesCarousel(document.getElementById("estadosCarousel"));
+            </script>
+        </div>
+    </section>
+
+    <!-- Depoimentos -->
+    <section class="section depoimentos">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">O que dizem nossos aventureiros</h2>
+                <p class="section-subtitle">
+                    Experiências reais de quem já viveu momentos únicos conosco
+                </p>
+            </div>
+            
+            <div class="depoimentos-carousel">
+                <div class="depoimentos-container" id="depoimentosCarousel">
+                    <!-- Depoimentos serão carregados dinamicamente -->
+                </div>
+                <div class="carousel-indicators" id="depoimentosIndicators">
+                    <!-- Indicadores serão gerados dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="section newsletter">
+        <div class="container">
+            <div class="newsletter-content">
+                <div class="newsletter-text">
+                    <h2>Fique por dentro das novidades</h2>
+                    <p>Receba dicas de trilhas, ofertas especiais e novidades sobre turismo de aventura no Brasil.</p>
+                </div>
+                <form class="newsletter-form" id="newsletterForm">
+                    <input type="email" placeholder="Seu melhor e-mail" required>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Inscrever-se
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-mountain"></i>
+                        <span>Trekko</span>
+                    </div>
+                    <p class="footer-description">
+                        Conectando aventureiros com as mais belas trilhas do Brasil através de guias certificados e experiências únicas.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Trilhas</h4>
+                    <ul>
+                        <li><a href="#">Trilhas Fáceis</a></li>
+                        <li><a href="#">Trilhas Moderadas</a></li>
+                        <li><a href="#">Trilhas Difíceis</a></li>
+                        <li><a href="#">Expedições</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Guias</h4>
+                    <ul>
+                        <li><a href="#">Encontrar Guias</a></li>
+                        <li><a href="#">Tornar-se Guia</a></li>
+                        <li><a href="#">Certificação CADASTUR</a></li>
+                        <li><a href="#">Área do Guia</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Suporte</h4>
+                    <ul>
+                        <li><a href="#">Central de Ajuda</a></li>
+                        <li><a href="#">Contato</a></li>
+                        <li><a href="#">Termos de Uso</a></li>
+                        <li><a href="#">Política de Privacidade</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Trekko. Todos os direitos reservados.</p>
+                <p>Desenvolvido com <i class="fas fa-heart"></i> para os amantes da natureza brasileira.</p>
             </div>
         </div>
     </footer>
-</body>
-</html>
 
-
-    <script>
-        // API Configuration
-        const API_BASE_URL = 'https://g8h3ilcvjnlq.manus.space/api';
-        
-        // Authentication state
-        let currentUser = null;
-        let accessToken = null;
-        let refreshToken = null;
-
-        // DOM Elements
-        const loginBtn = document.getElementById('loginBtn');
-        const registerBtn = document.getElementById('registerBtn');
-        const loginModal = document.getElementById('loginModal');
-        const registerModal = document.getElementById('registerModal');
-        const closeLoginModal = document.getElementById('closeLoginModal');
-        const closeRegisterModal = document.getElementById('closeRegisterModal');
-        const switchToRegister = document.getElementById('switchToRegister');
-        const switchToLogin = document.getElementById('switchToLogin');
-        const userMenu = document.getElementById('userMenu');
-        const userName = document.getElementById('userName');
-        const userMenuBtn = document.getElementById('userMenuBtn');
-        const userDropdown = document.getElementById('userDropdown');
-        const logoutBtn = document.getElementById('logoutBtn');
-
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuthState();
-            setupEventListeners();
-        });
-
-        function setupEventListeners() {
-            // Modal controls
-            loginBtn.addEventListener('click', () => showModal('login'));
-            registerBtn.addEventListener('click', () => showModal('register'));
-            closeLoginModal.addEventListener('click', () => hideModal('login'));
-            closeRegisterModal.addEventListener('click', () => hideModal('register'));
-            switchToRegister.addEventListener('click', () => switchModal('register'));
-            switchToLogin.addEventListener('click', () => switchModal('login'));
-
-            // User menu
-            userMenuBtn.addEventListener('click', toggleUserDropdown);
-            logoutBtn.addEventListener('click', logout);
-
-            // Forms
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            document.getElementById('registerForm').addEventListener('submit', handleRegister);
-
-            // CADASTUR validation
-            document.getElementById('registerUserType').addEventListener('change', handleUserTypeChange);
-            document.getElementById('registerCadastur').addEventListener('input', debounce(validateCadastur, 500));
-            document.getElementById('registerName').addEventListener('input', debounce(validateCadastur, 500));
-
-            // Close modals on outside click
-            window.addEventListener('click', function(e) {
-                if (e.target === loginModal) hideModal('login');
-                if (e.target === registerModal) hideModal('register');
-            });
-        }
-
-        function checkAuthState() {
-            // Verificar se há dados de usuário salvos
-            const userData = localStorage.getItem('userData');
-            
-            if (userData && userData !== 'null') {
-                try {
-                    currentUser = JSON.parse(userData);
-                    showUserMenu();
-                } catch (e) {
-                    console.error('Erro ao parsear userData:', e);
-                    showAuthButtons();
-                }
-            } else {
-                showAuthButtons();
-            }
-        }
-
-        function showUserMenu() {
-            if (loginBtn) loginBtn.style.display = 'none';
-            if (registerBtn) registerBtn.style.display = 'none';
-            if (userMenu) userMenu.classList.remove('hidden');
-            if (userName && currentUser) {
-                userName.textContent = `U ${currentUser.name}`;
-            }
-        }
-
-        function showAuthButtons() {
-            loginBtn.style.display = 'block';
-            registerBtn.style.display = 'block';
-            userMenu.classList.add('hidden');
-        }
-
-        function showModal(type) {
-            if (type === 'login') {
-                loginModal.classList.remove('hidden');
-                document.getElementById('loginEmail').focus();
-            } else {
-                registerModal.classList.remove('hidden');
-                document.getElementById('registerName').focus();
-            }
-        }
-
-        function hideModal(type) {
-            if (type === 'login') {
-                loginModal.classList.add('hidden');
-                clearForm('loginForm');
-            } else {
-                registerModal.classList.add('hidden');
-                clearForm('registerForm');
-            }
-        }
-
-        function switchModal(type) {
-            hideModal(type === 'login' ? 'register' : 'login');
-            showModal(type);
-        }
-
-        function clearForm(formId) {
-            document.getElementById(formId).reset();
-            hideError(formId.replace('Form', 'Error'));
-            hideSuccess(formId.replace('Form', 'Success'));
-        }
-
-        function toggleUserDropdown() {
-            userDropdown.classList.toggle('hidden');
-        }
-
-        function handleUserTypeChange() {
-            const userType = document.getElementById('registerUserType').value;
-            const cadasturField = document.getElementById('cadasturField');
-            
-            if (userType === 'guia') {
-                cadasturField.classList.remove('hidden');
-                document.getElementById('registerCadastur').required = true;
-            } else {
-                cadasturField.classList.add('hidden');
-                document.getElementById('registerCadastur').required = false;
-                document.getElementById('cadasturValidation').classList.add('hidden');
-            }
-        }
-
-        async function validateCadastur() {
-            const cadastur = document.getElementById('registerCadastur').value.trim();
-            const name = document.getElementById('registerName').value.trim();
-            const userType = document.getElementById('registerUserType').value;
-            const validationDiv = document.getElementById('cadasturValidation');
-
-            if (userType !== 'guia' || !cadastur || !name) {
-                validationDiv.classList.add('hidden');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/auth/validate-cadastur`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        cadastur_number: cadastur,
-                        name: name
-                    })
-                });
-
-                const data = await response.json();
-                
-                validationDiv.classList.remove('hidden');
-                if (data.success) {
-                    validationDiv.innerHTML = `<p class="text-sm text-green-600">✓ ${data.message}</p>`;
-                } else {
-                    validationDiv.innerHTML = `<p class="text-sm text-red-600">✗ ${data.message}</p>`;
-                }
-            } catch (error) {
-                console.error('Erro na validação CADASTUR:', error);
-            }
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const submitBtn = document.getElementById('loginSubmit');
-
-            if (!email || !password) {
-                showError('loginError', 'Email e senha são obrigatórios');
-                return;
-            }
-
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Entrando...';
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Save auth data
-                    localStorage.setItem('accessToken', data.access_token);
-                    localStorage.setItem('refreshToken', data.refresh_token);
-                    localStorage.setItem('currentUser', JSON.stringify(data.user));
-                    
-                    currentUser = data.user;
-                    accessToken = data.access_token;
-                    refreshToken = data.refresh_token;
-
-                    hideModal('login');
-                    showUserMenu();
-                    showSuccess('loginSuccess', 'Login realizado com sucesso!');
-                } else {
-                    showError('loginError', data.message);
-                }
-            } catch (error) {
-                showError('loginError', 'Erro de conexão. Tente novamente.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Entrar';
-            }
-        }
-
-        async function handleRegister(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('registerName').value.trim();
-            const email = document.getElementById('registerEmail').value.trim();
-            const password = document.getElementById('registerPassword').value;
-            const userType = document.getElementById('registerUserType').value;
-            const cadastur = document.getElementById('registerCadastur').value.trim();
-            const submitBtn = document.getElementById('registerSubmit');
-
-            if (!name || !email || !password || !userType) {
-                showError('registerError', 'Todos os campos são obrigatórios');
-                return;
-            }
-
-            if (userType === 'guia' && !cadastur) {
-                showError('registerError', 'Número CADASTUR é obrigatório para guias');
-                return;
-            }
-
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Cadastrando...';
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        name,
-                        email,
-                        password,
-                        user_type: userType,
-                        cadastur_number: cadastur
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Save auth data
-                    localStorage.setItem('accessToken', data.access_token);
-                    localStorage.setItem('refreshToken', data.refresh_token);
-                    localStorage.setItem('currentUser', JSON.stringify(data.user));
-                    
-                    currentUser = data.user;
-                    accessToken = data.access_token;
-                    refreshToken = data.refresh_token;
-
-                    hideModal('register');
-                    showUserMenu();
-                    showSuccess('registerSuccess', 'Cadastro realizado com sucesso!');
-                } else {
-                    showError('registerError', data.message);
-                }
-            } catch (error) {
-                showError('registerError', 'Erro de conexão. Tente novamente.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Cadastrar';
-            }
-        }
-
-        async function logout() {
-            try {
-                if (refreshToken) {
-                    await fetch(`${API_BASE_URL}/auth/logout`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ refresh_token: refreshToken })
-                    });
-                }
-            } catch (error) {
-                console.error('Erro no logout:', error);
-            } finally {
-                // Clear local data
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                localStorage.removeItem('currentUser');
-                
-                currentUser = null;
-                accessToken = null;
-                refreshToken = null;
-
-                showAuthButtons();
-                userDropdown.classList.add('hidden');
-            }
-        }
-
-        function showError(elementId, message) {
-            const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.classList.remove('hidden');
-        }
-
-        function hideError(elementId) {
-            const element = document.getElementById(elementId);
-            element.classList.add('hidden');
-        }
-
-        function showSuccess(elementId, message) {
-            const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.classList.remove('hidden');
-            setTimeout(() => hideSuccess(elementId), 3000);
-        }
-
-        function hideSuccess(elementId) {
-            const element = document.getElementById(elementId);
-            element.classList.add('hidden');
-        }
-    </script>
-
-    <!-- Sistema de Autenticação Global -->
-    <script src="auth.js"></script>
+    <!-- Scripts -->
+    <script src="auth-enhanced.js"></script>
+    <script src="homepage.js"></script>
 </body>
 </html>
 

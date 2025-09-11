@@ -1,20 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-S816P190VN');
+    </script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2482023752745520"
+         crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-2482023752745520">
+    
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes da Trilha - Trekko</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google tag (gtag.js) -->
-<meta name="google-adsense-account" content="ca-pub-2482023752745520">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-S816P190VN');
-</script>
+    <script src="js/trail-images.js"></script>
 </head>
 <body class="bg-gray-50">
     <!-- Header -->
@@ -84,10 +91,11 @@
 
         <!-- Trail Header -->
         <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-            <div class="h-64 bg-gradient-to-r from-green-400 to-blue-500 relative">
+            <div class="h-64 bg-gradient-to-r from-green-400 to-blue-500 relative trail-hero">
+                <img class="w-full h-full object-cover" src="" alt="" style="display: none;">
                 <div class="absolute inset-0 bg-black bg-opacity-30"></div>
                 <div class="absolute bottom-6 left-6 text-white">
-                    <h1 id="trailName" class="text-4xl font-bold mb-2">Nome da Trilha</h1>
+                    <h1 id="trailName" class="text-4xl font-bold mb-2 trail-title">Nome da Trilha</h1>
                     <p id="trailLocation" class="text-xl">📍 Localização</p>
                 </div>
                 <div class="absolute top-6 right-6">
@@ -135,6 +143,11 @@
                     <p id="trailDescription" class="text-gray-600 leading-relaxed">
                         Descrição da trilha será carregada aqui...
                     </p>
+                </div>
+
+                <!-- Trail Gallery -->
+                <div class="bg-white rounded-lg shadow-sm p-6 trail-gallery">
+                    <!-- Galeria será carregada aqui pelo JavaScript -->
                 </div>
 
                 <!-- Reviews Section -->
@@ -409,7 +422,7 @@
 
     <script>
         // API Configuration
-        const API_BASE_URL = 'https://g8h3ilcvjnlq.manus.space';
+        const API_BASE_URL = 'http://localhost:5000';
         const API_URL = `${API_BASE_URL}/api`;
 
         console.log('🔧 API configurada:', API_BASE_URL);
@@ -439,19 +452,24 @@
             console.log('🔄 Carregando detalhes da trilha ID:', trailId);
 
             try {
-                // For demo purposes, we'll use mock data
-                const trail = {
-                    id: trailId,
-                    name: 'Trilha da Pedra Bonita',
-                    location: 'São Conrado, Rio de Janeiro - RJ',
-                    distance: '2.8 km',
-                    duration: '2-3h',
-                    difficulty: 'Fácil',
-                    elevation: '+280m',
-                    description: 'Uma trilha curta e acessível com vista espetacular da cidade do Rio de Janeiro. Ideal para iniciantes e famílias. O percurso é bem sinalizado e oferece várias paradas para contemplação da paisagem.',
-                    rating: 4.6,
-                    reviewCount: 18
-                };
+                // Buscar dados reais da API
+                const response = await fetch(`${API_URL}/trails/${trailId}`);
+                
+                if (!response.ok) {
+                    console.warn('⚠️ Trilha não encontrada na API, usando dados locais...');
+                    // Fallback para dados locais se API falhar
+                    const trail = getTrailFromLocalData(trailId);
+                    if (trail) {
+                        currentTrail = trail;
+                        displayTrailDetails(trail);
+                        loadTrailReviews(trailId);
+                        return;
+                    }
+                    throw new Error('Trilha não encontrada');
+                }
+
+                const trail = await response.json();
+                console.log('✅ Trilha carregada da API:', trail);
 
                 currentTrail = trail;
                 displayTrailDetails(trail);
@@ -459,8 +477,146 @@
 
             } catch (error) {
                 console.error('❌ Erro ao carregar trilha:', error);
-                showError();
+                
+                // Fallback para dados locais
+                const trail = getTrailFromLocalData(trailId);
+                if (trail) {
+                    console.log('✅ Usando dados locais para trilha:', trail.name);
+                    currentTrail = trail;
+                    displayTrailDetails(trail);
+                    loadTrailReviews(trailId);
+                } else {
+                    showError();
+                }
             }
+        }
+
+        // Get trail from local data (fallback)
+        function getTrailFromLocalData(trailId) {
+            const trails = {
+                '1': {
+                    id: '1',
+                    name: 'Travessia da Serra Fina',
+                    location: 'Passa Quatro, MG',
+                    distance: '30 km',
+                    duration: '2 dias',
+                    difficulty: 'Muito difícil',
+                    elevation: '+2500m',
+                    description: 'A Travessia da Serra Fina é considerada uma das mais difíceis do Brasil, com paisagens deslumbrantes e picos desafiadores.',
+                    rating: 4.5,
+                    reviewCount: 12
+                },
+                '2': {
+                    id: '2',
+                    name: 'Pico Pedra da Mina',
+                    location: 'Passa Quatro, MG',
+                    distance: '18 km',
+                    duration: '1 dia',
+                    difficulty: 'Difícil',
+                    elevation: '+2798m',
+                    description: 'Uma bela trilha em Pico Pedra da Mina, localizada perto de Passa Quatro, MG.',
+                    rating: 4.5,
+                    reviewCount: 8
+                },
+                '3': {
+                    id: '3',
+                    name: 'Pico dos Três Estados',
+                    location: 'Passa Quatro, MG',
+                    distance: '28 km',
+                    duration: '2 dias',
+                    difficulty: 'Muito difícil',
+                    elevation: '+2665m',
+                    description: 'Uma das trilhas mais desafiadoras da Serra da Mantiqueira, oferecendo vistas espetaculares dos três estados: Minas Gerais, São Paulo e Rio de Janeiro.',
+                    rating: 4.5,
+                    reviewCount: 15
+                },
+                '4': {
+                    id: '4',
+                    name: 'Pico da Bandeira (via Tronqueira)',
+                    location: 'Alto Caparaó, MG',
+                    distance: '7.4 km',
+                    duration: '4 horas',
+                    difficulty: 'Difícil',
+                    elevation: '+2892m',
+                    description: 'O Pico da Bandeira é o terceiro ponto mais alto do Brasil, oferecendo vistas espetaculares do nascer do sol.',
+                    rating: 4.5,
+                    reviewCount: 22
+                },
+                '5': {
+                    id: '5',
+                    name: 'Pico da Bandeira (via Casa Queimada)',
+                    location: 'Dores do Rio Preto, ES',
+                    distance: '9 km',
+                    duration: '4 horas',
+                    difficulty: 'Difícil',
+                    elevation: '+2892m',
+                    description: 'O Pico da Bandeira é o terceiro ponto mais alto do Brasil, oferecendo vistas espetaculares do nascer do sol.',
+                    rating: 4.5,
+                    reviewCount: 18
+                },
+                '6': {
+                    id: '6',
+                    name: 'Travessia Petrópolis-Teresópolis',
+                    location: 'Petrópolis, RJ',
+                    distance: '30 km',
+                    duration: '2 dias',
+                    difficulty: 'Muito difícil',
+                    elevation: '+2200m',
+                    description: 'A Travessia Petrópolis-Teresópolis é um clássico do montanhismo brasileiro, passando por paisagens icônicas como o Dedo de Deus.',
+                    rating: 4.5,
+                    reviewCount: 25
+                },
+                '7': {
+                    id: '7',
+                    name: 'Pico das Agulhas Negras',
+                    location: 'Itamonte, MG',
+                    distance: '11 km',
+                    duration: '1 dia',
+                    difficulty: 'Difícil',
+                    elevation: '+2791m',
+                    description: 'O Pico das Agulhas Negras é o quinto ponto mais alto do Brasil, conhecido por suas formações rochosas.',
+                    rating: 4.5,
+                    reviewCount: 19
+                },
+                '8': {
+                    id: '8',
+                    name: 'Pico do Cristal',
+                    location: 'Alto Caparaó, MG',
+                    distance: '10 km',
+                    duration: '1 dia',
+                    difficulty: 'Difícil',
+                    elevation: '+2769m',
+                    description: 'Uma bela trilha em Pico do Cristal, localizada perto de Alto Caparaó, MG.',
+                    rating: 4.5,
+                    reviewCount: 14
+                },
+                '9': {
+                    id: '9',
+                    name: 'Pico do Marins',
+                    location: 'Piquete, SP',
+                    distance: '10 km',
+                    duration: '1 dia',
+                    difficulty: 'Difícil',
+                    elevation: '+2420m',
+                    description: 'Uma bela trilha em Pico do Marins, localizada perto de Piquete, SP.',
+                    rating: 4.5,
+                    reviewCount: 16
+                },
+                '15': {
+                    id: '15',
+                    name: 'Monte Roraima',
+                    location: 'Santa Elena de Uairén (VEN), RR',
+                    distance: '90 km',
+                    duration: '6 dias',
+                    difficulty: 'Extremo',
+                    elevation: '+2875m',
+                    description: 'O Monte Roraima é um tepui na tríplice fronteira entre Brasil, Venezuela e Guiana, com paisagens únicas e ecossistemas isolados.',
+                    rating: 4.5,
+                    reviewCount: 8
+                }
+            };
+
+            return trails[trailId] || null;
         }
 
         // Display trail details
@@ -487,6 +643,22 @@
 
             // Description
             document.getElementById('trailDescription').textContent = trail.description;
+
+            // Aplicar imagens da trilha
+            if (window.trailImages) {
+                const heroImg = document.querySelector('.trail-hero img');
+                const coverImage = window.trailImages.getCover(trail.name);
+                const imageAlt = window.trailImages.getAlt(trail.name);
+                
+                if (heroImg && coverImage) {
+                    heroImg.src = coverImage;
+                    heroImg.alt = imageAlt;
+                    heroImg.style.display = 'block';
+                }
+
+                // Aplicar galeria
+                window.trailImages.apply();
+            }
         }
 
         // Show error

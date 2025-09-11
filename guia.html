@@ -1,20 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-S816P190VN');
+    </script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2482023752745520"
+         crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-2482023752745520">
+    
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil do Guia - Trekko</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google tag (gtag.js) -->
-<meta name="google-adsense-account" content="ca-pub-2482023752745520">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-S816P190VN');
-</script>
 </head>
 <body class="bg-gray-50">
     <!-- Header -->
@@ -134,22 +140,18 @@
                     </div>
 
                     <!-- Estatísticas de Avaliação -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                    <div class="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
                         <div class="text-center">
-                            <div class="text-2xl font-bold text-gray-900" id="avgRating">4.8</div>
+                            <div class="text-2xl font-bold text-gray-900" id="avgRating">0.0</div>
                             <div class="text-sm text-gray-500">Média Geral</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-2xl font-bold text-gray-900" id="totalReviews">24</div>
+                            <div class="text-2xl font-bold text-gray-900" id="totalReviews">0</div>
                             <div class="text-sm text-gray-500">Avaliações</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-2xl font-bold text-gray-900" id="recommendationRate">96%</div>
+                            <div class="text-2xl font-bold text-gray-900" id="recommendationRate">0%</div>
                             <div class="text-sm text-gray-500">Recomendam</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-gray-900" id="experienceYears">8</div>
-                            <div class="text-sm text-gray-500">Anos Exp.</div>
                         </div>
                     </div>
 
@@ -336,7 +338,7 @@
 
     <script>
         // API Configuration
-        const API_BASE_URL = 'https://g8h3ilcvjnlq.manus.space';
+        const API_BASE_URL = 'http://localhost:5000';
         const API_URL = `${API_BASE_URL}/api`;
 
         console.log('🔧 API configurada:', API_BASE_URL);
@@ -379,6 +381,20 @@
 
                 if (!response.ok) {
                     if (response.status === 404) {
+                        console.log('⚠️ Guia não encontrado na API, tentando dados locais...');
+                        // Tentar carregar dados locais como fallback
+                        const localGuide = getLocalGuideData(guideId);
+                        if (localGuide) {
+                            console.log('✅ Dados locais encontrados:', localGuide);
+                            // Garantir que dados locais também estejam zerados
+                            localGuide.average_rating = 0;
+                            localGuide.total_reviews = 0;
+                            localGuide.trails = [];
+                            currentGuide = localGuide;
+                            displayGuideProfile(localGuide);
+                            loadGuideReviews(guideId);
+                            return;
+                        }
                         throw new Error('Guia não encontrado');
                     }
                     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -387,18 +403,77 @@
                 const guide = await response.json();
                 console.log('✅ Dados do guia carregados:', guide);
 
+                // Forçar estado inicial limpo - zerar dados mockados da API
+                guide.average_rating = 0;
+                guide.total_reviews = 0;
+                guide.trails = []; // Remover trilhas da API
+                console.log('🧹 Dados limpos para estado inicial:', guide);
+
                 currentGuide = guide;
                 displayGuideProfile(guide);
                 loadGuideReviews(guideId);
 
             } catch (error) {
                 console.error('❌ Erro ao carregar guia:', error);
-                showError();
+                
+                // Último recurso: tentar dados locais
+                const localGuide = getLocalGuideData(guideId);
+                if (localGuide) {
+                    console.log('🔄 Usando dados locais como fallback:', localGuide);
+                    // Garantir que dados locais estejam zerados
+                    localGuide.average_rating = 0;
+                    localGuide.total_reviews = 0;
+                    localGuide.trails = [];
+                    currentGuide = localGuide;
+                    displayGuideProfile(localGuide);
+                    loadGuideReviews(guideId);
+                } else {
+                    showError();
+                }
             }
+        }
+
+        // Get local guide data as fallback
+        function getLocalGuideData(guideId) {
+            // Dados de exemplo para demonstração
+            const sampleGuides = {
+                '1': {
+                    id: 1,
+                    name: 'Carlos Silva',
+                    operating_regions: 'Serra da Mantiqueira',
+                    operating_states: 'MG, SP, RJ',
+                    cadastur_number: '12345678901',
+                    average_rating: 0,
+                    total_reviews: 0,
+                    daily_rate: 'R$ 350/dia',
+                    biography: 'Guia profissional especialista em trilhas de montanha. Especialista em alta montanha e travessias de longa duração.',
+                    languages: ['Português', 'Inglês', 'Espanhol'],
+                    email: 'carlos@exemplo.com',
+                    trails: []
+                },
+                '2': {
+                    id: 2,
+                    name: 'Ana Costa',
+                    operating_regions: 'Chapada Diamantina',
+                    operating_states: 'BA',
+                    cadastur_number: '98765432109',
+                    average_rating: 0,
+                    total_reviews: 0,
+                    daily_rate: 'R$ 280/dia',
+                    biography: 'Guia especializada em ecoturismo e trilhas na Chapada Diamantina. Bióloga com paixão pela natureza e conservação.',
+                    languages: ['Português', 'Inglês'],
+                    email: 'ana@exemplo.com',
+                    trails: []
+                }
+            };
+            
+            return sampleGuides[guideId] || null;
         }
 
         // Display guide profile
         function displayGuideProfile(guide) {
+            const guideId = guide.id || getGuideIdFromUrl(); // Usar ID do guide ou da URL
+            
             // Hide loading and show profile
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('guideProfile').classList.remove('hidden');
@@ -463,31 +538,32 @@
                     `;
                     trailsContainer.appendChild(trailDiv);
                 });
-            } else if (guide.trails && guide.trails.length > 0) {
-                // Fallback to API trails if no profile trails
-                guide.trails.forEach(trail => {
-                    const trailDiv = document.createElement('div');
-                    trailDiv.className = 'border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow';
-                    trailDiv.innerHTML = `
-                        <h4 class="font-medium text-gray-900 mb-2">${trail.name}</h4>
-                        <div class="text-sm text-gray-600 space-y-1">
-                            <div>📍 ${trail.location}</div>
-                            <div>🏔️ Dificuldade: ${trail.difficulty_level}</div>
-                            <div>📏 Distância: ${trail.distance_km} km</div>
-                            <div>⏱️ Duração: ${trail.duration_days}</div>
-                        </div>
-                    `;
-                    trailsContainer.appendChild(trailDiv);
-                });
             } else {
-                trailsContainer.innerHTML = '<p class="text-gray-500">Nenhuma trilha cadastrada.</p>';
+                // Show message encouraging guide to add trails
+                trailsContainer.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <div class="text-4xl mb-4">🏔️</div>
+                        <p class="text-lg font-medium mb-2">Nenhuma trilha cadastrada ainda</p>
+                        <p class="text-sm">Como guia, você pode adicionar trilhas ao seu perfil para atrair mais clientes.</p>
+                        <p class="text-sm mt-2 text-green-600">💡 Dica: Acesse "Meu Perfil" para adicionar suas trilhas!</p>
+                    </div>
+                `;
             }
 
             // Stats
-            document.getElementById('avgRating').textContent = guide.average_rating || '4.8';
+            document.getElementById('avgRating').textContent = guide.average_rating || '0.0';
             document.getElementById('totalReviews').textContent = guide.total_reviews || '0';
-            document.getElementById('recommendationRate').textContent = '96%';
-            document.getElementById('experienceYears').textContent = guide.experience_years || '8';
+            document.getElementById('recommendationRate').textContent = guide.total_reviews > 0 ? calculateRecommendationRate(guideId) : '0%';
+        }
+
+        // Calculate real recommendation rate based on reviews
+        function calculateRecommendationRate(guideId) {
+            const reviews = getGuideReviews(guideId);
+            if (reviews.length === 0) return '0%';
+            
+            const recommendCount = reviews.filter(review => review.recommend === 'yes').length;
+            const rate = Math.round((recommendCount / reviews.length) * 100);
+            return `${rate}%`;
         }
 
         // Show error

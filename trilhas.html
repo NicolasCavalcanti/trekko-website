@@ -1,20 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-S816P190VN');
+    </script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2482023752745520"
+         crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-2482023752745520">
+    
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trilhas - Trekko</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google tag (gtag.js) -->
-<meta name="google-adsense-account" content="ca-pub-2482023752745520">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-S816P190VN');
-</script>
+    <script src="js/trail-images.js"></script>
 </head>
 <body class="bg-gray-50">
     <!-- Header -->
@@ -55,73 +62,158 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-8">Buscar Trilhas</h1>
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Buscar Trilhas e Expedições</h1>
         
-        <!-- Search Form -->
-        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
-                <input type="text" id="searchInput" placeholder="Buscar trilhas por nome ou localização..." 
-                       class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <select id="stateSelect" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="">Estado</option>
-                    <option value="AC">AC - Acre</option>
-                    <option value="AL">AL - Alagoas</option>
-                    <option value="AP">AP - Amapá</option>
-                    <option value="AM">AM - Amazonas</option>
-                    <option value="BA">BA - Bahia</option>
-                    <option value="CE">CE - Ceará</option>
-                    <option value="DF">DF - Distrito Federal</option>
-                    <option value="ES">ES - Espírito Santo</option>
-                    <option value="GO">GO - Goiás</option>
-                    <option value="MA">MA - Maranhão</option>
-                    <option value="MT">MT - Mato Grosso</option>
-                    <option value="MS">MS - Mato Grosso do Sul</option>
-                    <option value="MG">MG - Minas Gerais</option>
-                    <option value="PA">PA - Pará</option>
-                    <option value="PB">PB - Paraíba</option>
-                    <option value="PR">PR - Paraná</option>
-                    <option value="PE">PE - Pernambuco</option>
-                    <option value="PI">PI - Piauí</option>
-                    <option value="RJ">RJ - Rio de Janeiro</option>
-                    <option value="RN">RN - Rio Grande do Norte</option>
-                    <option value="RS">RS - Rio Grande do Sul</option>
-                    <option value="RO">RO - Rondônia</option>
-                    <option value="RR">RR - Roraima</option>
-                    <option value="SC">SC - Santa Catarina</option>
-                    <option value="SP">SP - São Paulo</option>
-                    <option value="SE">SE - Sergipe</option>
-                    <option value="TO">TO - Tocantins</option>
-                </select>
-                <select id="difficultySelect" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="">Dificuldade</option>
-                    <option value="Fácil">Fácil</option>
-                    <option value="Moderado">Moderado</option>
-                    <option value="Difícil">Difícil</option>
-                    <option value="Muito difícil">Muito difícil</option>
-                </select>
-                <input type="number" id="maxDistanceInput" placeholder="Distância máxima (km)" 
-                       class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <button onclick="searchTrails()" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md font-medium">
-                    🔍 Buscar
-                </button>
+        <!-- Tabs -->
+        <div class="mb-8">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8">
+                    <button id="trailsTab" onclick="switchTab('trails')" 
+                            class="tab-button active py-2 px-1 border-b-2 border-green-500 font-medium text-sm text-green-600">
+                        🏔️ Trilhas
+                    </button>
+                    <button id="expeditionsTab" onclick="switchTab('expeditions')" 
+                            class="tab-button py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        🎒 Expedições
+                    </button>
+                </nav>
             </div>
         </div>
 
-        <!-- Loading -->
-        <div id="loading" class="text-center py-8 hidden">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-            <p class="mt-2 text-gray-600">Carregando trilhas...</p>
+        <!-- Trails Section -->
+        <div id="trailsSection">
+            <!-- Search Form -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+                    <input type="text" id="searchInput" placeholder="Buscar trilhas por nome ou localização..." 
+                           class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <select id="stateSelect" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="">Estado</option>
+                        <option value="AC">AC - Acre</option>
+                        <option value="AL">AL - Alagoas</option>
+                        <option value="AP">AP - Amapá</option>
+                        <option value="AM">AM - Amazonas</option>
+                        <option value="BA">BA - Bahia</option>
+                        <option value="CE">CE - Ceará</option>
+                        <option value="DF">DF - Distrito Federal</option>
+                        <option value="ES">ES - Espírito Santo</option>
+                        <option value="GO">GO - Goiás</option>
+                        <option value="MA">MA - Maranhão</option>
+                        <option value="MT">MT - Mato Grosso</option>
+                        <option value="MS">MS - Mato Grosso do Sul</option>
+                        <option value="MG">MG - Minas Gerais</option>
+                        <option value="PA">PA - Pará</option>
+                        <option value="PB">PB - Paraíba</option>
+                        <option value="PR">PR - Paraná</option>
+                        <option value="PE">PE - Pernambuco</option>
+                        <option value="PI">PI - Piauí</option>
+                        <option value="RJ">RJ - Rio de Janeiro</option>
+                        <option value="RN">RN - Rio Grande do Norte</option>
+                        <option value="RS">RS - Rio Grande do Sul</option>
+                        <option value="RO">RO - Rondônia</option>
+                        <option value="RR">RR - Roraima</option>
+                        <option value="SC">SC - Santa Catarina</option>
+                        <option value="SP">SP - São Paulo</option>
+                        <option value="SE">SE - Sergipe</option>
+                        <option value="TO">TO - Tocantins</option>
+                    </select>
+                    <select id="difficultySelect" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="">Dificuldade</option>
+                        <option value="Fácil">Fácil</option>
+                        <option value="Moderado">Moderado</option>
+                        <option value="Difícil">Difícil</option>
+                        <option value="Muito difícil">Muito difícil</option>
+                    </select>
+                    <input type="number" id="maxDistanceInput" placeholder="Distância máxima (km)" 
+                           class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <button onclick="searchTrails()" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md font-medium">
+                        🔍 Buscar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="text-center py-8 hidden">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                <p class="mt-2 text-gray-600">Carregando trilhas...</p>
+            </div>
+
+            <!-- Results -->
+            <div id="results" class="hidden">
+                <h2 id="resultsCount" class="text-xl font-semibold text-gray-900 mb-6"></h2>
+                <div id="trailsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div id="paginationControls" class="flex justify-center items-center space-x-2 mt-8 hidden">
+                <button id="prevPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50" disabled>Anterior</button>
+                <div id="pageNumbers" class="flex space-x-1"></div>
+                <button id="nextPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50" disabled>Próxima</button>
+            </div>
+
+            <!-- No Results -->
+            <div id="noResults" class="text-center py-12 hidden">
+                <p class="text-gray-500 text-lg">Nenhuma trilha encontrada. Tente ajustar os filtros de busca.</p>
+            </div>
         </div>
 
-        <!-- Results -->
-        <div id="results" class="hidden">
-            <h2 id="resultsCount" class="text-xl font-semibold text-gray-900 mb-6"></h2>
-            <div id="trailsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </div>
+        <!-- Expeditions Section -->
+        <div id="expeditionsSection" class="hidden">
+            <!-- Search Form -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+                    <input type="text" id="expeditionSearchInput" placeholder="Buscar por trilha ou guia..." 
+                           class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <select id="expeditionStateSelect" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="">Estado</option>
+                        <option value="MG">MG - Minas Gerais</option>
+                        <option value="RJ">RJ - Rio de Janeiro</option>
+                        <option value="SP">SP - São Paulo</option>
+                        <option value="ES">ES - Espírito Santo</option>
+                        <option value="PR">PR - Paraná</option>
+                        <option value="SC">SC - Santa Catarina</option>
+                        <option value="RS">RS - Rio Grande do Sul</option>
+                        <option value="BA">BA - Bahia</option>
+                        <option value="GO">GO - Goiás</option>
+                        <option value="MT">MT - Mato Grosso</option>
+                    </select>
+                    <input type="date" id="expeditionStartDate" 
+                           class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <input type="date" id="expeditionEndDate" 
+                           class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <button onclick="searchExpeditions()" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md font-medium">
+                        🔍 Buscar
+                    </button>
+                </div>
+            </div>
 
-        <!-- No Results -->
-        <div id="noResults" class="text-center py-12 hidden">
-            <p class="text-gray-500 text-lg">Nenhuma trilha encontrada. Tente ajustar os filtros de busca.</p>
+            <!-- Loading -->
+            <div id="expeditionsLoading" class="text-center py-8 hidden">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                <p class="mt-2 text-gray-600">Carregando expedições...</p>
+            </div>
+
+            <!-- Results -->
+            <div id="expeditionsResults" class="hidden">
+                <h2 id="expeditionsResultsCount" class="text-xl font-semibold text-gray-900 mb-6"></h2>
+                <div id="expeditionsGrid" class="space-y-6"></div>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div id="expeditionsPaginationControls" class="flex justify-center items-center space-x-2 mt-8 hidden">
+                <button id="expeditionsPrevPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50" disabled>Anterior</button>
+                <div id="expeditionsPageNumbers" class="flex space-x-1"></div>
+                <button id="expeditionsNextPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50" disabled>Próxima</button>
+            </div>
+
+            <!-- No Results -->
+            <div id="noExpeditionsResults" class="text-center py-12 hidden">
+                <div class="mb-4">
+                    <span class="text-4xl">🎒</span>
+                </div>
+                <p class="text-gray-500 text-lg mb-2">Nenhuma expedição encontrada</p>
+                <p class="text-gray-400">Tente ajustar os filtros de busca ou verificar outras datas.</p>
+            </div>
         </div>
     </main>
 
@@ -169,24 +261,300 @@
         // API Configuration
         const API_BASE_URL = 'https://p9hwiqcldgkm.manus.space';
         const API_URL = `${API_BASE_URL}/api`;
+        const ITEMS_PER_PAGE = 30;
+        let currentPage = 1;
+        let currentExpeditionsPage = 1;
+        let activeTab = 'trails';
 
         console.log('🔧 API configurada:', API_BASE_URL);
 
-        // Search trails function
-        async function searchTrails() {
-            const loading = document.getElementById('loading');
-            const results = document.getElementById('results');
-            const noResults = document.getElementById('noResults');
-            const trailsGrid = document.getElementById('trailsGrid');
-            const resultsCount = document.getElementById('resultsCount');
+        // Tab switching functionality
+        function switchTab(tab) {
+            activeTab = tab;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active', 'border-green-500', 'text-green-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            if (tab === 'trails') {
+                document.getElementById('trailsTab').classList.add('active', 'border-green-500', 'text-green-600');
+                document.getElementById('trailsTab').classList.remove('border-transparent', 'text-gray-500');
+                document.getElementById('trailsSection').classList.remove('hidden');
+                document.getElementById('expeditionsSection').classList.add('hidden');
+            } else {
+                document.getElementById('expeditionsTab').classList.add('active', 'border-green-500', 'text-green-600');
+                document.getElementById('expeditionsTab').classList.remove('border-transparent', 'text-gray-500');
+                document.getElementById('trailsSection').classList.add('hidden');
+                document.getElementById('expeditionsSection').classList.remove('hidden');
+                
+                // Load expeditions if not loaded yet
+                if (document.getElementById('expeditionsGrid').innerHTML === '') {
+                    searchExpeditions();
+                }
+            }
+        }
+
+        // Search expeditions function
+        async function searchExpeditions(page = 1) {
+            currentExpeditionsPage = page;
+            const loading = document.getElementById('expeditionsLoading');
+            const results = document.getElementById('expeditionsResults');
+            const noResults = document.getElementById('noExpeditionsResults');
+            const expeditionsGrid = document.getElementById('expeditionsGrid');
+            const resultsCount = document.getElementById('expeditionsResultsCount');
+            const paginationControls = document.getElementById('expeditionsPaginationControls');
 
             // Show loading
             loading.classList.remove('hidden');
             results.classList.add('hidden');
             noResults.classList.add('hidden');
+            paginationControls.classList.add('hidden');
 
             try {
-                console.log('🔍 Iniciando busca de trilhas...');
+                console.log(`🔍 Iniciando busca de expedições para a página ${currentExpeditionsPage}...`);
+                
+                // Get search parameters
+                const searchTerm = document.getElementById('expeditionSearchInput').value;
+                const state = document.getElementById('expeditionStateSelect').value;
+                const startDate = document.getElementById('expeditionStartDate').value;
+                const endDate = document.getElementById('expeditionEndDate').value;
+
+                // Build query parameters
+                const params = new URLSearchParams();
+                if (searchTerm) params.append('search', searchTerm);
+                if (state) params.append('state', state);
+                if (startDate) params.append('start_date', startDate);
+                if (endDate) params.append('end_date', endDate);
+                params.append('page', currentExpeditionsPage);
+                params.append('limit', ITEMS_PER_PAGE);
+
+                const url = `${API_URL}/expeditions?${params.toString()}`;
+                console.log("🌐 URL da busca de expedições:", url);
+
+                const response = await fetch(url, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    mode: "cors"
+                });
+                console.log("📡 Status da resposta:", response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("❌ Erro da API:", errorText);
+                    throw new Error(`HTTP error! Status: ${response.status} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log("✅ Dados de expedições recebidos:", data);
+
+                // Hide loading
+                loading.classList.add("hidden");
+
+                if (data.expeditions && data.expeditions.length > 0) {
+                    // Show results
+                    results.classList.remove("hidden");
+                    resultsCount.textContent = `${data.total} expedições encontradas (Página ${currentExpeditionsPage} de ${data.pages})`;
+                    
+                    // Clear previous results
+                    expeditionsGrid.innerHTML = "";
+
+                    // Display expeditions
+                    data.expeditions.forEach(expedition => {
+                        const expeditionCard = createExpeditionCard(expedition);
+                        expeditionsGrid.appendChild(expeditionCard);
+                    });
+
+                    // Setup pagination
+                    setupExpeditionsPagination(data.total, data.pages);
+                } else {
+                    // No results found
+                    noResults.classList.remove("hidden");
+                }
+
+            } catch (error) {
+                console.error("❌ Erro ao buscar expedições:", error);
+                loading.classList.add("hidden");
+                noResults.classList.remove("hidden");
+            }
+        }
+
+        // Create expedition card
+        function createExpeditionCard(expedition) {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow';
+            
+            const statusClass = expedition.status === 'published' ? 'text-green-600' : 'text-gray-500';
+            const availableSpots = expedition.max_people - (expedition.participants_count || 0);
+            const isAvailable = availableSpots > 0 && expedition.status === 'published' && new Date(expedition.start_date) > new Date();
+
+            card.innerHTML = `
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                    <div class="flex-1 mb-4 lg:mb-0">
+                        <!-- Trail Info -->
+                        <div class="mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-1">${expedition.trail_name}</h3>
+                            <p class="text-sm text-gray-500">📍 ${expedition.trail_city}, ${expedition.trail_state}</p>
+                        </div>
+                        
+                        <!-- Guide Info -->
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                ${expedition.guide_name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">${expedition.guide_name}</div>
+                                <div class="text-sm text-gray-500">Guia Certificado • Cadastur ${expedition.guide_cadastur}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Expedition Details -->
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-500">📅 Período:</span>
+                                <div class="font-medium">${formatDateRange(expedition.start_date, expedition.end_date)}</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">💰 Preço:</span>
+                                <div class="font-medium text-green-600">R$ ${(expedition.price_cents / 100).toFixed(2)}</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">👥 Vagas:</span>
+                                <div class="font-medium">${availableSpots}/${expedition.max_people}</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Status:</span>
+                                <div class="font-medium ${statusClass}">
+                                    ${isAvailable ? 'Inscrições Abertas' : 'Indisponível'}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${expedition.description ? `
+                            <p class="text-gray-600 text-sm mt-3 line-clamp-2">${expedition.description.substring(0, 200)}${expedition.description.length > 200 ? '...' : ''}</p>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col space-y-2 lg:ml-6 lg:w-40">
+                        <a href="expedition.html?id=${expedition.id}" 
+                           class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-center font-medium text-sm">
+                            Ver Detalhes
+                        </a>
+                        <a href="trilha.html?id=${expedition.trail_id}" 
+                           class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-center font-medium text-sm">
+                            Ver Trilha
+                        </a>
+                        ${isAvailable ? `
+                            <button onclick="quickParticipate('${expedition.id}')" 
+                                    class="px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 text-center font-medium text-sm">
+                                Participar
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Quick participate function
+        async function quickParticipate(expeditionId) {
+            if (!localStorage.getItem('token')) {
+                alert('Você precisa estar logado para participar de uma expedição.');
+                document.getElementById('loginBtn').click();
+                return;
+            }
+
+            if (confirm('Deseja participar desta expedição? Você será redirecionado para a página de detalhes para confirmar.')) {
+                window.location.href = `expedition.html?id=${expeditionId}`;
+            }
+        }
+
+        // Format date range for expeditions
+        function formatDateRange(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            
+            const startFormatted = start.toLocaleDateString('pt-BR', { 
+                day: '2-digit', 
+                month: '2-digit' 
+            });
+            
+            const endFormatted = end.toLocaleDateString('pt-BR', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: '2-digit' 
+            });
+            
+            return `${startFormatted} - ${endFormatted}`;
+        }
+
+        // Setup expeditions pagination
+        function setupExpeditionsPagination(totalResults, totalPages) {
+            const pageNumbersContainer = document.getElementById('expeditionsPageNumbers');
+            const prevPageBtn = document.getElementById('expeditionsPrevPageBtn');
+            const nextPageBtn = document.getElementById('expeditionsNextPageBtn');
+            const paginationControls = document.getElementById('expeditionsPaginationControls');
+
+            pageNumbersContainer.innerHTML = '';
+            
+            if (totalPages > 1) {
+                paginationControls.classList.remove('hidden');
+            } else {
+                paginationControls.classList.add('hidden');
+                return;
+            }
+
+            prevPageBtn.disabled = currentExpeditionsPage === 1;
+            prevPageBtn.onclick = () => searchExpeditions(currentExpeditionsPage - 1);
+
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentExpeditionsPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.className = `px-3 py-2 rounded-md text-sm font-medium ${
+                    i === currentExpeditionsPage 
+                        ? 'bg-green-600 text-white' 
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`;
+                pageBtn.onclick = () => searchExpeditions(i);
+                pageNumbersContainer.appendChild(pageBtn);
+            }
+
+            nextPageBtn.disabled = currentExpeditionsPage === totalPages;
+            nextPageBtn.onclick = () => searchExpeditions(currentExpeditionsPage + 1);
+        }
+
+        // Search trails function
+        async function searchTrails(page = 1) {
+            currentPage = page;
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const noResults = document.getElementById('noResults');
+            const trailsGrid = document.getElementById('trailsGrid');
+            const resultsCount = document.getElementById('resultsCount');
+            const paginationControls = document.getElementById('paginationControls');
+
+            // Show loading
+            loading.classList.remove('hidden');
+            results.classList.add('hidden');
+            noResults.classList.add('hidden');
+            paginationControls.classList.add('hidden');
+
+            try {
+                console.log(`🔍 Iniciando busca de trilhas para a página ${currentPage}...`);
                 
                 // Get search parameters
                 const searchTerm = document.getElementById('searchInput').value;
@@ -200,48 +568,63 @@
                 if (state) params.append('state', state);
                 if (difficulty) params.append('difficulty', difficulty);
                 if (maxDistance) params.append('max_distance', maxDistance);
+                params.append('page', currentPage);
+                params.append('limit', ITEMS_PER_PAGE);
 
                 const url = `${API_URL}/trails?${params.toString()}`;
-                console.log('🌐 URL da busca:', url);
+                console.log("🌐 URL da busca:", url);
 
                 const response = await fetch(url, {
-                    method: 'GET',
+                    method: "GET",
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
                     },
-                    mode: 'cors'
+                    mode: "cors"
                 });
-                console.log('📡 Status da resposta:', response.status);
+                console.log("📡 Status da resposta:", response.status);
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    console.error('❌ Erro da API:', errorText);
+                    console.error("❌ Erro da API:", errorText);
                     throw new Error(`HTTP error! Status: ${response.status} - ${errorText}`);
                 }
 
                 const data = await response.json();
-                console.log('✅ Dados recebidos:', data);
+                console.log("✅ Dados recebidos:", data);
 
                 // Hide loading
-                loading.classList.add('hidden');
+                loading.classList.add("hidden");
 
                 if (data.trails && data.trails.length > 0) {
                     // Show results
-                    results.classList.remove('hidden');
-                    resultsCount.textContent = `${data.trails.length} trilhas encontradas`;
+                    results.classList.remove("hidden");
+                    resultsCount.textContent = `${data.total} trilhas encontradas (Página ${currentPage} de ${data.pages})`;
                     
                     // Clear previous results
-                    trailsGrid.innerHTML = '';
+                    trailsGrid.innerHTML = "";
 
-                    // Render trails
+                    // Display trails
                     data.trails.forEach(trail => {
                         const trailCard = createTrailCard(trail);
                         trailsGrid.appendChild(trailCard);
                     });
+                    
+                    // Aplicar imagens das trilhas automaticamente
+                    if (window.trailImages && typeof window.trailImages.apply === "function") {
+                        console.log("🖼️ Aplicando imagens das trilhas...");
+                        setTimeout(() => {
+                            window.trailImages.apply();
+                            console.log("✅ Imagens das trilhas aplicadas!");
+                        }, 100);
+                    }
+
+                    // Render pagination controls
+                    renderPagination(data.total, data.pages);
+
                 } else {
                     // Show no results
-                    noResults.classList.remove('hidden');
+                    noResults.classList.remove("hidden");
                 }
 
             } catch (error) {
@@ -254,10 +637,87 @@
             }
         }
 
+        // Render pagination controls
+        function renderPagination(totalResults, totalPages) {
+            const pageNumbersContainer = document.getElementById('pageNumbers');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const paginationControls = document.getElementById('paginationControls');
+
+            pageNumbersContainer.innerHTML = ''; // Clear previous page numbers
+            
+            // Show pagination if we have more than one page
+            if (totalPages > 1) {
+                paginationControls.classList.remove('hidden');
+            } else {
+                paginationControls.classList.add('hidden');
+                return;
+            }
+
+            // Previous button
+            prevPageBtn.disabled = currentPage === 1;
+            prevPageBtn.onclick = () => searchTrails(currentPage - 1);
+
+            // Calculate which page numbers to show
+            const maxVisiblePages = 10;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            // Adjust start page if we're near the end
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            // Add first page and ellipsis if needed
+            if (startPage > 1) {
+                const firstPageBtn = document.createElement('button');
+                firstPageBtn.textContent = '1';
+                firstPageBtn.className = 'px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300';
+                firstPageBtn.onclick = () => searchTrails(1);
+                pageNumbersContainer.appendChild(firstPageBtn);
+                
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.className = 'px-2 py-1 text-gray-500';
+                    pageNumbersContainer.appendChild(ellipsis);
+                }
+            }
+
+            // Page numbers
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.className = `px-3 py-1 rounded-md ${currentPage === i ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
+                pageBtn.onclick = () => searchTrails(i);
+                pageNumbersContainer.appendChild(pageBtn);
+            }
+
+            // Add ellipsis and last page if needed
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.className = 'px-2 py-1 text-gray-500';
+                    pageNumbersContainer.appendChild(ellipsis);
+                }
+                
+                const lastPageBtn = document.createElement('button');
+                lastPageBtn.textContent = totalPages;
+                lastPageBtn.className = 'px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300';
+                lastPageBtn.onclick = () => searchTrails(totalPages);
+                pageNumbersContainer.appendChild(lastPageBtn);
+            }
+
+            // Next button
+            nextPageBtn.disabled = currentPage === totalPages;
+            nextPageBtn.onclick = () => searchTrails(currentPage + 1);
+        }
         // Create trail card
         function createTrailCard(trail) {
             const card = document.createElement('div');
             card.className = 'bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow';
+            card.setAttribute('data-trail-name', trail.name);
             
             const difficultyColor = {
                 'Fácil': 'bg-green-100 text-green-800',
@@ -266,10 +726,19 @@
                 'Muito difícil': 'bg-red-100 text-red-800'
             };
             
+            // Obter imagem da trilha
+            const coverImage = window.trailImages ? window.trailImages.getCover(trail.name) : null;
+            const imageAlt = window.trailImages ? window.trailImages.getAlt(trail.name) : trail.name;
+            
             card.innerHTML = `
                 <div class="relative">
-                    <div class="h-48 bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center">
-                        <span class="text-white text-6xl">🏔️</span>
+                    <div class="h-48 bg-gradient-to-br from-green-500 to-blue-600 overflow-hidden">
+                        ${coverImage ? 
+                            `<img src="${coverImage}" alt="${imageAlt}" class="w-full h-full object-cover">` :
+                            `<div class="w-full h-full flex items-center justify-center">
+                                <span class="text-white text-6xl">🏔️</span>
+                            </div>`
+                        }
                     </div>
                     <div class="absolute top-2 right-2">
                         <span class="bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">
@@ -322,11 +791,55 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📄 Página carregada, iniciando busca automática...');
             
+            // Aplicar filtros da URL se existirem
+            applyFiltersFromURL();
+            
             // Verificar estado de autenticação
             checkAuthState();
             
             searchTrails();
         });
+
+        // Função para aplicar filtros da URL
+        function applyFiltersFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Aplicar filtro de busca
+            const search = urlParams.get("search");
+            if (search) {
+                const searchInput = document.getElementById("searchInput");
+                if (searchInput) searchInput.value = search;
+            }
+            
+            // Aplicar filtro de estado
+            const estado = urlParams.get("estado");
+            if (estado) {
+                const stateSelect = document.getElementById("stateSelect");
+                if (stateSelect) stateSelect.value = estado;
+            }
+            
+            // Aplicar filtro de dificuldade
+            const dificuldade = urlParams.get("dificuldade");
+            if (dificuldade) {
+                const difficultySelect = document.getElementById("difficultySelect");
+                if (difficultySelect) difficultySelect.value = dificuldade;
+            }
+            
+            // Aplicar filtro de distância
+            const distancia = urlParams.get("distancia");
+            if (distancia) {
+                const maxDistanceInput = document.getElementById("maxDistanceInput");
+                if (maxDistanceInput) maxDistanceInput.value = distancia;
+            }
+
+            // Aplicar página
+            const page = urlParams.get("page");
+            if (page) {
+                currentPage = parseInt(page);
+            }
+            
+            console.log("🔍 Filtros aplicados da URL:", { search, estado, dificuldade, distancia, page: currentPage });
+        }
 
         // Função para verificar estado de autenticação
         function checkAuthState() {
@@ -344,6 +857,28 @@
                 showAuthButtons();
             }
         }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Inicializando página de trilhas...');
+            
+            // Set minimum date for expedition filters to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('expeditionStartDate').min = today;
+            document.getElementById('expeditionEndDate').min = today;
+            
+            // Load initial trails
+            searchTrails();
+            
+            // Check authentication
+            checkAuthStatus();
+        });
+
+        // Make functions global for onclick handlers
+        window.switchTab = switchTab;
+        window.searchTrails = searchTrails;
+        window.searchExpeditions = searchExpeditions;
+        window.quickParticipate = quickParticipate;
 
         function showUserMenu(user) {
             const loginBtn = document.getElementById('loginBtn');
@@ -371,4 +906,14 @@
     <script src="auth.js"></script>
 </body>
 </html>
+
+
+
+        <!-- Pagination Controls -->
+        <div id="paginationControls" class="flex justify-center items-center space-x-2 mt-8 hidden">
+            <button id="prevPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50" disabled>Anterior</button>
+            <div id="pageNumbers" class="flex space-x-1"></div>
+            <button id="nextPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50" disabled>Próxima</button>
+        </div>
+
 
