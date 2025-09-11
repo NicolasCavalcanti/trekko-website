@@ -4,7 +4,11 @@
  */
 class TrekkoAuth {
     constructor() {
-        this.apiUrl = '/api/auth';
+        const localApi = 'http://localhost:5000/api/auth';
+        const productionApi = 'https://p9hwiqcldgkm.manus.space/api/auth';
+        const isLocal = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) ||
+            window.location.protocol === 'file:';
+        this.apiUrl = isLocal ? localApi : productionApi;
         this.authToken = null;
         this.injectStyles();
         this.init();
@@ -191,7 +195,18 @@ class TrekkoAuth {
                 body: JSON.stringify(data)
             });
 
-            const result = await response.json();
+            let result = {};
+            try {
+                result = await response.json();
+            } catch {
+                /* Ignora erro de JSON */
+            }
+
+            if (!response.ok) {
+                const message = result.message || 'Erro ao processar requisição.';
+                this.showError(message);
+                return;
+            }
 
             if (result.success) {
                 this.showSuccess('Login realizado com sucesso!');
@@ -232,7 +247,18 @@ class TrekkoAuth {
                 body: JSON.stringify(data)
             });
 
-            const result = await response.json();
+            let result = {};
+            try {
+                result = await response.json();
+            } catch {
+                /* Ignora erro de JSON */
+            }
+
+            if (!response.ok) {
+                const message = result.message || 'Erro ao processar requisição.';
+                this.showError(message);
+                return;
+            }
 
             if (result.success) {
                 this.showSuccess('Cadastro realizado com sucesso!');
