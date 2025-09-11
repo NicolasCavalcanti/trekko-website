@@ -1,0 +1,266 @@
+/* Trekko Authentication Styles */
+
+.trekko-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+.trekko-modal {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease;
+}
+
+.trekko-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.trekko-modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.trekko-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.trekko-modal-close:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.trekko-modal-body {
+    padding: 1.5rem;
+}
+
+.trekko-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.trekko-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.trekko-form-group label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+.trekko-form-group input,
+.trekko-form-group select {
+    padding: 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s;
+    background: white;
+}
+
+.trekko-form-group input:focus,
+.trekko-form-group select:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.trekko-form-group input:invalid {
+    border-color: #ef4444;
+}
+
+.trekko-form-actions {
+    margin-top: 1rem;
+}
+
+.trekko-btn-primary {
+    width: 100%;
+    padding: 0.875rem;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.trekko-btn-primary:hover:not(:disabled) {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+.trekko-btn-primary:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.trekko-btn-secondary {
+    padding: 0.5rem 1rem;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.trekko-btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+.trekko-form-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.trekko-form-footer p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.trekko-form-footer a {
+    color: #10b981;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.trekko-form-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Validation Messages */
+.trekko-validation-message {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.trekko-validation-success {
+    color: #10b981;
+}
+
+.trekko-validation-warning {
+    color: #f59e0b;
+}
+
+.trekko-validation-error {
+    color: #ef4444;
+}
+
+/* Notifications */
+.trekko-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    z-index: 10001;
+    animation: slideInRight 0.3s ease;
+    max-width: 400px;
+}
+
+.trekko-notification-success {
+    background: #10b981;
+}
+
+.trekko-notification-error {
+    background: #ef4444;
+}
+
+/* User Menu */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-menu span {
+    color: #374151;
+    font-weight: 600;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .trekko-modal {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .trekko-modal-header,
+    .trekko-modal-body {
+        padding: 1rem;
+    }
+    
+    .trekko-notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}
+

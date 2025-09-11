@@ -1,40 +1,18 @@
-/**
- * auth.js - Novo sistema de autenticação da Trekko
- * Substitui implementações anteriores e valida CADASTUR com backend.
- */
+// New Authentication System with CADASTUR Support
 class TrekkoAuth {
     constructor() {
-        this.apiUrl = '/api/auth';
-        this.authToken = null;
-        this.injectStyles();
+        this.apiUrl = 'https://5000-ibpp8roptl9en8w6ne0am-95675309.manusvm.computer/api/auth';
         this.init();
     }
 
-    injectStyles() {
-        if (!document.querySelector('link[href="new_auth.css"]')) {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = 'new_auth.css';
-            document.head.appendChild(link);
-        }
-    }
-
     init() {
+        // Initialize authentication system
         this.setupEventListeners();
-        const userData = localStorage.getItem('userData');
-        const token = localStorage.getItem('authToken');
-        if (userData) {
-            try {
-                this.updateUIForLoggedUser(JSON.parse(userData));
-                if (token) this.authToken = token;
-            } catch {
-                localStorage.removeItem('userData');
-                localStorage.removeItem('authToken');
-            }
-        }
+        console.log('TrekkoAuth initialized');
     }
 
     setupEventListeners() {
+        // Setup event listeners for auth buttons
         document.addEventListener('click', (e) => {
             if (e.target.matches('[data-auth="login"]')) {
                 e.preventDefault();
@@ -48,14 +26,12 @@ class TrekkoAuth {
     }
 
     showLoginModal() {
-        const modal = this.createModal('login', 'Entrar no Trekko', this.getLoginForm());
-        document.body.appendChild(modal);
+        const modal = this.createModal(\'login\', \'Entrar no Trekko\', this.getLoginForm());     document.body.appendChild(modal);
         this.setupLoginHandlers(modal);
     }
 
     showRegisterModal() {
-        const modal = this.createModal('register', 'Cadastrar no Trekko', this.getRegisterForm());
-        document.body.appendChild(modal);
+        const modal = this.createModal(\'register\', \'Cadastrar no Trekko\', this.getRegisterForm());     document.body.appendChild(modal);
         this.setupRegisterHandlers(modal);
     }
 
@@ -74,6 +50,7 @@ class TrekkoAuth {
             </div>
         `;
 
+        // Close modal handlers
         modal.addEventListener('click', (e) => {
             if (e.target.matches('[data-close="true"]') || e.target === modal) {
                 modal.remove();
@@ -156,6 +133,7 @@ class TrekkoAuth {
         const cadasturSection = modal.querySelector('#cadastur-section');
         const cadasturInput = modal.querySelector('#register-cadastur');
 
+        // Handle user type change
         userTypeSelect.addEventListener('change', () => {
             if (userTypeSelect.value === 'guia') {
                 cadasturSection.style.display = 'block';
@@ -168,10 +146,12 @@ class TrekkoAuth {
             }
         });
 
+        // Handle CADASTUR validation
         cadasturInput.addEventListener('input', () => {
             this.validateCadastur(cadasturInput.value);
         });
 
+        // Handle form submission
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             await this.handleRegister(form, modal);
@@ -184,10 +164,12 @@ class TrekkoAuth {
 
         try {
             this.showLoading(form);
-
+            
             const response = await fetch(`${this.apiUrl}/login`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify(data)
             });
 
@@ -195,17 +177,13 @@ class TrekkoAuth {
 
             if (result.success) {
                 this.showSuccess('Login realizado com sucesso!');
-                if (result.access_token) {
-                    this.authToken = result.access_token;
-                    localStorage.setItem('authToken', this.authToken);
-                }
                 localStorage.setItem('userData', JSON.stringify(result.user));
                 modal.remove();
                 this.updateUIForLoggedUser(result.user);
             } else {
                 this.showError(result.message);
             }
-        } catch {
+        } catch (error) {
             this.showError('Erro de conexão. Tente novamente.');
         } finally {
             this.hideLoading(form);
@@ -216,19 +194,22 @@ class TrekkoAuth {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
 
+        // Validate CADASTUR for guides
         if (data.user_type === 'guia') {
             const isValid = await this.validateCadasturAPI(data.cadastur_number);
             if (!isValid) {
-                return;
+                return; // Validation message already shown
             }
         }
 
         try {
             this.showLoading(form);
-
+            
             const response = await fetch(`${this.apiUrl}/register`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify(data)
             });
 
@@ -236,17 +217,13 @@ class TrekkoAuth {
 
             if (result.success) {
                 this.showSuccess('Cadastro realizado com sucesso!');
-                if (result.access_token) {
-                    this.authToken = result.access_token;
-                    localStorage.setItem('authToken', this.authToken);
-                }
                 localStorage.setItem('userData', JSON.stringify(result.user));
                 modal.remove();
                 this.updateUIForLoggedUser(result.user);
             } else {
                 this.showError(result.message);
             }
-        } catch {
+        } catch (error) {
             this.showError('Erro de conexão. Tente novamente.');
         } finally {
             this.hideLoading(form);
@@ -262,27 +239,33 @@ class TrekkoAuth {
             return;
         }
 
-        const clean = cadasturNumber.replace(/\D/g, '');
-        if (!clean) {
-            validationDiv.innerHTML = '<span class="trekko-validation-error">❌ CADASTUR deve conter apenas números</span>';
+        const cleanCadastur = cadasturNumber.replace(/\D/g, '');
+        
+        if (cleanCadastur.length < 11) {
+            validationDiv.innerHTML = '<span class="trekko-validation-warning">⚠️ CADASTUR deve ter 11 dígitos</span>';
             return false;
+        } else if (cleanCadastur.length > 11) {
+            validationDiv.innerHTML = '<span class="trekko-validation-error">❌ CADASTUR não pode ter mais de 11 dígitos</span>';
+            return false;
+        } else {
+            validationDiv.innerHTML = '<span class="trekko-validation-success">✅ Formato válido</span>';
+            return true;
         }
-
-        validationDiv.innerHTML = '<span class="trekko-validation-success">✅ Formato válido</span>';
-        return true;
     }
 
     async validateCadasturAPI(cadasturNumber) {
         try {
             const response = await fetch(`${this.apiUrl}/validate-cadastur`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({ cadastur_number: cadasturNumber })
             });
 
             const result = await response.json();
             const validationDiv = document.getElementById('cadastur-validation');
-
+            
             if (result.valid) {
                 validationDiv.innerHTML = '<span class="trekko-validation-success">✅ CADASTUR válido</span>';
                 return true;
@@ -290,7 +273,7 @@ class TrekkoAuth {
                 validationDiv.innerHTML = `<span class="trekko-validation-error">❌ ${result.message}</span>`;
                 return false;
             }
-        } catch {
+        } catch (error) {
             const validationDiv = document.getElementById('cadastur-validation');
             validationDiv.innerHTML = '<span class="trekko-validation-error">❌ Erro ao validar CADASTUR</span>';
             return false;
@@ -313,7 +296,7 @@ class TrekkoAuth {
     hideLoading(form) {
         const submitBtn = form.querySelector('button[type="submit"]');
         submitBtn.disabled = false;
-        submitBtn.textContent = form.id.includes('login') ? 'Entrar' : 'Cadastrar';
+        submitBtn.textContent = submitBtn.id.includes('login') ? 'Entrar' : 'Cadastrar';
     }
 
     showError(message) {
@@ -328,12 +311,16 @@ class TrekkoAuth {
         const notification = document.createElement('div');
         notification.className = `trekko-notification trekko-notification-${type}`;
         notification.textContent = message;
-
+        
         document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 5000);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
     }
 
     updateUIForLoggedUser(user) {
+        // Update navigation for logged user
         const navActions = document.querySelector('.nav-actions');
         if (navActions) {
             navActions.innerHTML = `
@@ -347,12 +334,11 @@ class TrekkoAuth {
 
     logout() {
         localStorage.removeItem('userData');
-        localStorage.removeItem('authToken');
-        this.authToken = null;
         location.reload();
     }
 }
 
+// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.trekkoAuth = new TrekkoAuth();
 });

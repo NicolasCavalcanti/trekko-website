@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre - Trekko | Conectando pessoas, trilhas e experiências únicas</title>
+    <meta name="description" content="Conheça a história do Trekko, nossa missão de conectar aventureiros a guias certificados e como estamos transformando o trekking no Brasil.">
+    <meta name="keywords" content="sobre trekko, história, missão, visão, valores, equipe, trekking brasil">
+    
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-S816P190VN');
+    </script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2482023752745520" crossorigin="anonymous"></script>
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.trekko.com.br/sobre">
+    <meta property="og:title" content="Sobre - Trekko | Conectando pessoas, trilhas e experiências únicas">
+    <meta property="og:description" content="Conheça a história do Trekko e nossa missão de conectar aventureiros a guias certificados.">
+    <meta property="og:image" content="https://www.trekko.com.br/images/sobre-og.jpg">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <style>
+        :root {
+            --verde-floresta: #2D6A4F;
+            --marrom-terra: #7C4B2A;
+            --azul-petroleo: #1E3A5F;
+            --bege-areia: #E7D9C0;
+            --cinza-grafite: #333333;
+            --branco: #FFFFFF;
+            --cinza-claro: #F8F9FA;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            line-height: 1.6;
+            color: var(--cinza-grafite);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--verde-floresta);
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--cinza-grafite);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: var(--verde-floresta);
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--verde-floresta);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #245a42;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--verde-floresta);
+            border: 2px solid var(--verde-floresta);
+        }
+
+        .btn-secondary:hover {
+            background: var(--verde-floresta);
+            color: white;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(45, 106, 79, 0.7), rgba(30, 58, 95, 0.7)), url('images/hero-sobre.jpg') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Sections */
+        .section {
+            padding: 5rem 0;
+        }
+
+        .section-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--cinza-grafite);
+        }
+
+        .section-subtitle {
+            font-size: 1.125rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #666;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Missão, Visão, Valores */
+        .mvv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .mvv-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .mvv-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .mvv-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mvv-card h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--verde-floresta);
+        }
+
+        /* História */
+        .historia {
+            background: var(--cinza-claro);
+        }
+
+        .historia-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .historia-text {
+            font-size: 1.125rem;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+            color: #555;
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 3rem;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--verde-floresta);
+            z-index: 1;
+        }
+
+        .timeline-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 200px;
+        }
+
+        .timeline-year {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--verde-floresta);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-text {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        /* Impacto */
+        .impacto {
+            background: var(--verde-floresta);
+            color: white;
+        }
+
+        .impacto .section-title,
+        .impacto .section-subtitle {
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .stat-number {
+            font-family: 'Sora', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--bege-areia);
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .testimonial {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-top: 2rem;
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-author {
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+
+
+        /* Sustentabilidade */
+        .sustentabilidade {
+            background: var(--cinza-claro);
+        }
+
+        .sustentabilidade-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .sustentabilidade-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sustentabilidade-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .sustentabilidade-card h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--verde-floresta);
+        }
+
+        /* CTA Final */
+        .cta-final {
+            background: linear-gradient(rgba(30, 58, 95, 0.8), rgba(45, 106, 79, 0.8)), url('images/cta-sobre.jpg') center/cover;
+            color: white;
+            text-align: center;
+            padding: 5rem 0;
+        }
+
+        .cta-final h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-final p {
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .hero-ctas {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .timeline {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .timeline::before {
+                display: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .cta-final h2 {
+                font-size: 2rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 3rem 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">🏔️ Trekko</a>
+            
+            <ul class="nav-menu">
+                <li><a href="/">Início</a></li>
+                <li><a href="/trilhas.html">Trilhas</a></li>
+                <li><a href="/guias.html">Guias</a></li>
+                <li><a href="/sobre.html" class="active">Sobre</a></li>
+                <li><a href="#ajuda">Ajuda</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="#" class="btn btn-secondary" onclick="openModal('login')">Entrar</a>
+                <a href="#" class="btn btn-primary" onclick="openModal('cadastro')">Cadastrar</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Conectando pessoas, trilhas e experiências únicas no Brasil</h1>
+            <p>Somos a ponte entre aventureiros e guias certificados, ajudando você a explorar o Brasil com segurança, conexão e autenticidade.</p>
+            <div class="hero-ctas">
+                <a href="/trilhas.html" class="btn btn-primary">Descubra Trilhas</a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Missão, Visão e Valores -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Nossa Essência</h2>
+            <p class="section-subtitle">Os valores que nos guiam em cada trilha e em cada conexão que criamos</p>
+            
+            <div class="mvv-grid">
+                <div class="mvv-card fade-in-up">
+                    <div class="mvv-icon">🎯</div>
+                    <h3>Missão</h3>
+                    <p>Conectar pessoas à natureza através de trilhas seguras e memoráveis, criando uma comunidade de aventureiros que respeitam e preservam nossos tesouros naturais.</p>
+                </div>
+                
+                <div class="mvv-card fade-in-up">
+                    <div class="mvv-icon">🌟</div>
+                    <h3>Visão</h3>
+                    <p>Ser a maior comunidade de trekking do Brasil, transformando cada trilha em uma experiência única e cada aventureiro em um guardião da natureza.</p>
+                </div>
+                
+                <div class="mvv-card fade-in-up">
+                    <div class="mvv-icon">💚</div>
+                    <h3>Valores</h3>
+                    <p>Sustentabilidade 🌿, Comunidade 🤝, Aventura ⛰️, Segurança 🛡️ e Autenticidade ✨ são os pilares que sustentam cada passo da nossa jornada.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nossa História -->
+    <section class="section historia">
+        <div class="container">
+            <div class="historia-content">
+                <h2 class="section-title">Nossa História</h2>
+                <p class="historia-text">
+                    O Trekko nasceu de uma paixão: explorar trilhas brasileiras e conectar guias incríveis a aventureiros de todos os cantos. Mais que uma plataforma, somos um movimento que acredita que cada trilha guarda uma história e cada passo cria uma memória. Nossa jornada começou entre amigos apaixonados por montanhas, que sonhavam em democratizar o acesso às mais belas trilhas do Brasil, sempre com segurança e respeito à natureza.
+                </p>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">2024</div>
+                        <div class="timeline-text">A ideia nasce entre trekkers apaixonados</div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">2025</div>
+                        <div class="timeline-text">Lançamento da plataforma com guias certificados</div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">Futuro</div>
+                        <div class="timeline-text">Expansão para toda América Latina</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impacto -->
+    <section class="section impacto">
+        <div class="container">
+            <h2 class="section-title">Nosso Impacto</h2>
+            <p class="section-subtitle">Números que mostram como estamos transformando o trekking no Brasil</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="trilhasCount">80+</div>
+                    <div class="stat-label">Trilhas Cadastradas</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number" id="guiasCount">200+</div>
+                    <div class="stat-label">Guias Certificados CADASTUR</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number" id="comunidadeCount">1000+</div>
+                    <div class="stat-label">Membros da Comunidade</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number" id="experienciasCount">500+</div>
+                    <div class="stat-label">Experiências Realizadas</div>
+                </div>
+            </div>
+            
+            <div class="testimonial">
+                <p class="testimonial-text">"O Trekko transformou minha paixão por trilhas em uma profissão. Hoje posso compartilhar meu conhecimento da Serra da Mantiqueira com aventureiros de todo o Brasil, sempre com segurança e respeito à natureza."</p>
+                <p class="testimonial-author">— Carlos Montanha, Guia CADASTUR</p>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Sustentabilidade & Comunidade -->
+    <section class="section sustentabilidade">
+        <div class="container">
+            <h2 class="section-title">Sustentabilidade & Comunidade</h2>
+            <p class="section-subtitle">Nosso compromisso vai além das trilhas - cuidamos do planeta e das pessoas</p>
+            
+            <div class="sustentabilidade-grid">
+                <div class="sustentabilidade-card fade-in-up">
+                    <div class="sustentabilidade-icon">🌱</div>
+                    <h3>Turismo Sustentável</h3>
+                    <p>Promovemos práticas de turismo responsável, educando nossa comunidade sobre o impacto mínimo e a preservação dos ecossistemas que visitamos.</p>
+                </div>
+                
+                <div class="sustentabilidade-card fade-in-up">
+                    <div class="sustentabilidade-icon">🏘️</div>
+                    <h3>Comunidades Locais</h3>
+                    <p>Valorizamos e apoiamos as comunidades locais, incentivando o turismo que gera renda e preserva tradições culturais das regiões que exploramos.</p>
+                </div>
+                
+                <div class="sustentabilidade-card fade-in-up">
+                    <div class="sustentabilidade-icon">🤝</div>
+                    <h3>Parcerias Ambientais</h3>
+                    <p>Estabelecemos parcerias com parques nacionais, ONGs ambientais e projetos de conservação para contribuir ativamente com a preservação da natureza.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Final -->
+    <section class="cta-final">
+        <div class="container">
+            <h2>Pronto para sua próxima aventura?</h2>
+            <p>Junte-se à nossa comunidade e descubra as trilhas mais incríveis do Brasil</p>
+            <div class="cta-buttons">
+                <a href="/trilhas.html" class="btn btn-primary">Encontre Trilhas</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" style="background: var(--cinza-grafite); color: white; padding: 3rem 0;">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+                <div>
+                    <h3 style="color: var(--bege-areia); margin-bottom: 1rem;">Trekko</h3>
+                    <p style="opacity: 0.8;">Conectando pessoas, trilhas e experiências únicas no Brasil.</p>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--bege-areia); margin-bottom: 1rem;">Trilhas</h4>
+                    <ul style="list-style: none;">
+                        <li><a href="/trilhas.html?estado=SP" style="color: white; text-decoration: none; opacity: 0.8;">São Paulo</a></li>
+                        <li><a href="/trilhas.html?estado=RJ" style="color: white; text-decoration: none; opacity: 0.8;">Rio de Janeiro</a></li>
+                        <li><a href="/trilhas.html?estado=MG" style="color: white; text-decoration: none; opacity: 0.8;">Minas Gerais</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--bege-areia); margin-bottom: 1rem;">Empresa</h4>
+                    <ul style="list-style: none;">
+                        <li><a href="/sobre.html" style="color: white; text-decoration: none; opacity: 0.8;">Sobre nós</a></li>
+                        <li><a href="#" style="color: white; text-decoration: none; opacity: 0.8;">Contato</a></li>
+                        <li><a href="#" style="color: white; text-decoration: none; opacity: 0.8;">Termos de uso</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--bege-areia); margin-bottom: 1rem;">Conecte-se</h4>
+                    <ul style="list-style: none;">
+                        <li><a href="#" style="color: white; text-decoration: none; opacity: 0.8;">Instagram</a></li>
+                        <li><a href="#" style="color: white; text-decoration: none; opacity: 0.8;">Facebook</a></li>
+                        <li><a href="#" style="color: white; text-decoration: none; opacity: 0.8;">YouTube</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.2);">
+                <p style="opacity: 0.6;">&copy; 2025 Trekko. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Header scroll effect with enhanced styling
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            const scrolled = window.scrollY > 100;
+            
+            if (scrolled) {
+                header.style.background = 'rgba(255, 255, 255, 0.98)';
+                header.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
+                header.style.backdropFilter = 'blur(15px)';
+            } else {
+                header.style.background = 'rgba(255, 255, 255, 0.95)';
+                header.style.boxShadow = 'none';
+                header.style.backdropFilter = 'blur(10px)';
+            }
+        });
+
+        // Enhanced animated counters with easing
+        function animateCounter(element, target, duration = 2000) {
+            let current = 0;
+            const startTime = performance.now();
+            
+            function updateCounter(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function for smooth animation
+                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                current = Math.floor(target * easeOutQuart);
+                
+                element.textContent = current + '+';
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = target + '+';
+                }
+            }
+            
+            requestAnimationFrame(updateCounter);
+        }
+
+        // Parallax effect for hero section
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero');
+            if (hero) {
+                const rate = scrolled * -0.5;
+                hero.style.transform = `translateY(${rate}px)`;
+            }
+        });
+
+        // Enhanced Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Add animation class
+                    entry.target.classList.add('fade-in-up');
+                    
+                    // Animate counters when they come into view
+                    if (entry.target.id === 'trilhasCount') {
+                        setTimeout(() => animateCounter(entry.target, 80, 2000), 300);
+                    } else if (entry.target.id === 'guiasCount') {
+                        setTimeout(() => animateCounter(entry.target, 200, 2200), 500);
+                    } else if (entry.target.id === 'comunidadeCount') {
+                        setTimeout(() => animateCounter(entry.target, 1000, 2500), 700);
+                    } else if (entry.target.id === 'experienciasCount') {
+                        setTimeout(() => animateCounter(entry.target, 500, 2300), 900);
+                    }
+                    
+                    // Add stagger effect for cards
+                    if (entry.target.classList.contains('mvv-card') || 
+                        entry.target.classList.contains('sustentabilidade-card')) {
+                        const cards = entry.target.parentElement.children;
+                        const index = Array.from(cards).indexOf(entry.target);
+                        entry.target.style.animationDelay = `${index * 0.1}s`;
+                    }
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const elementsToObserve = document.querySelectorAll(
+                '.fade-in-up, .stat-number, .mvv-card, .sustentabilidade-card, .timeline-item'
+            );
+            
+            elementsToObserve.forEach(el => {
+                observer.observe(el);
+            });
+        });
+
+        // Enhanced button hover effects
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 8px 25px rgba(45, 106, 79, 0.3)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // Modal functions with enhanced UX
+        function openModal(type) {
+            console.log('Opening modal:', type);
+            
+            // Track modal opens
+            gtag('event', 'modal_open', {
+                'event_category': 'engagement',
+                'event_label': type,
+                'page_location': window.location.href
+            });
+            
+            // Create modal backdrop
+            const backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop';
+            backdrop.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                background: white;
+                padding: 2rem;
+                border-radius: 1rem;
+                max-width: 400px;
+                width: 90%;
+                transform: scale(0.9);
+                transition: transform 0.3s ease;
+            `;
+            
+            modal.innerHTML = `
+                <h3 style="margin-bottom: 1rem; color: var(--verde-floresta);">
+                    ${type === 'login' ? 'Entrar' : 'Cadastrar'}
+                </h3>
+                <p style="margin-bottom: 1.5rem; color: #666;">
+                    ${type === 'login' ? 'Faça login para acessar sua conta.' : 'Crie sua conta e comece a explorar!'}
+                </p>
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="closeModal()" style="flex: 1; padding: 0.75rem; border: 2px solid var(--verde-floresta); background: transparent; color: var(--verde-floresta); border-radius: 0.5rem; cursor: pointer;">
+                        Fechar
+                    </button>
+                    <button style="flex: 1; padding: 0.75rem; background: var(--verde-floresta); color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
+                        ${type === 'login' ? 'Entrar' : 'Cadastrar'}
+                    </button>
+                </div>
+            `;
+            
+            backdrop.appendChild(modal);
+            document.body.appendChild(backdrop);
+            
+            // Animate in
+            setTimeout(() => {
+                backdrop.style.opacity = '1';
+                modal.style.transform = 'scale(1)';
+            }, 10);
+            
+            // Close on backdrop click
+            backdrop.addEventListener('click', (e) => {
+                if (e.target === backdrop) {
+                    closeModal();
+                }
+            });
+            
+            window.currentModal = backdrop;
+        }
+
+        function closeModal() {
+            const modal = window.currentModal;
+            if (modal) {
+                modal.style.opacity = '0';
+                modal.querySelector('div').style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    document.body.removeChild(modal);
+                    window.currentModal = null;
+                }, 300);
+            }
+        }
+
+        // Enhanced Google Analytics tracking
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        // Track scroll depth
+        let maxScroll = 0;
+        window.addEventListener('scroll', () => {
+            const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+            if (scrollPercent > maxScroll) {
+                maxScroll = scrollPercent;
+                if (maxScroll % 25 === 0) { // Track at 25%, 50%, 75%, 100%
+                    gtag('event', 'scroll_depth', {
+                        'event_category': 'engagement',
+                        'event_label': `${maxScroll}%`,
+                        'page_location': window.location.href
+                    });
+                }
+            }
+        });
+
+        // Track time on page
+        const startTime = Date.now();
+        window.addEventListener('beforeunload', () => {
+            const timeOnPage = Math.round((Date.now() - startTime) / 1000);
+            gtag('event', 'time_on_page', {
+                'event_category': 'engagement',
+                'event_label': `${timeOnPage}s`,
+                'page_location': window.location.href
+            });
+        });
+
+        // Track CTA clicks with enhanced data
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const section = e.target.closest('section')?.className || 'unknown';
+                    gtag('event', 'cta_click', {
+                        'event_category': 'conversion',
+                        'event_label': e.target.textContent.trim(),
+                        'section': section,
+                        'page_location': window.location.href
+                    });
+                });
+            });
+        });
+
+        // Add loading animation
+        window.addEventListener('load', () => {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+
+        // Enhanced responsive navigation (for mobile)
+        function toggleMobileMenu() {
+            const navMenu = document.querySelector('.nav-menu');
+            navMenu.classList.toggle('mobile-open');
+        }
+
+        // Add mobile menu styles dynamically
+        const mobileStyles = document.createElement('style');
+        mobileStyles.textContent = `
+            @media (max-width: 768px) {
+                .nav-menu.mobile-open {
+                    display: flex !important;
+                    position: fixed;
+                    top: 70px;
+                    left: 0;
+                    right: 0;
+                    background: white;
+                    flex-direction: column;
+                    padding: 2rem;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                    z-index: 999;
+                }
+                
+                .mobile-menu-toggle {
+                    display: block !important;
+                    background: none;
+                    border: none;
+                    font-size: 1.5rem;
+                    color: var(--verde-floresta);
+                    cursor: pointer;
+                }
+            }
+            
+            .mobile-menu-toggle {
+                display: none;
+            }
+        `;
+        document.head.appendChild(mobileStyles);
+    </script>
+</body>
+</html>
+

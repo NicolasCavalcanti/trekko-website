@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S816P190VN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-S816P190VN');
+    </script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2482023752745520"
+         crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-2482023752745520">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Expedição - Trekko</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Sistema de Autenticação -->
+    <script src="auth.js"></script>
+    <script src="auth-guard.js"></script>
+    <style>
+        .step-indicator {
+            @apply flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium;
+        }
+        .step-active {
+            @apply bg-green-600 text-white;
+        }
+        .step-completed {
+            @apply bg-green-100 text-green-600;
+        }
+        .step-inactive {
+            @apply bg-gray-200 text-gray-500;
+        }
+        .trail-result-card {
+            @apply p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors;
+        }
+        .trail-result-card.selected {
+            @apply border-green-500 bg-green-50;
+        }
+        /* Inicialmente ocultar o conteúdo até verificar autenticação */
+        body:not(.guide-authenticated) main {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="https://www.trekko.com.br/" class="text-2xl font-bold text-green-600">Trekko</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="https://www.trekko.com.br/" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Início</a>
+                        <a href="trilhas.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Trilhas</a>
+                        <a href="guias.html" class="text-gray-500 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Guias</a>
+                        <a href="admin-expeditions.html" class="text-green-600 px-3 py-2 rounded-md text-sm font-medium">Organizar Expedições</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4" id="authSection">
+                    <!-- User Menu (hidden by default) -->
+                    <div id="userMenu" class="relative">
+                        <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-green-600">
+                            <span id="userName" class="font-medium">Guia</span>
+                            <span class="text-sm">▼</span>
+                        </button>
+                        <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="perfil.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Meu Perfil</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configurações</a>
+                            <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sair</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="flex items-center space-x-4 mb-4">
+                <a href="admin-expeditions.html" class="text-gray-500 hover:text-green-600">
+                    ← Voltar para Minhas Expedições
+                </a>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900">Nova Expedição</h1>
+            <p class="text-gray-600 mt-2">Crie uma nova expedição seguindo as diretrizes do Trekko</p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div id="step1Indicator" class="step-indicator step-active">1</div>
+                        <span class="text-sm font-medium text-gray-700">Trilha</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-gray-200"></div>
+                    <div class="flex items-center space-x-2">
+                        <div id="step2Indicator" class="step-indicator step-inactive">2</div>
+                        <span class="text-sm font-medium text-gray-500">Período</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-gray-200"></div>
+                    <div class="flex items-center space-x-2">
+                        <div id="step3Indicator" class="step-indicator step-inactive">3</div>
+                        <span class="text-sm font-medium text-gray-500">Detalhes</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-gray-200"></div>
+                    <div class="flex items-center space-x-2">
+                        <div id="step4Indicator" class="step-indicator step-inactive">4</div>
+                        <span class="text-sm font-medium text-gray-500">Revisão</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Container -->
+        <div class="bg-white rounded-lg shadow-sm p-8">
+            <form id="expeditionForm">
+                <!-- Step 1: Trail Selection -->
+                <div id="step1" class="step-content">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">1. Selecione a Trilha</h2>
+                    
+                    <!-- Search Filters -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                            <select id="stateSelect" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="">Selecione o estado</option>
+                                <option value="MG">MG - Minas Gerais</option>
+                                <option value="RJ">RJ - Rio de Janeiro</option>
+                                <option value="SP">SP - São Paulo</option>
+                                <option value="ES">ES - Espírito Santo</option>
+                                <option value="PR">PR - Paraná</option>
+                                <option value="SC">SC - Santa Catarina</option>
+                                <option value="RS">RS - Rio Grande do Sul</option>
+                                <option value="BA">BA - Bahia</option>
+                                <option value="GO">GO - Goiás</option>
+                                <option value="AM">AM - Amazonas</option>
+                                <option value="RR">RR - Roraima</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Cidade</label>
+                            <select id="citySelect" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="">Selecione a cidade</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nome da Trilha</label>
+                            <input type="text" id="trailNameSearch" placeholder="Digite o nome da trilha..." 
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="searchTrails()" class="mb-6 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-medium">
+                        🔍 Buscar Trilhas
+                    </button>
+
+                    <!-- Search Results -->
+                    <div id="trailResults" class="space-y-4 mb-6 hidden">
+                        <h3 class="text-lg font-medium text-gray-900">Resultados da Busca:</h3>
+                        <div id="trailResultsList" class="space-y-3">
+                            <!-- Trail results will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Selected Trail -->
+                    <div id="selectedTrailDisplay" class="hidden p-4 bg-green-50 border border-green-200 rounded-lg mb-6">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h3 class="text-lg font-medium text-green-900" id="selectedTrailName"></h3>
+                                <p class="text-green-700" id="selectedTrailLocation"></p>
+                                <p class="text-sm text-green-600 mt-1" id="selectedTrailDetails"></p>
+                            </div>
+                            <button type="button" onclick="clearSelectedTrail()" class="text-green-600 hover:text-green-800 font-medium">
+                                Alterar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="button" id="step1NextBtn" onclick="nextStep(1)" disabled 
+                                class="bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2 rounded-md font-medium">
+                            Próximo: Período →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Period Selection -->
+                <div id="step2" class="step-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">2. Defina o Período</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label for="startDate" class="block text-sm font-medium text-gray-700 mb-2">Data de Início *</label>
+                            <input type="date" id="startDate" required
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <p class="text-xs text-gray-500 mt-1">A data deve ser hoje ou no futuro</p>
+                        </div>
+                        <div>
+                            <label for="endDate" class="block text-sm font-medium text-gray-700 mb-2">Data de Fim *</label>
+                            <input type="date" id="endDate" required
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <p class="text-xs text-gray-500 mt-1">Duração máxima de 120 dias</p>
+                        </div>
+                    </div>
+
+                    <div id="periodValidation" class="hidden mb-6 p-3 bg-red-50 border border-red-200 rounded-md">
+                        <p class="text-red-700 text-sm"></p>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <button type="button" onclick="prevStep(2)" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-md font-medium">
+                            ← Voltar
+                        </button>
+                        <button type="button" id="step2NextBtn" onclick="nextStep(2)" disabled
+                                class="bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2 rounded-md font-medium">
+                            Próximo: Detalhes →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Details -->
+                <div id="step3" class="step-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">3. Detalhes da Expedição</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label for="price" class="block text-sm font-medium text-gray-700 mb-2">Preço por pessoa *</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-gray-500">R$</span>
+                                <input type="number" id="price" min="1" step="0.01" required
+                                       class="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                       placeholder="0,00">
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Valor mínimo: R$ 1,00</p>
+                        </div>
+                        <div>
+                            <label for="maxPeople" class="block text-sm font-medium text-gray-700 mb-2">Vagas disponíveis *</label>
+                            <input type="number" id="maxPeople" min="1" max="50" required
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                   placeholder="Número de vagas">
+                            <p class="text-xs text-gray-500 mt-1">Máximo: 50 pessoas</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Descrição da Expedição *</label>
+                        <textarea id="description" rows="6" maxlength="3000" required
+                                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                  placeholder="Descreva os detalhes da expedição: itinerário, o que está incluído, equipamentos necessários, nível de dificuldade, pontos de encontro, etc."></textarea>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>Seja detalhado para atrair mais participantes</span>
+                            <span><span id="descriptionCount">0</span>/3000</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <button type="button" onclick="prevStep(3)" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-md font-medium">
+                            ← Voltar
+                        </button>
+                        <button type="button" id="step3NextBtn" onclick="nextStep(3)" disabled
+                                class="bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2 rounded-md font-medium">
+                            Próximo: Revisão →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Review -->
+                <div id="step4" class="step-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">4. Revisão e Publicação</h2>
+                    
+                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Resumo da Expedição</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-medium text-gray-700 mb-2">Trilha</h4>
+                                <p id="reviewTrailName" class="text-gray-900"></p>
+                                <p id="reviewTrailLocation" class="text-gray-600 text-sm"></p>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-700 mb-2">Período</h4>
+                                <p id="reviewPeriod" class="text-gray-900"></p>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-700 mb-2">Preço</h4>
+                                <p id="reviewPrice" class="text-gray-900"></p>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-700 mb-2">Vagas</h4>
+                                <p id="reviewMaxPeople" class="text-gray-900"></p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h4 class="font-medium text-gray-700 mb-2">Descrição</h4>
+                            <p id="reviewDescription" class="text-gray-900 text-sm"></p>
+                        </div>
+                    </div>
+
+                    <!-- Form Errors -->
+                    <div id="formErrors" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                        <div class="text-red-800 text-sm">
+                            <h4 class="font-medium mb-2">Corrija os seguintes erros:</h4>
+                            <ul id="errorList" class="list-disc list-inside space-y-1"></ul>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <button type="button" onclick="prevStep(4)" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-md font-medium">
+                            ← Voltar
+                        </button>
+                        <div class="flex space-x-3">
+                            <button type="button" id="saveDraftBtn" onclick="saveExpedition('draft')"
+                                    class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-md font-medium">
+                                Salvar Rascunho
+                            </button>
+                            <button type="button" id="publishBtn" onclick="saveExpedition('published')"
+                                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-medium">
+                                Publicar Expedição
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Global variables
+        let selectedTrailId = null;
+        let currentStep = 1;
+        const API_URL = 'http://localhost:5000/api';
+
+        // Mock data for trails (replace with actual API calls)
+        const mockTrails = [
+            {
+                id: '1',
+                name: 'Pico da Bandeira',
+                state: 'MG',
+                city: 'Alto Caparaó',
+                difficulty: 'Difícil',
+                distance: '14km',
+                duration: '8-10h'
+            },
+            {
+                id: '2',
+                name: 'Serra Fina',
+                state: 'MG',
+                city: 'Passa Quatro',
+                difficulty: 'Muito Difícil',
+                distance: '42km',
+                duration: '3 dias'
+            },
+            {
+                id: '3',
+                name: 'Pedra Bonita',
+                state: 'RJ',
+                city: 'Rio de Janeiro',
+                difficulty: 'Fácil',
+                distance: '2km',
+                duration: '2h'
+            },
+            {
+                id: '4',
+                name: 'Pico dos Marins',
+                state: 'SP',
+                city: 'Piquete',
+                difficulty: 'Moderado',
+                distance: '8km',
+                duration: '6h'
+            },
+            {
+                id: '5',
+                name: 'Monte Roraima',
+                state: 'RR',
+                city: 'Uiramutã',
+                difficulty: 'Extremo',
+                distance: '70km',
+                duration: '7 dias'
+            }
+        ];
+
+        // Initialize form
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFormValidation();
+            setupEventListeners();
+        });
+
+        // Setup form validation
+        function setupFormValidation() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('startDate').min = today;
+            document.getElementById('endDate').min = today;
+
+            // Add event listeners for validation
+            document.getElementById('startDate').addEventListener('change', validateDates);
+            document.getElementById('endDate').addEventListener('change', validateDates);
+            document.getElementById('price').addEventListener('input', validateStep3);
+            document.getElementById('maxPeople').addEventListener('input', validateStep3);
+            document.getElementById('description').addEventListener('input', function() {
+                updateCharacterCount();
+                validateStep3();
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // State change listener
+            document.getElementById('stateSelect').addEventListener('change', loadCities);
+            
+            // Search input listener
+            document.getElementById('trailNameSearch').addEventListener('input', debounce(searchTrails, 300));
+        }
+
+        // Load cities based on selected state
+        function loadCities() {
+            const state = document.getElementById('stateSelect').value;
+            const citySelect = document.getElementById('citySelect');
+            
+            citySelect.innerHTML = '<option value="">Selecione a cidade</option>';
+            
+            if (!state) return;
+
+            // Mock cities data (replace with actual API call)
+            const citiesByState = {
+                'MG': ['Alto Caparaó', 'Passa Quatro', 'Ouro Preto', 'Tiradentes'],
+                'RJ': ['Rio de Janeiro', 'Petrópolis', 'Teresópolis', 'Nova Friburgo'],
+                'SP': ['Piquete', 'Campos do Jordão', 'São Paulo', 'Ubatuba'],
+                'ES': ['Domingos Martins', 'Venda Nova do Imigrante'],
+                'PR': ['Curitiba', 'Morretes', 'Antonina'],
+                'SC': ['Florianópolis', 'Urubici', 'Bom Jardim da Serra'],
+                'RS': ['Gramado', 'Canela', 'São Francisco de Paula'],
+                'BA': ['Chapada Diamantina', 'Lençóis', 'Mucugê'],
+                'GO': ['Alto Paraíso', 'Cavalcante', 'São Jorge'],
+                'AM': ['Manaus', 'Presidente Figueiredo'],
+                'RR': ['Uiramutã', 'Normandia']
+            };
+
+            const cities = citiesByState[state] || [];
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                citySelect.appendChild(option);
+            });
+        }
+
+        // Search trails
+        function searchTrails() {
+            const state = document.getElementById('stateSelect').value;
+            const city = document.getElementById('citySelect').value;
+            const name = document.getElementById('trailNameSearch').value.toLowerCase();
+
+            let filteredTrails = mockTrails;
+
+            if (state) {
+                filteredTrails = filteredTrails.filter(trail => trail.state === state);
+            }
+            if (city) {
+                filteredTrails = filteredTrails.filter(trail => trail.city === city);
+            }
+            if (name) {
+                filteredTrails = filteredTrails.filter(trail => 
+                    trail.name.toLowerCase().includes(name)
+                );
+            }
+
+            displayTrailResults(filteredTrails);
+        }
+
+        // Display trail search results
+        function displayTrailResults(trails) {
+            const resultsContainer = document.getElementById('trailResults');
+            const resultsList = document.getElementById('trailResultsList');
+
+            if (trails.length === 0) {
+                resultsContainer.classList.add('hidden');
+                return;
+            }
+
+            resultsList.innerHTML = '';
+            trails.forEach(trail => {
+                const trailCard = document.createElement('div');
+                trailCard.className = 'trail-result-card';
+                trailCard.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-medium text-gray-900">${trail.name}</h4>
+                            <p class="text-gray-600 text-sm">${trail.city}, ${trail.state}</p>
+                            <div class="flex space-x-4 text-xs text-gray-500 mt-1">
+                                <span>Dificuldade: ${trail.difficulty}</span>
+                                <span>Distância: ${trail.distance}</span>
+                                <span>Duração: ${trail.duration}</span>
+                            </div>
+                        </div>
+                        <button onclick="selectTrail('${trail.id}')" class="text-green-600 hover:text-green-800 font-medium text-sm">
+                            Selecionar
+                        </button>
+                    </div>
+                `;
+                resultsList.appendChild(trailCard);
+            });
+
+            resultsContainer.classList.remove('hidden');
+        }
+
+        // Select trail
+        function selectTrail(trailId) {
+            const trail = mockTrails.find(t => t.id === trailId);
+            if (!trail) return;
+
+            selectedTrailId = trailId;
+            
+            document.getElementById('selectedTrailName').textContent = trail.name;
+            document.getElementById('selectedTrailLocation').textContent = `${trail.city}, ${trail.state}`;
+            document.getElementById('selectedTrailDetails').textContent = 
+                `${trail.difficulty} • ${trail.distance} • ${trail.duration}`;
+            
+            document.getElementById('selectedTrailDisplay').classList.remove('hidden');
+            document.getElementById('trailResults').classList.add('hidden');
+            document.getElementById('step1NextBtn').disabled = false;
+
+            // Clear search fields
+            document.getElementById('stateSelect').value = '';
+            document.getElementById('citySelect').value = '';
+            document.getElementById('trailNameSearch').value = '';
+        }
+
+        // Clear selected trail
+        function clearSelectedTrail() {
+            selectedTrailId = null;
+            document.getElementById('selectedTrailDisplay').classList.add('hidden');
+            document.getElementById('step1NextBtn').disabled = true;
+        }
+
+        // Validate dates
+        function validateDates() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const validationDiv = document.getElementById('periodValidation');
+            const validationText = validationDiv.querySelector('p');
+
+            if (!startDate || !endDate) {
+                document.getElementById('step2NextBtn').disabled = true;
+                return;
+            }
+
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (start < today) {
+                validationText.textContent = 'A data de início deve ser hoje ou no futuro';
+                validationDiv.classList.remove('hidden');
+                document.getElementById('step2NextBtn').disabled = true;
+                return;
+            }
+
+            if (end < start) {
+                validationText.textContent = 'A data de fim deve ser igual ou posterior à data de início';
+                validationDiv.classList.remove('hidden');
+                document.getElementById('step2NextBtn').disabled = true;
+                return;
+            }
+
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays > 120) {
+                validationText.textContent = 'A duração máxima é de 120 dias';
+                validationDiv.classList.remove('hidden');
+                document.getElementById('step2NextBtn').disabled = true;
+                return;
+            }
+
+            validationDiv.classList.add('hidden');
+            document.getElementById('step2NextBtn').disabled = false;
+        }
+
+        // Validate step 3
+        function validateStep3() {
+            const price = parseFloat(document.getElementById('price').value);
+            const maxPeople = parseInt(document.getElementById('maxPeople').value);
+            const description = document.getElementById('description').value.trim();
+
+            const isValid = price >= 1 && maxPeople >= 1 && maxPeople <= 50 && description.length >= 20;
+            document.getElementById('step3NextBtn').disabled = !isValid;
+        }
+
+        // Update character count
+        function updateCharacterCount() {
+            const description = document.getElementById('description').value;
+            document.getElementById('descriptionCount').textContent = description.length;
+        }
+
+        // Navigation functions
+        function nextStep(step) {
+            if (step === 1 && !selectedTrailId) return;
+            if (step === 2) validateDates();
+            if (step === 3) validateStep3();
+
+            document.getElementById(`step${step}`).classList.add('hidden');
+            document.getElementById(`step${step + 1}`).classList.remove('hidden');
+            
+            updateStepIndicators(step + 1);
+            currentStep = step + 1;
+
+            if (step === 3) {
+                updateReview();
+            }
+        }
+
+        function prevStep(step) {
+            document.getElementById(`step${step}`).classList.add('hidden');
+            document.getElementById(`step${step - 1}`).classList.remove('hidden');
+            
+            updateStepIndicators(step - 1);
+            currentStep = step - 1;
+        }
+
+        // Update step indicators
+        function updateStepIndicators(activeStep) {
+            for (let i = 1; i <= 4; i++) {
+                const indicator = document.getElementById(`step${i}Indicator`);
+                if (i < activeStep) {
+                    indicator.className = 'step-indicator step-completed';
+                } else if (i === activeStep) {
+                    indicator.className = 'step-indicator step-active';
+                } else {
+                    indicator.className = 'step-indicator step-inactive';
+                }
+            }
+        }
+
+        // Update review section
+        function updateReview() {
+            const trail = mockTrails.find(t => t.id === selectedTrailId);
+            const startDate = new Date(document.getElementById('startDate').value).toLocaleDateString('pt-BR');
+            const endDate = new Date(document.getElementById('endDate').value).toLocaleDateString('pt-BR');
+            const price = parseFloat(document.getElementById('price').value);
+            const maxPeople = parseInt(document.getElementById('maxPeople').value);
+            const description = document.getElementById('description').value;
+
+            document.getElementById('reviewTrailName').textContent = trail.name;
+            document.getElementById('reviewTrailLocation').textContent = `${trail.city}, ${trail.state}`;
+            document.getElementById('reviewPeriod').textContent = `${startDate} - ${endDate}`;
+            document.getElementById('reviewPrice').textContent = `R$ ${price.toFixed(2)} por pessoa`;
+            document.getElementById('reviewMaxPeople').textContent = `${maxPeople} vagas`;
+            document.getElementById('reviewDescription').textContent = description;
+        }
+
+        // Save expedition
+        async function saveExpedition(status) {
+            const formData = {
+                trail_id: selectedTrailId,
+                start_date: document.getElementById('startDate').value,
+                end_date: document.getElementById('endDate').value,
+                price_cents: Math.round(parseFloat(document.getElementById('price').value) * 100),
+                max_people: parseInt(document.getElementById('maxPeople').value),
+                description: document.getElementById('description').value.trim(),
+                status: status
+            };
+
+            const errors = validateExpeditionForm(formData);
+            if (errors.length > 0) {
+                showFormErrors(errors);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/expeditions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Erro ao salvar expedição');
+                }
+
+                const result = await response.json();
+                
+                alert(status === 'draft' ? 'Rascunho salvo com sucesso!' : 'Expedição publicada com sucesso!');
+                window.location.href = 'admin-expeditions.html';
+
+            } catch (error) {
+                console.error('Error saving expedition:', error);
+                showFormErrors([error.message]);
+            }
+        }
+
+        // Validate expedition form
+        function validateExpeditionForm(data) {
+            const errors = [];
+
+            if (!data.trail_id) {
+                errors.push('Selecione uma trilha');
+            }
+
+            if (!data.start_date) {
+                errors.push('Data de início é obrigatória');
+            }
+
+            if (!data.end_date) {
+                errors.push('Data de fim é obrigatória');
+            }
+
+            if (data.start_date && data.end_date) {
+                const start = new Date(data.start_date);
+                const end = new Date(data.end_date);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (start < today) {
+                    errors.push('Data de início deve ser hoje ou no futuro');
+                }
+
+                if (end < start) {
+                    errors.push('Data de fim deve ser igual ou posterior à data de início');
+                }
+
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays > 30) {
+                    errors.push('Duração máxima de 30 dias');
+                }
+            }
+
+            if (!data.price_cents || data.price_cents < 100) {
+                errors.push('Preço mínimo de R$ 1,00');
+            }
+
+            if (!data.max_people || data.max_people < 1 || data.max_people > 50) {
+                errors.push('Quantidade de pessoas deve ser entre 1 e 50');
+            }
+
+            if (!data.description || data.description.length < 20) {
+                errors.push('Descrição deve ter pelo menos 20 caracteres');
+            }
+
+            return errors;
+        }
+
+        // Show form errors
+        function showFormErrors(errors) {
+            const errorContainer = document.getElementById('formErrors');
+            const errorList = document.getElementById('errorList');
+            
+            errorList.innerHTML = '';
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                errorList.appendChild(li);
+            });
+            
+            errorContainer.classList.remove('hidden');
+        }
+
+        // Utility function for debouncing
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+</body>
+</html>
+

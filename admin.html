@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trekko Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="admin-auth.js" defer></script>
+  <script src="js/admin-cadastur.js" defer></script>
+</head>
+<body class="flex bg-gray-50">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white border-r h-screen fixed left-0 top-0 overflow-y-auto">
+    <div class="p-4">
+      <h1 class="text-xl font-bold mb-6">Trekko Admin</h1>
+      <nav class="space-y-4">
+        <div>
+          <a href="#" class="block text-gray-700 hover:text-green-600">Dashboard</a>
+        </div>
+        <div>
+          <a href="#" class="block text-gray-700 hover:text-green-600">Usuários &amp; Guias</a>
+        </div>
+        <div>
+          <a href="#" class="block text-gray-700 hover:text-green-600">Trilhas</a>
+        </div>
+        <div>
+          <a href="#" class="block text-gray-700 hover:text-green-600">Expedições</a>
+        </div>
+        <div>
+          <a href="#" class="block text-gray-700 hover:text-green-600">Financeiro</a>
+        </div>
+        <div>
+          <a href="#" class="block text-gray-700 hover:text-green-600">CMS</a>
+        </div>
+        <div>
+          <p class="text-xs text-gray-400 uppercase mb-1">Integrações</p>
+          <a href="#" class="block font-medium text-green-700" id="link-cadastur">Cadastur (CSV)</a>
+        </div>
+        <div>
+          <a href="#" class="block text-gray-700 hover:text-green-600">Configurações</a>
+        </div>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="flex-1 ml-64 min-h-screen flex flex-col">
+    <header class="bg-white border-b p-4 flex items-center justify-between">
+      <div>
+        <h2 class="text-2xl font-bold" id="section-title">Cadastur (CSV)</h2>
+        <nav class="text-sm text-gray-500">Integrações / Cadastur</nav>
+      </div>
+      <button id="exportCsv" class="bg-green-600 text-white px-4 py-2 rounded hidden">Exportar CSV</button>
+    </header>
+
+    <main id="content" class="p-6 flex-1 space-y-8 overflow-y-auto">
+      <!-- Cadastur section -->
+      <section id="cadastur-section" class="space-y-10">
+        <!-- Instruções & Template -->
+        <div>
+          <h3 class="text-xl font-semibold mb-2">Instruções &amp; Template</h3>
+          <p class="text-sm text-gray-600">O arquivo deve estar em UTF-8, separado por vírgula e conter os cabeçalhos corretos.</p>
+          <div class="mt-4 flex space-x-2">
+            <button id="downloadTemplate" class="bg-gray-200 px-4 py-2 rounded">Baixar Template CSV</button>
+            <button id="downloadBase" class="bg-gray-200 px-4 py-2 rounded">Baixar Base Atual</button>
+          </div>
+        </div>
+
+        <!-- Upload & Validação -->
+        <div>
+          <h3 class="text-xl font-semibold mb-2">Upload &amp; Validação</h3>
+          <div id="dropzone" class="border-2 border-dashed border-gray-300 rounded p-6 text-center cursor-pointer">
+            <p class="text-gray-500">Arraste o CSV aqui ou clique para selecionar</p>
+            <input id="fileInput" type="file" accept=".csv" class="hidden" />
+          </div>
+          <div class="mt-4 space-y-2">
+            <label class="flex items-center"><input id="replaceBase" type="checkbox" class="mr-2" />Substituir base atual</label>
+            <label class="flex items-center"><input id="softDelete" type="checkbox" class="mr-2" />Desativar guias não presentes no novo CSV</label>
+          </div>
+          <button id="validateBtn" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50" disabled>Validar arquivo</button>
+          <div id="validationArea" class="mt-6 hidden">
+            <h4 class="font-medium mb-2">Preview</h4>
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-sm text-left" id="previewTable">
+                <thead></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div id="errorList" class="text-red-600 mt-4"></div>
+          </div>
+        </div>
+
+        <!-- Resumo -->
+        <div id="summarySection" class="hidden">
+          <h3 class="text-xl font-semibold mb-2">Resumo da Reconciliação (simulação)</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-4 bg-white rounded shadow">
+              <p class="text-sm">Novos</p>
+              <p id="countNovos" class="text-2xl font-bold">0</p>
+            </div>
+            <div class="p-4 bg-white rounded shadow">
+              <p class="text-sm">Atualizados</p>
+              <p id="countAtualizados" class="text-2xl font-bold">0</p>
+            </div>
+            <div class="p-4 bg-white rounded shadow">
+              <p class="text-sm">Sem mudança</p>
+              <p id="countSemMudanca" class="text-2xl font-bold">0</p>
+            </div>
+            <div class="p-4 bg-white rounded shadow">
+              <p class="text-sm">A desativar</p>
+              <p id="countDesativar" class="text-2xl font-bold">0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Execução -->
+        <div>
+          <h3 class="text-xl font-semibold mb-2">Execução</h3>
+          <button id="executeBtn" class="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50" disabled>Executar Importação</button>
+        </div>
+
+        <!-- Resultado -->
+        <div id="resultSection" class="hidden">
+          <h3 class="text-xl font-semibold mb-2">Resultado</h3>
+          <div id="resultMessage" class="p-4 bg-green-50 border border-green-200 rounded"></div>
+          <button id="rollbackBtn" class="mt-4 bg-red-600 text-white px-4 py-2 rounded hidden">Desfazer (Rollback)</button>
+        </div>
+
+        <!-- Histórico de Imports -->
+        <div>
+          <h3 class="text-xl font-semibold mb-2">Histórico de Imports</h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm text-left" id="historyTable">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="px-4 py-2">Data/Hora</th>
+                  <th class="px-4 py-2">Ator</th>
+                  <th class="px-4 py-2">Novos</th>
+                  <th class="px-4 py-2">Atualizados</th>
+                  <th class="px-4 py-2">Desativados</th>
+                  <th class="px-4 py-2">Arquivo</th>
+                  <th class="px-4 py-2">Status</th>
+                  <th class="px-4 py-2">Ações</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
