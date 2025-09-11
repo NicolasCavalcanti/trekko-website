@@ -778,7 +778,7 @@ class TrekkoAuthManager {
         // Redirecionar para home se estiver em página protegida
         if (window.location.pathname.includes('perfil.html') || 
             window.location.pathname.includes('admin.html')) {
-            window.location.href = 'index.html';
+            window.location.href = 'https://www.trekko.com.br/';
         }
     }
 
