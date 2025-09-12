@@ -708,7 +708,7 @@ class TrekkoAuthManager {
 
         try {
             const userData = {
-                full_name: fullName,
+                name: fullName,
                 email,
                 password,
                 user_type: userType

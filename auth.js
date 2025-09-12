@@ -115,7 +115,7 @@ class TrekkoAuth {
             <form id="trekko-register-form" class="trekko-form">
                 <div class="trekko-form-group">
                     <label for="register-name">Nome Completo</label>
-                    <input type="text" id="register-name" name="full_name" required>
+                    <input type="text" id="register-name" name="name" required>
                 </div>
                 <div class="trekko-form-group">
                     <label for="register-email">Email</label>
