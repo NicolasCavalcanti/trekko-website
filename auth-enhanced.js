@@ -207,7 +207,7 @@ class TrekkoAuthManager {
 
         if (authButtons) authButtons.style.display = 'none';
         if (userMenu) userMenu.classList.remove('hidden');
-        if (userName) userName.textContent = user.name || user.email;
+        if (userName) userName.textContent = user.full_name || user.name || user.email;
     }
 
     // Mostrar botões de login
@@ -655,7 +655,7 @@ class TrekkoAuthManager {
 
     // Processar cadastro com validação CADASTUR obrigatória
     async handleRegister() {
-        const name = document.getElementById('registerName').value.trim();
+        const fullName = document.getElementById('registerName').value.trim();
         const email = document.getElementById('registerEmail').value.trim();
         const password = document.getElementById('registerPassword').value;
         const userType = document.getElementById('userType').value;
@@ -665,7 +665,7 @@ class TrekkoAuthManager {
         const successDiv = document.getElementById('registerSuccess');
 
         // Validações básicas
-        if (!name || !email || !password || !userType) {
+        if (!fullName || !email || !password || !userType) {
             this.showMessage(errorDiv, 'Todos os campos obrigatórios devem ser preenchidos.', 'error');
             return;
         }
@@ -708,7 +708,7 @@ class TrekkoAuthManager {
 
         try {
             const userData = {
-                name,
+                full_name: fullName,
                 email,
                 password,
                 user_type: userType
