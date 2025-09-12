@@ -86,7 +86,7 @@ class TrekkoAuth {
             <form id="trekko-register-form" class="trekko-form">
                 <div class="trekko-form-group">
                     <label for="register-name">Nome Completo</label>
-                    <input type="text" id="register-name" name="name" required>
+                    <input type="text" id="register-name" name="full_name" required>
                 </div>
                 <div class="trekko-form-group">
                     <label for="register-email">Email</label>
@@ -325,7 +325,7 @@ class TrekkoAuth {
         if (navActions) {
             navActions.innerHTML = `
                 <div class="user-menu">
-                    <span>Olá, ${user.name}</span>
+                    <span>Olá, ${user.full_name || user.name}</span>
                     <button onclick="trekkoAuth.logout()" class="trekko-btn-secondary">Sair</button>
                 </div>
             `;
