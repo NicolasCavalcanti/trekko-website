@@ -325,10 +325,45 @@ class TrekkoAuth {
         if (navActions) {
             navActions.innerHTML = `
                 <div class="user-menu">
-                    <span>Olá, ${user.full_name || user.name}</span>
-                    <button onclick="trekkoAuth.logout()" class="trekko-btn-secondary">Sair</button>
+                    <button id="userMenuBtn" class="user-menu-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span>${user.full_name || user.name}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div id="userDropdown" class="user-dropdown hidden">
+                        <a href="perfil.html" class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            Meu Perfil
+                        </a>
+                        <a href="perfil.html#favoritos" class="dropdown-item">
+                            <i class="fas fa-heart"></i>
+                            Favoritos
+                        </a>
+                        <hr class="dropdown-divider">
+                        <button onclick="trekkoAuth.logout()" class="dropdown-item logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sair
+                        </button>
+                    </div>
                 </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
             `;
+
+            const userMenuBtn = navActions.querySelector('#userMenuBtn');
+            const userDropdown = navActions.querySelector('#userDropdown');
+            if (userMenuBtn && userDropdown) {
+                userMenuBtn.addEventListener('click', () => {
+                    userDropdown.classList.toggle('hidden');
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!navActions.contains(e.target)) {
+                        userDropdown.classList.add('hidden');
+                    }
+                });
+            }
         }
     }
 
