@@ -236,8 +236,8 @@ class TrekkoAuth {
                 const message = result.message || result.error || 'Erro ao processar requisição.';
                 this.showError(message);
             }
-        } catch {
-            this.showError('Erro de conexão. Tente novamente.');
+        } catch (error) {
+            this.handleFetchError(error);
         } finally {
             this.hideLoading(form);
         }
@@ -304,8 +304,8 @@ class TrekkoAuth {
                 const message = result.message || result.error || 'Erro ao processar requisição.';
                 this.showError(message);
             }
-        } catch {
-            this.showError('Erro de conexão. Tente novamente.');
+        } catch (error) {
+            this.handleFetchError(error);
         } finally {
             this.hideLoading(form);
         }
@@ -357,9 +357,10 @@ class TrekkoAuth {
                 validationDiv.innerHTML = `<span class="trekko-validation-error">❌ ${result.message}</span>`;
                 return false;
             }
-        } catch {
+        } catch (error) {
             const validationDiv = document.getElementById('cadastur-validation');
             validationDiv.innerHTML = '<span class="trekko-validation-error">❌ Erro ao validar CADASTUR</span>';
+            this.handleFetchError(error);
             return false;
         }
     }
@@ -381,6 +382,14 @@ class TrekkoAuth {
         const submitBtn = form.querySelector('button[type="submit"]');
         submitBtn.disabled = false;
         submitBtn.textContent = form.id.includes('login') ? 'Entrar' : 'Cadastrar';
+    }
+
+    handleFetchError(error) {
+        console.error('Erro na comunicação com a API:', error);
+        const message = error instanceof TypeError
+            ? 'Erro de conexão (possível CORS). Tente novamente.'
+            : 'Erro de conexão. Tente novamente.';
+        this.showError(message);
     }
 
     sanitizeError(message) {
