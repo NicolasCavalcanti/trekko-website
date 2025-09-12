@@ -6,8 +6,9 @@ class TrekkoAuth {
     constructor() {
         this.localApi = 'http://localhost:5000/api/auth';
         this.productionApi = 'https://p9hwiqcldgkm.manus.space/api/auth';
-        const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-        // When running via file:// or when the local API fails, fallback to production
+        const isLocal = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) ||
+            window.location.protocol === 'file:';
+        // Fallback to production if the local API is unavailable
         this.apiUrl = isLocal ? this.localApi : this.productionApi;
         this.authToken = null;
         this.injectStyles();
