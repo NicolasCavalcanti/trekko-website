@@ -203,7 +203,7 @@ class TrekkoAuth {
             }
 
             if (!response.ok) {
-                const message = result.message || 'Erro ao processar requisição.';
+                const message = result.message || result.error || 'Erro ao processar requisição.';
                 this.showError(message);
                 return;
             }
@@ -218,7 +218,8 @@ class TrekkoAuth {
                 modal.remove();
                 this.updateUIForLoggedUser(result.user);
             } else {
-                this.showError(result.message);
+                const message = result.message || result.error || 'Erro ao processar requisição.';
+                this.showError(message);
             }
         } catch {
             this.showError('Erro de conexão. Tente novamente.');
@@ -255,7 +256,7 @@ class TrekkoAuth {
             }
 
             if (!response.ok) {
-                const message = result.message || 'Erro ao processar requisição.';
+                const message = result.message || result.error || 'Erro ao processar requisição.';
                 this.showError(message);
                 return;
             }
@@ -270,7 +271,8 @@ class TrekkoAuth {
                 modal.remove();
                 this.updateUIForLoggedUser(result.user);
             } else {
-                this.showError(result.message);
+                const message = result.message || result.error || 'Erro ao processar requisição.';
+                this.showError(message);
             }
         } catch {
             this.showError('Erro de conexão. Tente novamente.');
