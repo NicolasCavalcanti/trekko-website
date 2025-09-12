@@ -383,8 +383,16 @@ class TrekkoAuth {
         submitBtn.textContent = form.id.includes('login') ? 'Entrar' : 'Cadastrar';
     }
 
+    sanitizeError(message) {
+        if (!message) return 'Erro ao processar requisição.';
+        if (message.toLowerCase().includes('unable to open database file')) {
+            return 'Erro de servidor: banco de dados indisponível. Tente novamente mais tarde.';
+        }
+        return message;
+    }
+
     showError(message) {
-        this.showNotification(message, 'error');
+        this.showNotification(this.sanitizeError(message), 'error');
     }
 
     showSuccess(message) {
