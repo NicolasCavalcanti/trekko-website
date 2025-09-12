@@ -40,3 +40,6 @@ Thumbs.db
 
 
 /generated/prisma
+
+# Backend database files
+trekko_auth_backend/src/database/
