@@ -4,11 +4,11 @@
  */
 class TrekkoAuth {
     constructor() {
-        const localApi = 'http://localhost:5000/api/auth';
-        const productionApi = 'https://p9hwiqcldgkm.manus.space/api/auth';
-        const isLocal = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) ||
-            window.location.protocol === 'file:';
-        this.apiUrl = isLocal ? localApi : productionApi;
+        this.localApi = 'http://localhost:5000/api/auth';
+        this.productionApi = 'https://p9hwiqcldgkm.manus.space/api/auth';
+        const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+        // When running via file:// or when the local API fails, fallback to production
+        this.apiUrl = isLocal ? this.localApi : this.productionApi;
         this.authToken = null;
         this.injectStyles();
         this.init();
@@ -189,7 +189,7 @@ class TrekkoAuth {
         try {
             this.showLoading(form);
 
-            const response = await fetch(`${this.apiUrl}/login`, {
+            let response = await fetch(`${this.apiUrl}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -200,6 +200,21 @@ class TrekkoAuth {
                 result = await response.json();
             } catch {
                 /* Ignora erro de JSON */
+            }
+
+            // Fallback para API de produção se a API local falhar
+            if (!response.ok && this.apiUrl === this.localApi) {
+                response = await fetch(`${this.productionApi}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                try {
+                    result = await response.json();
+                } catch {
+                    result = {};
+                }
+                this.apiUrl = this.productionApi;
             }
 
             if (!response.ok) {
@@ -242,7 +257,7 @@ class TrekkoAuth {
         try {
             this.showLoading(form);
 
-            const response = await fetch(`${this.apiUrl}/register`, {
+            let response = await fetch(`${this.apiUrl}/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -253,6 +268,21 @@ class TrekkoAuth {
                 result = await response.json();
             } catch {
                 /* Ignora erro de JSON */
+            }
+
+            // Fallback para API de produção se a API local falhar
+            if (!response.ok && this.apiUrl === this.localApi) {
+                response = await fetch(`${this.productionApi}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                try {
+                    result = await response.json();
+                } catch {
+                    result = {};
+                }
+                this.apiUrl = this.productionApi;
             }
 
             if (!response.ok) {
@@ -302,11 +332,20 @@ class TrekkoAuth {
 
     async validateCadasturAPI(cadasturNumber) {
         try {
-            const response = await fetch(`${this.apiUrl}/validate-cadastur`, {
+            let response = await fetch(`${this.apiUrl}/validate-cadastur`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ cadastur_number: cadasturNumber })
             });
+
+            if (!response.ok && this.apiUrl === this.localApi) {
+                response = await fetch(`${this.productionApi}/validate-cadastur`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cadastur_number: cadasturNumber })
+                });
+                this.apiUrl = this.productionApi;
+            }
 
             const result = await response.json();
             const validationDiv = document.getElementById('cadastur-validation');
