@@ -187,6 +187,9 @@ class TrekkoAuth {
     async handleLogin(form, modal) {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
+        if (data.cadastur_number) {
+            data.cadastur_number = data.cadastur_number.replace(/\D/g, '');
+        }
 
         try {
             this.showLoading(form);
@@ -248,9 +251,12 @@ class TrekkoAuth {
     async handleRegister(form, modal) {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
+        if (data.cadastur_number) {
+            data.cadastur_number = data.cadastur_number.replace(/\D/g, '');
+        }
 
         if (data.user_type === 'guia') {
-            const isValid = await this.validateCadasturAPI(data.cadastur_number);
+            const isValid = await this.validateCadastur(data.cadastur_number);
             if (!isValid) {
                 return;
             }
@@ -313,13 +319,13 @@ class TrekkoAuth {
         }
     }
 
-    validateCadastur(cadasturNumber) {
+    async validateCadastur(cadasturNumber) {
         const validationDiv = document.getElementById('cadastur-validation');
-        if (!validationDiv) return;
+        if (!validationDiv) return false;
 
         if (!cadasturNumber) {
             validationDiv.innerHTML = '';
-            return;
+            return false;
         }
 
         const clean = cadasturNumber.replace(/\D/g, '');
@@ -328,8 +334,13 @@ class TrekkoAuth {
             return false;
         }
 
-        validationDiv.innerHTML = '<span class="trekko-validation-success">✅ Formato válido</span>';
-        return true;
+        if (clean.length !== 11) {
+            validationDiv.innerHTML = '<span class="trekko-validation-error">❌ CADASTUR deve conter 11 dígitos</span>';
+            return false;
+        }
+
+        validationDiv.innerHTML = '<span>🔄 Validando...</span>';
+        return await this.validateCadasturAPI(clean);
     }
 
     async validateCadasturAPI(cadasturNumber) {
