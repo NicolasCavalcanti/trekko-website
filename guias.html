@@ -50,8 +50,8 @@
                         </button>
                         <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                             <a href="perfil.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Meu Perfil</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configurações</a>
-                            <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sair</button>
+                            <a href="perfil.html#favoritos" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Favoritos</a>
+                            <button onclick="trekkoAuth.logout()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sair</button>
                         </div>
                     </div>
                 </div>
@@ -415,11 +415,21 @@
         // Auto-search on page load
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📄 Página carregada, iniciando busca automática...');
-            
+
             // Verificar estado de autenticação
             checkAuthState();
-            
+
             searchGuides();
+
+            const userMenuBtn = document.getElementById('userMenuBtn');
+            const userDropdown = document.getElementById('userDropdown');
+            if (userMenuBtn && userDropdown) {
+                userMenuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('hidden');
+                });
+                document.addEventListener('click', () => userDropdown.classList.add('hidden'));
+            }
         });
 
         // Função para verificar estado de autenticação

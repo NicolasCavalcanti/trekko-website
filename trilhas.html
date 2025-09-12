@@ -51,8 +51,8 @@
                         </button>
                         <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                             <a href="perfil.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Meu Perfil</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configurações</a>
-                            <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sair</button>
+                            <a href="perfil.html#favoritos" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Favoritos</a>
+                            <button onclick="trekkoAuth.logout()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sair</button>
                         </div>
                     </div>
                 </div>
@@ -872,6 +872,16 @@
             
             // Check authentication
             checkAuthStatus();
+
+            const userMenuBtn = document.getElementById('userMenuBtn');
+            const userDropdown = document.getElementById('userDropdown');
+            if (userMenuBtn && userDropdown) {
+                userMenuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('hidden');
+                });
+                document.addEventListener('click', () => userDropdown.classList.add('hidden'));
+            }
         });
 
         // Make functions global for onclick handlers
@@ -906,14 +916,3 @@
     <script src="auth.js"></script>
 </body>
 </html>
-
-
-
-        <!-- Pagination Controls -->
-        <div id="paginationControls" class="flex justify-center items-center space-x-2 mt-8 hidden">
-            <button id="prevPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50" disabled>Anterior</button>
-            <div id="pageNumbers" class="flex space-x-1"></div>
-            <button id="nextPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50" disabled>Próxima</button>
-        </div>
-
-
