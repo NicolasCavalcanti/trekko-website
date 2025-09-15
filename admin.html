@@ -6,7 +6,7 @@
   <title>Trekko Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="admin-auth.js" defer></script>
-  <script src="js/admin-cadastur.js" defer></script>
+  <script src="js/admin-dashboard.js" defer></script>
 </head>
 <body class="flex bg-gray-50">
   <!-- Sidebar -->
@@ -47,108 +47,161 @@
   <div class="flex-1 ml-64 min-h-screen flex flex-col">
     <header class="bg-white border-b p-4 flex items-center justify-between">
       <div>
-        <h2 class="text-2xl font-bold" id="section-title">Cadastur (CSV)</h2>
-        <nav class="text-sm text-gray-500">Integrações / Cadastur</nav>
+        <h2 class="text-2xl font-bold" id="section-title">Dashboard</h2>
+        <nav class="text-sm text-gray-500">Início / Dashboard</nav>
       </div>
-      <button id="exportCsv" class="bg-green-600 text-white px-4 py-2 rounded hidden" data-permission="INTEGRACOES">Exportar CSV</button>
+      <div class="flex items-center space-x-3">
+        <span id="refreshStatus" class="text-sm text-gray-500 hidden">Atualizando...</span>
+        <button id="refreshDashboard" class="bg-green-600 text-white px-4 py-2 rounded" data-permission="DASHBOARD">Atualizar</button>
+      </div>
     </header>
 
-    <main id="content" class="p-6 flex-1 space-y-8 overflow-y-auto">
-      <!-- Cadastur section -->
-      <section id="cadastur-section" class="space-y-10">
-        <!-- Instruções & Template -->
-        <div>
-          <h3 class="text-xl font-semibold mb-2">Instruções &amp; Template</h3>
-          <p class="text-sm text-gray-600">O arquivo deve estar em UTF-8, separado por vírgula e conter os cabeçalhos corretos.</p>
-          <div class="mt-4 flex space-x-2">
-            <button id="downloadTemplate" class="bg-gray-200 px-4 py-2 rounded">Baixar Template CSV</button>
-            <button id="downloadBase" class="bg-gray-200 px-4 py-2 rounded">Baixar Base Atual</button>
+    <main id="content" class="p-6 flex-1 space-y-10 overflow-y-auto">
+      <section aria-labelledby="overviewTitle" class="space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+          <div>
+            <h3 id="overviewTitle" class="text-xl font-semibold text-gray-900">Visão Geral</h3>
+            <p class="text-sm text-gray-500">
+              Indicadores consolidados das operações. Garantimos atualização em até
+              <span class="font-medium text-gray-700" data-sla></span>.
+            </p>
           </div>
+          <div id="metricsMeta" class="text-sm text-gray-500">Carregando indicadores...</div>
         </div>
-
-        <!-- Upload & Validação -->
-        <div>
-          <h3 class="text-xl font-semibold mb-2">Upload &amp; Validação</h3>
-          <div id="dropzone" class="border-2 border-dashed border-gray-300 rounded p-6 text-center cursor-pointer">
-            <p class="text-gray-500">Arraste o CSV aqui ou clique para selecionar</p>
-            <input id="fileInput" type="file" accept=".csv" class="hidden" />
-          </div>
-          <div class="mt-4 space-y-2">
-            <label class="flex items-center"><input id="replaceBase" type="checkbox" class="mr-2" />Substituir base atual</label>
-            <label class="flex items-center"><input id="softDelete" type="checkbox" class="mr-2" />Desativar guias não presentes no novo CSV</label>
-          </div>
-          <button id="validateBtn" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50" disabled data-permission="INTEGRACOES">Validar arquivo</button>
-          <div id="validationArea" class="mt-6 hidden">
-            <h4 class="font-medium mb-2">Preview</h4>
-            <div class="overflow-x-auto">
-              <table class="min-w-full text-sm text-left" id="previewTable">
-                <thead></thead>
-                <tbody></tbody>
-              </table>
+        <p id="metricsValidation" class="text-xs text-gray-500">Reconciliando com relatórios...</p>
+        <div id="metricsError" class="text-sm text-red-600 bg-red-50 border border-red-100 px-4 py-3 rounded hidden"></div>
+        <div id="metricsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+          <article class="bg-white rounded-lg shadow-sm p-5 border border-gray-100">
+            <div class="flex items-start justify-between">
+              <div>
+                <h4 class="text-sm text-gray-500 uppercase tracking-wide">Trilhas</h4>
+                <p id="metric-trails" class="text-3xl font-bold text-gray-900 mt-2">--</p>
+              </div>
+              <span class="text-3xl" aria-hidden="true">🥾</span>
             </div>
-            <div id="errorList" class="text-red-600 mt-4"></div>
-          </div>
+            <p class="mt-3 text-xs text-gray-400">Total de trilhas publicadas.</p>
+          </article>
+          <article class="bg-white rounded-lg shadow-sm p-5 border border-gray-100">
+            <div class="flex items-start justify-between">
+              <div>
+                <h4 class="text-sm text-gray-500 uppercase tracking-wide">Expedições</h4>
+                <p id="metric-expeditions" class="text-3xl font-bold text-gray-900 mt-2">--</p>
+              </div>
+              <span class="text-3xl" aria-hidden="true">🧭</span>
+            </div>
+            <p class="mt-3 text-xs text-gray-400">Expedições ativas e planejadas.</p>
+          </article>
+          <article class="bg-white rounded-lg shadow-sm p-5 border border-gray-100">
+            <div class="flex items-start justify-between">
+              <div>
+                <h4 class="text-sm text-gray-500 uppercase tracking-wide">Guias ativos</h4>
+                <p id="metric-active-guides" class="text-3xl font-bold text-gray-900 mt-2">--</p>
+              </div>
+              <span class="text-3xl" aria-hidden="true">🧑‍✈️</span>
+            </div>
+            <p class="mt-3 text-xs text-gray-400">Guias com documentação verificada.</p>
+          </article>
+          <article class="bg-white rounded-lg shadow-sm p-5 border border-gray-100">
+            <div class="flex items-start justify-between">
+              <div>
+                <h4 class="text-sm text-gray-500 uppercase tracking-wide">Reservas</h4>
+                <p id="metric-reservations" class="text-3xl font-bold text-gray-900 mt-2">--</p>
+              </div>
+              <span class="text-3xl" aria-hidden="true">📅</span>
+            </div>
+            <p class="mt-3 text-xs text-gray-400">Reservas confirmadas para as próximas saídas.</p>
+          </article>
+          <article class="bg-white rounded-lg shadow-sm p-5 border border-gray-100">
+            <div class="flex items-start justify-between">
+              <div>
+                <h4 class="text-sm text-gray-500 uppercase tracking-wide">Receita</h4>
+                <p id="metric-revenue" class="text-3xl font-bold text-gray-900 mt-2">--</p>
+              </div>
+              <span class="text-3xl" aria-hidden="true">💰</span>
+            </div>
+            <p class="mt-3 text-xs text-gray-400">Receita líquida confirmada no período.</p>
+          </article>
         </div>
+      </section>
 
-        <!-- Resumo -->
-        <div id="summarySection" class="hidden">
-          <h3 class="text-xl font-semibold mb-2">Resumo da Reconciliação (simulação)</h3>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="p-4 bg-white rounded shadow">
-              <p class="text-sm">Novos</p>
-              <p id="countNovos" class="text-2xl font-bold">0</p>
+      <section aria-labelledby="shortcutsTitle" class="space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+          <h3 id="shortcutsTitle" class="text-xl font-semibold text-gray-900">Atalhos de criação rápida</h3>
+          <p class="text-sm text-gray-500">Inicie novos cadastros sem sair do painel.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button type="button" class="bg-white border border-gray-100 rounded-lg shadow-sm p-5 text-left hover:border-green-500 transition" data-quick-action="trail" data-permission="TRILHAS">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-sm text-gray-500 uppercase tracking-wide">Nova trilha</p>
+                <p class="mt-2 text-lg font-semibold text-gray-900">Cadastrar trilha</p>
+                <p class="mt-1 text-sm text-gray-500">Título, localização e nível de dificuldade.</p>
+              </div>
+              <span class="text-3xl" aria-hidden="true">🥾</span>
             </div>
-            <div class="p-4 bg-white rounded shadow">
-              <p class="text-sm">Atualizados</p>
-              <p id="countAtualizados" class="text-2xl font-bold">0</p>
+          </button>
+          <button type="button" class="bg-white border border-gray-100 rounded-lg shadow-sm p-5 text-left hover:border-green-500 transition" data-quick-action="expedition" data-permission="EXPEDICOES">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-sm text-gray-500 uppercase tracking-wide">Nova expedição</p>
+                <p class="mt-2 text-lg font-semibold text-gray-900">Abrir turma</p>
+                <p class="mt-1 text-sm text-gray-500">Datas, vagas e guia responsável.</p>
+              </div>
+              <span class="text-3xl" aria-hidden="true">🧗</span>
             </div>
-            <div class="p-4 bg-white rounded shadow">
-              <p class="text-sm">Sem mudança</p>
-              <p id="countSemMudanca" class="text-2xl font-bold">0</p>
+          </button>
+          <button type="button" class="bg-white border border-gray-100 rounded-lg shadow-sm p-5 text-left hover:border-green-500 transition" data-quick-action="post" data-permission="CMS">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-sm text-gray-500 uppercase tracking-wide">Novo post</p>
+                <p class="mt-2 text-lg font-semibold text-gray-900">Publicar conteúdo</p>
+                <p class="mt-1 text-sm text-gray-500">Título, slug e status de publicação.</p>
+              </div>
+              <span class="text-3xl" aria-hidden="true">📝</span>
             </div>
-            <div class="p-4 bg-white rounded shadow">
-              <p class="text-sm">A desativar</p>
-              <p id="countDesativar" class="text-2xl font-bold">0</p>
-            </div>
+          </button>
+        </div>
+      </section>
+
+      <section aria-labelledby="eventsTitle" class="space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+          <div>
+            <h3 id="eventsTitle" class="text-xl font-semibold text-gray-900">Últimos eventos do sistema</h3>
+            <p class="text-sm text-gray-500">Monitoramento em tempo real das operações críticas.</p>
           </div>
+          <div id="eventsMeta" class="text-sm text-gray-500">Carregando eventos...</div>
         </div>
-
-        <!-- Execução -->
-        <div>
-          <h3 class="text-xl font-semibold mb-2">Execução</h3>
-          <button id="executeBtn" class="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50" disabled data-permission="INTEGRACOES">Executar Importação</button>
-        </div>
-
-        <!-- Resultado -->
-        <div id="resultSection" class="hidden">
-          <h3 class="text-xl font-semibold mb-2">Resultado</h3>
-          <div id="resultMessage" class="p-4 bg-green-50 border border-green-200 rounded"></div>
-          <button id="rollbackBtn" class="mt-4 bg-red-600 text-white px-4 py-2 rounded hidden">Desfazer (Rollback)</button>
-        </div>
-
-        <!-- Histórico de Imports -->
-        <div>
-          <h3 class="text-xl font-semibold mb-2">Histórico de Imports</h3>
-          <div class="overflow-x-auto">
-            <table class="min-w-full text-sm text-left" id="historyTable">
-              <thead>
-                <tr class="bg-gray-100">
-                  <th class="px-4 py-2">Data/Hora</th>
-                  <th class="px-4 py-2">Ator</th>
-                  <th class="px-4 py-2">Novos</th>
-                  <th class="px-4 py-2">Atualizados</th>
-                  <th class="px-4 py-2">Desativados</th>
-                  <th class="px-4 py-2">Arquivo</th>
-                  <th class="px-4 py-2">Status</th>
-                  <th class="px-4 py-2">Ações</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+        <div id="eventsError" class="text-sm text-red-600 bg-red-50 border border-red-100 px-4 py-3 rounded hidden"></div>
+        <div class="bg-white border border-gray-100 rounded-lg shadow-sm">
+          <div id="eventsSkeleton" class="p-6 text-sm text-gray-500 flex items-center space-x-3">
+            <span class="inline-block h-3 w-3 rounded-full bg-green-500 animate-pulse"></span>
+            <span>Sincronizando com o sistema...</span>
           </div>
+          <ul id="eventsList" class="divide-y divide-gray-100 hidden"></ul>
+          <div id="eventsEmpty" class="p-6 text-sm text-gray-500 hidden">Nenhum evento recente nas últimas horas.</div>
         </div>
       </section>
     </main>
+  </div>
+
+  <div id="quickActionModal" class="hidden fixed inset-0 bg-gray-900/60 z-50 items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-xl" role="dialog" aria-modal="true" aria-labelledby="quickActionModalTitle">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <h4 id="quickActionModalTitle" class="text-lg font-semibold text-gray-900"></h4>
+        <button id="quickActionModalClose" type="button" class="text-gray-500 hover:text-gray-700">
+          <span class="sr-only">Fechar</span>
+          ✕
+        </button>
+      </div>
+      <form id="quickActionForm" class="px-6 py-4 space-y-4">
+        <div id="quickActionFields" class="space-y-4"></div>
+        <p id="quickActionFeedback" class="text-sm hidden"></p>
+        <div class="flex items-center justify-end space-x-2 pt-2 border-t border-gray-200">
+          <button id="quickActionCancel" type="button" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">Cancelar</button>
+          <button id="quickActionSubmit" type="submit" class="px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded">Salvar</button>
+        </div>
+      </form>
+    </div>
   </div>
 </body>
 </html>
