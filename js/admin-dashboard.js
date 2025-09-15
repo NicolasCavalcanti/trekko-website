@@ -5,13 +5,15 @@
 const DASHBOARD_SLA_SECONDS = 4;
 const DASHBOARD_TIMEOUT = DASHBOARD_SLA_SECONDS * 1000;
 
+const DASHBOARD_API_BASE = resolveDashboardApiBase();
+
 const DASHBOARD_ENDPOINTS = {
-  metrics: '/api/admin/dashboard/metrics',
-  events: '/api/admin/dashboard/events',
+  metrics: `${DASHBOARD_API_BASE}/admin/dashboard/metrics`,
+  events: `${DASHBOARD_API_BASE}/admin/dashboard/events`,
   quickActions: {
-    trail: '/api/admin/trails',
-    expedition: '/api/admin/expeditions',
-    post: '/api/admin/posts',
+    trail: `${DASHBOARD_API_BASE}/admin/trails`,
+    expedition: `${DASHBOARD_API_BASE}/admin/expeditions`,
+    post: `${DASHBOARD_API_BASE}/admin/posts`,
   },
 };
 
@@ -27,6 +29,118 @@ const METRIC_LABELS = {
   reservations: 'Reservas',
   revenue: 'Receita',
 };
+
+const METRIC_KEY_VARIANTS = {
+  trails: [
+    'trails',
+    'totalTrails',
+    'total_trails',
+    'trailCount',
+    'trail_count',
+    'trailTotal',
+    'trail_total',
+    'trilhas',
+    'totalTrilhas',
+    'total_trilhas',
+    'publishedTrails',
+    'published_trails',
+    'publicadas',
+  ],
+  expeditions: [
+    'expeditions',
+    'totalExpeditions',
+    'total_expeditions',
+    'expeditionCount',
+    'expedition_count',
+    'expedicaoCount',
+    'expedicoes',
+    'totalExpedicoes',
+    'total_expedicoes',
+    'turmasAtivas',
+    'turmas_ativas',
+  ],
+  activeGuides: [
+    'activeGuides',
+    'active_guides',
+    'guides',
+    'guidesActive',
+    'guides_active',
+    'totalGuides',
+    'total_guides',
+    'guiasAtivos',
+    'guias_ativos',
+    'totalGuiasAtivos',
+    'total_guias_ativos',
+  ],
+  reservations: [
+    'reservations',
+    'totalReservations',
+    'total_reservations',
+    'reservationCount',
+    'reservation_count',
+    'bookingCount',
+    'booking_count',
+    'reservas',
+    'totalReservas',
+    'total_reservas',
+    'inscricoes',
+    'inscricoes_confirmadas',
+  ],
+  revenue: [
+    'revenue',
+    'totalRevenue',
+    'total_revenue',
+    'revenueBr',
+    'revenue_br',
+    'receita',
+    'receitaLiquida',
+    'receita_liquida',
+    'grossRevenue',
+    'gross_revenue',
+    'netRevenue',
+    'net_revenue',
+    'billing',
+    'faturamento',
+    'revenueCents',
+    'revenue_cents',
+    'totalRevenueCents',
+    'total_revenue_cents',
+  ],
+};
+
+const VALUE_KEY_HINTS = [
+  'value',
+  'valor',
+  'total',
+  'count',
+  'quantidade',
+  'quantity',
+  'amount',
+  'sum',
+  'numero',
+  'qtd',
+  'metric',
+  'resultado',
+  'current',
+  'revenue',
+  'receita',
+  'faturamento',
+  'reservas',
+  'reservations',
+  'trilhas',
+  'trails',
+  'expedicoes',
+  'expeditions',
+  'guias',
+  'guides',
+  'participants',
+  'inscricoes',
+  'cents',
+];
+
+if (typeof window !== 'undefined') {
+  window.__TREKKO_ADMIN_API_BASE__ = DASHBOARD_API_BASE;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const user = typeof AdminGuard !== 'undefined' ? AdminGuard.requireAuth() : null;
@@ -96,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const updatedAt = payload?.lastUpdated || payload?.updatedAt || payload?.generatedAt || new Date().toISOString();
       const duration = performance.now() - start;
-      updateMetricsMeta({ updatedAt, duration });
+      updateMetricsMeta({ updatedAt, duration, apiBase: DASHBOARD_API_BASE });
       validateMetricsAgainstReports(payload, normalized);
 
       saveToStorage(STORAGE_KEYS.metrics, {
@@ -104,7 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchedAt: new Date().toISOString(),
         payloadMeta: {
           lastUpdated: updatedAt,
-          reportSnapshot: payload?.reportTotals || payload?.reports || payload?.reportSummary || null,
+          reportSnapshot: extractReportSnapshot(payload),
+          apiBase: DASHBOARD_API_BASE,
         },
       });
     } catch (error) {
@@ -116,6 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
           updatedAt: cached.payloadMeta?.lastUpdated || cached.fetchedAt,
           duration,
           fromCache: true,
+          apiBase: cached.payloadMeta?.apiBase || DASHBOARD_API_BASE,
         });
         if (metricsValidation) {
           metricsValidation.textContent = 'Exibindo dados em cache. Valide com o relatório oficial.';
@@ -125,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         applyMetricValues({ trails: 0, expeditions: 0, activeGuides: 0, reservations: 0, revenue: 0 });
         if (metricsMeta) {
-          metricsMeta.textContent = 'Não foi possível carregar os indicadores.';
+          metricsMeta.textContent = `Não foi possível carregar os indicadores. Fonte ${formatApiBaseLabel(DASHBOARD_API_BASE)}.`;
         }
         if (metricsValidation) {
           metricsValidation.textContent = 'Indicadores indisponíveis. Sem dados para reconciliar.';
@@ -205,20 +321,24 @@ document.addEventListener('DOMContentLoaded', () => {
     setText('metric-revenue', formatCurrency(values.revenue));
   }
 
-  function updateMetricsMeta({ updatedAt, duration, fromCache }) {
+  function updateMetricsMeta({ updatedAt, duration, fromCache, apiBase }) {
     if (!metricsMeta) return;
     const parts = [];
     if (updatedAt) parts.push(`Atualizado em ${formatDateTime(updatedAt)}`);
     if (typeof duration === 'number') parts.push(`Carregado em ${(duration / 1000).toFixed(1)} s`);
     if (fromCache) parts.push('Usando dados em cache');
+    if (apiBase) parts.push(`Fonte ${formatApiBaseLabel(apiBase)}`);
     parts.push(`SLA ${DASHBOARD_SLA_SECONDS}s`);
     metricsMeta.textContent = parts.join(' · ');
   }
 
   function validateMetricsAgainstReports(payload, metrics) {
     if (!metricsValidation) return;
-    const reportTotals = payload?.reportTotals || payload?.reports || payload?.reportSummary;
-    if (!reportTotals) {
+
+    const reportSnapshot = extractReportSnapshot(payload);
+    const reportSources = collectMetricSources(reportSnapshot);
+
+    if (!reportSources.length) {
       metricsValidation.textContent = 'Aguardando consolidação dos relatórios.';
       metricsValidation.classList.remove('text-red-600', 'text-emerald-600', 'text-amber-600');
       metricsValidation.classList.add('text-gray-500');
@@ -226,18 +346,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const normalizedReports = {
-      trails: readFirstNumber(reportTotals, ['trails', 'totalTrails', 'trailCount', 'trilhas']),
-      expeditions: readFirstNumber(reportTotals, ['expeditions', 'totalExpeditions', 'expeditionCount', 'expedicoes']),
-      activeGuides: readFirstNumber(reportTotals, ['activeGuides', 'guides', 'guiaAtivos', 'totalGuides']),
-      reservations: readFirstNumber(reportTotals, ['reservations', 'totalReservations', 'bookingCount', 'reservas']),
-      revenue: readCurrency(reportTotals, ['revenue', 'totalRevenue', 'receita', 'grossRevenue', 'netRevenue']),
+      trails: extractMetricValue(reportSources, METRIC_KEY_VARIANTS.trails, parseNumericValue),
+      expeditions: extractMetricValue(reportSources, METRIC_KEY_VARIANTS.expeditions, parseNumericValue),
+      activeGuides: extractMetricValue(reportSources, METRIC_KEY_VARIANTS.activeGuides, parseNumericValue),
+      reservations: extractMetricValue(reportSources, METRIC_KEY_VARIANTS.reservations, parseNumericValue),
+      revenue: extractMetricValue(reportSources, METRIC_KEY_VARIANTS.revenue, parseCurrencyValue),
     };
 
     const mismatches = Object.entries(normalizedReports)
       .filter(([key, value]) => value != null && !numbersRoughlyEqual(value, metrics[key]));
 
     if (mismatches.length === 0) {
-      const reference = reportTotals.generatedAt || payload?.lastReportSync || payload?.reports?.generatedAt;
+      const reference = extractReportReferenceDate(reportSnapshot, payload);
       metricsValidation.textContent = reference
         ? `Números reconciliados com os relatórios (${formatDateTime(reference)}).`
         : 'Números reconciliados com os relatórios.';
@@ -516,13 +636,13 @@ async function parseJsonSafely(response) {
 }
 
 function normalizeMetrics(payload) {
-  const source = payload?.metrics || payload?.data || payload?.totals || payload || {};
+  const sources = collectMetricSources(payload);
   return {
-    trails: readFirstNumber(source, ['trails', 'totalTrails', 'trailCount', 'trilhas']),
-    expeditions: readFirstNumber(source, ['expeditions', 'totalExpeditions', 'expeditionCount', 'expedicoes']),
-    activeGuides: readFirstNumber(source, ['activeGuides', 'guides', 'totalGuides', 'guiaAtivos']),
-    reservations: readFirstNumber(source, ['reservations', 'totalReservations', 'bookingCount', 'reservas']),
-    revenue: readCurrency(source, ['revenue', 'totalRevenue', 'receita', 'grossRevenue', 'netRevenue']),
+    trails: extractMetricValue(sources, METRIC_KEY_VARIANTS.trails, parseNumericValue),
+    expeditions: extractMetricValue(sources, METRIC_KEY_VARIANTS.expeditions, parseNumericValue),
+    activeGuides: extractMetricValue(sources, METRIC_KEY_VARIANTS.activeGuides, parseNumericValue),
+    reservations: extractMetricValue(sources, METRIC_KEY_VARIANTS.reservations, parseNumericValue),
+    revenue: extractMetricValue(sources, METRIC_KEY_VARIANTS.revenue, parseCurrencyValue),
   };
 }
 
@@ -615,28 +735,211 @@ function saveToStorage(key, value) {
   }
 }
 
-function readFirstNumber(source, keys) {
-  for (const key of keys) {
-    const value = source?.[key];
-    if (typeof value === 'number') return value;
-    if (typeof value === 'string' && value.trim() !== '') {
-      const parsed = Number(value.replace(/[^0-9,-]+/g, '').replace(',', '.'));
-      if (!Number.isNaN(parsed)) return parsed;
+function collectMetricSources(payload) {
+  if (!payload) return [];
+  const visited = new Set();
+  const queue = [payload];
+  const objects = [];
+
+  while (queue.length) {
+    const current = queue.shift();
+    if (!current || typeof current !== 'object' || visited.has(current)) continue;
+    if (Object.prototype.toString.call(current) === '[object Date]') continue;
+
+    visited.add(current);
+
+    if (!Array.isArray(current)) {
+      objects.push(current);
     }
+
+    const values = Array.isArray(current) ? current : Object.values(current);
+    values.forEach((value) => {
+      if (value && typeof value === 'object') {
+        queue.push(value);
+      }
+    });
+  }
+
+  return objects;
+}
+
+function extractMetricValue(sources, keys, parser) {
+  if (!Array.isArray(sources) || !sources.length) return 0;
+  const normalizedKeys = Array.from(new Set((keys || []).map(normalizeKeyName))).filter(Boolean);
+  for (const source of sources) {
+    const direct = extractDirectValue(source, normalizedKeys, parser);
+    if (direct != null) return direct;
+    const keyed = extractFromKeyedSource(source, normalizedKeys, parser);
+    if (keyed != null) return keyed;
   }
   return 0;
 }
 
-function readCurrency(source, keys) {
-  for (const key of keys) {
-    const value = source?.[key];
-    if (typeof value === 'number') return value;
-    if (typeof value === 'string' && value.trim() !== '') {
-      const normalized = Number(value.replace(/[^0-9,-]+/g, '').replace(',', '.'));
-      if (!Number.isNaN(normalized)) return normalized;
+function extractDirectValue(source, normalizedKeys, parser) {
+  if (!source || typeof source !== 'object' || Array.isArray(source)) return null;
+  const propertyMap = new Map();
+  Object.keys(source).forEach((prop) => {
+    propertyMap.set(normalizeKeyName(prop), prop);
+  });
+
+  for (const normalizedKey of normalizedKeys) {
+    const actualKey = propertyMap.get(normalizedKey);
+    if (!actualKey) continue;
+    const parsed = parser(source[actualKey], { key: actualKey, normalizedKey, source });
+    if (parsed != null) {
+      return parsed;
     }
   }
-  return 0;
+
+  return null;
+}
+
+function extractFromKeyedSource(source, normalizedKeys, parser) {
+  if (!source || typeof source !== 'object' || Array.isArray(source)) return null;
+
+  const keyCandidates = ['key', 'metric', 'id', 'name', 'slug', 'code', 'identifier', 'type', 'label'];
+  const normalizedHints = VALUE_KEY_HINTS.map(normalizeKeyName).filter(Boolean);
+
+  for (const keyField of keyCandidates) {
+    if (!Object.prototype.hasOwnProperty.call(source, keyField)) continue;
+    const candidateKey = normalizeKeyName(source[keyField]);
+    if (!candidateKey || !normalizedKeys.includes(candidateKey)) continue;
+
+    const valueProps = Object.keys(source)
+      .filter((prop) => prop !== keyField)
+      .filter((prop) => {
+        const normalizedProp = normalizeKeyName(prop);
+        return normalizedHints.some((hint) => normalizedProp.includes(hint));
+      });
+
+    const fallbacks = ['value', 'valor', 'total', 'count', 'amount', 'sum', 'quantity'];
+    fallbacks.forEach((fallback) => {
+      if (Object.prototype.hasOwnProperty.call(source, fallback) && !valueProps.includes(fallback)) {
+        valueProps.push(fallback);
+      }
+    });
+
+    for (const valueProp of valueProps) {
+      const parsed = parser(source[valueProp], { key: valueProp, normalizedKey: candidateKey, source });
+      if (parsed != null) {
+        return parsed;
+      }
+    }
+  }
+
+  return null;
+}
+
+function normalizeKeyName(name) {
+  if (name == null) return '';
+  return String(name).toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function parseNumericValue(value, context = {}) {
+  const parsed = parseNumberFromAny(value);
+  return parsed == null ? null : parsed;
+}
+
+function parseCurrencyValue(value, context = {}) {
+  const parsed = parseNumberFromAny(value);
+  if (parsed == null) return null;
+  const key = context.key || '';
+  const normalizedKey = context.normalizedKey || '';
+  if (/cent/i.test(key) || /cent/i.test(normalizedKey)) {
+    return parsed / 100;
+  }
+  if (context.source && typeof context.source.unit === 'string' && /cent/i.test(context.source.unit)) {
+    return parsed / 100;
+  }
+  return parsed;
+}
+
+function parseNumberFromAny(value) {
+  if (value == null) return null;
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    const normalized = trimmed.replace(/[^0-9,-]+/g, '').replace(',', '.');
+    if (!normalized) return null;
+    const parsed = Number(normalized);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+  if (typeof value === 'object') {
+    const candidates = ['value', 'valor', 'total', 'amount', 'count', 'sum', 'quantity'];
+    for (const prop of candidates) {
+      if (Object.prototype.hasOwnProperty.call(value, prop)) {
+        const parsed = parseNumberFromAny(value[prop]);
+        if (parsed != null) return parsed;
+      }
+    }
+  }
+  return null;
+}
+
+function extractReportSnapshot(payload) {
+  if (!payload || typeof payload !== 'object') return null;
+  const candidates = [
+    payload.reportSnapshot,
+    payload.reportTotals,
+    payload.report_totals,
+    payload.reports?.totals,
+    payload.reports,
+    payload.reportSummary,
+    payload.report_summary,
+    payload.report?.summary,
+    payload.report?.totals,
+    payload.summary?.reports,
+  ];
+
+  for (const candidate of candidates) {
+    if (candidate && typeof candidate === 'object') {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+function extractReportReferenceDate(reportSnapshot, payload) {
+  if (!reportSnapshot || typeof reportSnapshot !== 'object') {
+    return payload?.lastReportSync || null;
+  }
+
+  const candidates = [
+    reportSnapshot.generatedAt,
+    reportSnapshot.generated_at,
+    reportSnapshot.generatedOn,
+    reportSnapshot.referenceDate,
+    reportSnapshot.reference_date,
+    reportSnapshot.updatedAt,
+    reportSnapshot.updated_at,
+    reportSnapshot.timestamp,
+    payload?.lastReportSync,
+    payload?.reports?.generatedAt,
+    payload?.reports?.generated_at,
+    payload?.reports?.updatedAt,
+    payload?.reportGeneratedAt,
+    payload?.report_generated_at,
+  ];
+
+  for (const candidate of candidates) {
+    if (candidate) return candidate;
+  }
+  return null;
+}
+
+function formatApiBaseLabel(base) {
+  if (!base) return 'desconhecida';
+  try {
+    const url = new URL(base);
+    const hostname = url.hostname.replace(/^www\./, '');
+    return url.port ? `${hostname}:${url.port}` : hostname;
+  } catch (error) {
+    return base.replace(/^https?:\/\//i, '').replace(/\/api.*$/i, '');
+  }
 }
 
 function numbersRoughlyEqual(a, b) {
@@ -713,4 +1016,81 @@ function showElement(element) {
 function toggleElement(element, shouldShow) {
   if (!element) return;
   element.classList.toggle('hidden', !shouldShow);
+}
+
+function resolveDashboardApiBase() {
+  const fallback = 'https://p9hwiqcldgkm.manus.space/api';
+  if (typeof window === 'undefined') {
+    return fallback;
+  }
+
+  const candidates = [];
+
+  const globalCandidates = [
+    window.__TREKKO_ADMIN_API_BASE__,
+    window.API_BASE_URL,
+    window.__API_BASE__,
+  ];
+  globalCandidates.forEach((candidate) => {
+    if (candidate) candidates.push(candidate);
+  });
+
+  try {
+    const stored = localStorage.getItem('trekko.apiBase');
+    if (stored) candidates.push(stored);
+  } catch (error) {
+    console.warn('Não foi possível ler a configuração local da API', error);
+  }
+
+  const host = (window.location?.hostname || '').toLowerCase();
+  if (host) {
+    if (host.includes('localhost') || host.startsWith('127.')) {
+      candidates.push('http://localhost:5000/api');
+    }
+    if (host.includes('manus.space')) {
+      candidates.push(`https://${host}/api`);
+    }
+    if (host.includes('staging') || host.includes('preview') || host.includes('vercel')) {
+      candidates.push('https://g8h3ilcvjnlq.manus.space/api');
+    }
+    if (host.endsWith('trekko.com.br')) {
+      candidates.push('https://p9hwiqcldgkm.manus.space/api');
+    }
+  }
+
+  candidates.push('https://p9hwiqcldgkm.manus.space/api');
+  candidates.push('https://g8h3ilcvjnlq.manus.space/api');
+
+  for (const candidate of candidates) {
+    const normalized = normalizeApiBase(candidate);
+    if (normalized) {
+      return normalized;
+    }
+  }
+
+  return fallback;
+}
+
+function normalizeApiBase(base) {
+  if (!base || typeof base !== 'string') return null;
+  let candidate = base.trim();
+  if (!candidate) return null;
+
+  if (!/^https?:\/\//i.test(candidate)) {
+    candidate = `https://${candidate.replace(/^\/+/, '')}`;
+  }
+
+  try {
+    const url = new URL(candidate);
+    const segments = url.pathname.split('/').filter(Boolean);
+    const apiIndex = segments.indexOf('api');
+    const baseSegments = apiIndex >= 0 ? segments.slice(0, apiIndex + 1) : [...segments, 'api'];
+    url.pathname = `/${baseSegments.join('/')}`;
+    url.search = '';
+    url.hash = '';
+    return url.toString().replace(/\/$/, '');
+  } catch (error) {
+    console.warn('Não foi possível normalizar a URL da API', base, error);
+    return null;
+  }
 }
