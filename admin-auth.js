@@ -1,5 +1,7 @@
 // admin-auth.js - restrição de acesso a administradores
 class AdminGuard {
+  static adminEmails = ['contato@trekko.com.br'];
+
   static check() {
     const data = localStorage.getItem('userData');
     if (!data) {
@@ -9,7 +11,11 @@ class AdminGuard {
     }
     try {
       const user = JSON.parse(data);
-      if (user.role !== 'admin' && user.role !== 'ADMIN') {
+      const isAdmin =
+        user.role === 'admin' ||
+        user.role === 'ADMIN' ||
+        AdminGuard.adminEmails.includes(user.email);
+      if (!isAdmin) {
         alert('Apenas administradores podem acessar esta área.');
         window.location.href = 'https://www.trekko.com.br/';
       }
