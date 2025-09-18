@@ -3,17 +3,28 @@ import type { RequestHandler } from 'express';
 import type { AuthenticatedRequest } from './auth';
 import { HttpError } from './error';
 
-const hasRequiredRole = (userRoles: string[] | undefined, requiredRoles: string[]) => {
-  if (!userRoles || userRoles.length === 0) {
+const normalizeRole = (role: string): string => role.trim().toUpperCase();
+
+const hasRequiredRole = (userRoles: string[], requiredRoles: string[]) => {
+  if (userRoles.length === 0) {
     return false;
   }
 
-  const normalizedUserRoles = new Set(userRoles);
-  return requiredRoles.some((role) => normalizedUserRoles.has(role));
+  const normalizedUserRoles = new Set(userRoles.map(normalizeRole));
+
+  if (normalizedUserRoles.has('ADMIN')) {
+    return true;
+  }
+
+  if (requiredRoles.length === 0) {
+    return normalizedUserRoles.size > 0;
+  }
+
+  return requiredRoles.some((role) => normalizedUserRoles.has(normalizeRole(role)));
 };
 
 export const requireRole = (...roles: string[]): RequestHandler => {
-  const requiredRoles = roles.filter((role) => role.trim().length > 0);
+  const requiredRoles = roles.map(normalizeRole).filter((role) => role.length > 0);
 
   return (req, _res, next) => {
     const user = (req as typeof req & AuthenticatedRequest).user;
@@ -23,7 +34,9 @@ export const requireRole = (...roles: string[]): RequestHandler => {
       return;
     }
 
-    if (requiredRoles.length > 0 && !hasRequiredRole(user.roles, requiredRoles)) {
+    const userRoles = Array.isArray(user.roles) ? user.roles.map(normalizeRole) : [];
+
+    if (!hasRequiredRole(userRoles, requiredRoles)) {
       next(new HttpError(403, 'INSUFFICIENT_ROLE', 'User lacks required role'));
       return;
     }

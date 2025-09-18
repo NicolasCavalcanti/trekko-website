@@ -1,14 +1,14 @@
 import type { RequestHandler } from 'express';
-import type { AnyZodObject } from 'zod';
+import type { ZodTypeAny } from 'zod';
 import { ZodError } from 'zod';
 
 import { HttpError } from './error';
 
 export type ValidationSchema = {
-  body?: AnyZodObject;
-  params?: AnyZodObject;
-  query?: AnyZodObject;
-  headers?: AnyZodObject;
+  body?: ZodTypeAny;
+  params?: ZodTypeAny;
+  query?: ZodTypeAny;
+  headers?: ZodTypeAny;
 };
 
 export const validate = (schema: ValidationSchema): RequestHandler => {
