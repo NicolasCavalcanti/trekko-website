@@ -10,12 +10,14 @@ import { requireRole } from '../../middlewares/rbac';
 import { validate } from '../../middlewares/validation';
 import { prisma } from '../../services/prisma';
 import { audit } from '../audit/audit.service';
+import { geoAdminRouter } from '../geo/geo.routes';
 import { type AdminRole, createAdminUserSchema, deleteAdminUserSchema, updateAdminUserSchema } from './admin.schemas';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 router.use(authenticate());
+router.use(geoAdminRouter);
 
 const toUserSummary = (user: { id: string; email: string; name: string | null; role: string }) => ({
   id: user.id,
