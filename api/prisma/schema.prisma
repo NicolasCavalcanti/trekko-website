@@ -13,16 +13,30 @@ model HealthCheck {
   status    String   @default("ok")
 }
 
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum GuideVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
 model User {
   id           String        @id @default(uuid())
   email        String        @unique
   passwordHash String
   name         String?
   role         String        @default("user")
+  status       UserStatus    @default(ACTIVE)
+  deletedAt    DateTime?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   sessions     AuthSession[]
   auditLogs    AuditLog[]
+  guideProfile GuideProfile?
 }
 
 model AuthSession {
@@ -53,4 +67,26 @@ model AuditLog {
 
   @@index([userId])
   @@index([entity, entityId])
+}
+
+model GuideProfile {
+  id                       String                  @id @default(uuid())
+  userId                   String                  @unique
+  displayName              String?
+  bio                      String?
+  experienceYears          Int?
+  languages                String[]                @default([])
+  serviceAreas             String[]                @default([])
+  cadasturNumber           String?                 @unique
+  verificationStatus       GuideVerificationStatus @default(PENDING)
+  verificationNotes        String?
+  verificationReviewedAt   DateTime?
+  verificationReviewedById String?
+  verifiedAt               DateTime?
+  rejectedAt               DateTime?
+  deletedAt                DateTime?
+  createdAt                DateTime                @default(now())
+  updatedAt                DateTime                @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
