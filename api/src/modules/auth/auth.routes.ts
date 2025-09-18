@@ -4,6 +4,7 @@ import { Router } from 'express';
 import { HttpError } from '../../middlewares/error';
 import { rateLimit } from '../../middlewares/rate-limit';
 import { validate } from '../../middlewares/validation';
+import { audit } from '../audit/audit.service';
 import {
   ACCESS_TOKEN_EXPIRATION_SECONDS,
   REFRESH_TOKEN_EXPIRATION_SECONDS,
@@ -93,6 +94,16 @@ router.post('/login', validate(loginSchema), async (req, res, next) => {
     const { user, accessToken, refreshToken } = await authService.login(email, password);
 
     setAuthCookies(res, { accessToken, refreshToken });
+
+    await audit({
+      userId: user.id,
+      entity: 'user',
+      entityId: user.id,
+      action: 'LOGIN',
+      diff: { email: user.email },
+      ip: req.ip,
+      userAgent: req.get('user-agent'),
+    });
 
     res.status(200).json({
       user,

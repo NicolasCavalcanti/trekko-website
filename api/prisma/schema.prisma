@@ -22,6 +22,7 @@ model User {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   sessions     AuthSession[]
+  auditLogs    AuditLog[]
 }
 
 model AuthSession {
@@ -35,4 +36,21 @@ model AuthSession {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  entity    String
+  entityId  String?
+  action    String
+  diff      Json?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entity, entityId])
 }

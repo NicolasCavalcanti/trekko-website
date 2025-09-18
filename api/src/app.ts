@@ -2,13 +2,15 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import type { NextFunction, Request, Response } from 'express';
+import { randomUUID } from 'node:crypto';
 import pino from 'pino';
-import pinoHttp from 'pino-http';
+import pinoHttp, { type Options as PinoHttpOptions } from 'pino-http';
 
 import { HttpError, errorHandler } from './middlewares/error';
 import { requestId } from './middlewares/request-id';
 import { prisma } from './services/prisma';
 import { authRouter } from './modules/auth/auth.routes';
+import { adminRouter } from './modules/admin/admin.routes';
 
 const logger = pino({
   level: process.env.LOG_LEVEL ?? 'info',
@@ -25,35 +27,35 @@ app.set('trust proxy', true);
 app.disable('x-powered-by');
 
 app.use(requestId);
-app.use(
-  pinoHttp({
-    logger,
-    genReqId: (req: Request, res: Response) => {
-      const requestScopedId = (req as Request & { requestId?: string }).requestId;
-      const responseScopedId =
-        typeof res.locals.requestId === 'string' ? res.locals.requestId : undefined;
+const httpLoggerOptions: PinoHttpOptions<Request, Response> = {
+  logger,
+  genReqId: (req, res) => {
+    const requestScopedId = (req as Request & { requestId?: string }).requestId;
+    const responseScopedId =
+      typeof res.locals.requestId === 'string' ? res.locals.requestId : undefined;
 
-      return requestScopedId ?? responseScopedId;
-    },
-    customSuccessMessage() {
-      return 'request completed';
-    },
-    customErrorMessage() {
-      return 'request errored';
-    },
-    customLogLevel(res: Response, error: Error | undefined) {
-      if (error) return 'error';
-      if (res.statusCode >= 500) return 'error';
-      if (res.statusCode >= 400) return 'warn';
-      return 'info';
-    },
-    customProps(_req: Request, res: Response) {
-      return {
-        requestId: res.locals.requestId,
-      };
-    },
-  }),
-);
+    return requestScopedId ?? responseScopedId ?? randomUUID();
+  },
+  customSuccessMessage() {
+    return 'request completed';
+  },
+  customErrorMessage() {
+    return 'request errored';
+  },
+  customLogLevel(_req, res, error) {
+    if (error) return 'error';
+    if (res.statusCode >= 500) return 'error';
+    if (res.statusCode >= 400) return 'warn';
+    return 'info';
+  },
+  customProps(_req, res) {
+    return {
+      requestId: res.locals.requestId,
+    };
+  },
+};
+
+app.use(pinoHttp(httpLoggerOptions));
 app.use(
   cors({
     origin: corsOrigins && corsOrigins.length > 0 ? corsOrigins : true,
@@ -85,6 +87,7 @@ app.get('/api/healthz', async (_req: Request, res: Response, next: NextFunction)
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/admin', adminRouter);
 
 app.use(errorHandler);
 
