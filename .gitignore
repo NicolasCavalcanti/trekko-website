@@ -43,3 +43,7 @@ Thumbs.db
 
 # Backend database files
 trekko_auth_backend/src/database/
+
+# API build artifacts
+/api/node_modules/
+/api/dist/
