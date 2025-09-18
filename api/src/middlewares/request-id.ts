@@ -1,5 +1,5 @@
 import type { RequestHandler } from 'express';
-import { randomUUID } from 'node:crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 const REQUEST_ID_HEADER = 'x-request-id';
 
@@ -12,7 +12,7 @@ export const requestId: RequestHandler = (req, res, next) => {
     (req.headers[REQUEST_ID_HEADER] as string | undefined) ??
     (req.headers['x-correlation-id'] as string | undefined);
 
-  const id = headerId && headerId.trim().length > 0 ? headerId : randomUUID();
+  const id = headerId && headerId.trim().length > 0 ? headerId : uuidv4();
 
   (req as typeof req & RequestWithId).requestId = id;
   res.locals.requestId = id;

@@ -1,5 +1,6 @@
 import type { RequestHandler } from 'express';
-import type { AnyZodObject, ZodError } from 'zod';
+import type { AnyZodObject } from 'zod';
+import { ZodError } from 'zod';
 
 import { HttpError } from './error';
 
@@ -26,8 +27,8 @@ export const validate = (schema: ValidationSchema): RequestHandler => {
         req.headers = schema.headers.parse(req.headers);
       }
     } catch (error) {
-      if (error instanceof Error && 'issues' in error) {
-        next(new HttpError(400, 'Validation failed', (error as ZodError).issues));
+      if (error instanceof ZodError) {
+        next(new HttpError(400, 'VALIDATION_ERROR', 'Validation failed', error.issues));
         return;
       }
 
