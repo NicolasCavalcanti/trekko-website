@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "jest"
+    "test": "jest",
+    "prisma:seed:build": "tsc --project prisma/tsconfig.seed.json",
+    "prisma:seed:run": "npm run prisma:seed:build && node prisma/build/seed.js",
+    "prisma:seed": "prisma db seed"
+  },
+  "prisma": {
+    "seed": "npm run prisma:seed:run"
   },
   "dependencies": {
     "@prisma/client": "^6.16.1"
@@ -15,6 +21,7 @@
     "@types/jest": "^29.5.14",
     "jest": "^29.7.0",
     "prisma": "^6.16.1",
-    "ts-jest": "^29.4.1"
+    "ts-jest": "^29.4.1",
+    "typescript": "^5.6.3"
   }
 }
