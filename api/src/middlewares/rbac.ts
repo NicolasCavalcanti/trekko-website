@@ -3,37 +3,28 @@ import type { RequestHandler } from 'express';
 import type { AuthenticatedRequest } from './auth';
 import { HttpError } from './error';
 
-export type RbacOptions = {
-  roles?: string[];
-  permissions?: string[];
-};
-
-const hasIntersection = (source: string[] | undefined, target: string[] | undefined) => {
-  if (!source || !target || source.length === 0 || target.length === 0) {
+const hasRequiredRole = (userRoles: string[] | undefined, requiredRoles: string[]) => {
+  if (!userRoles || userRoles.length === 0) {
     return false;
   }
 
-  const set = new Set(source);
-  return target.some((value) => set.has(value));
+  const normalizedUserRoles = new Set(userRoles);
+  return requiredRoles.some((role) => normalizedUserRoles.has(role));
 };
 
-export const authorize = (options: RbacOptions): RequestHandler => {
+export const requireRole = (...roles: string[]): RequestHandler => {
+  const requiredRoles = roles.filter((role) => role.trim().length > 0);
+
   return (req, _res, next) => {
-    const { roles, permissions } = options;
     const user = (req as typeof req & AuthenticatedRequest).user;
 
     if (!user) {
-      next(new HttpError(403, 'Access denied'));
+      next(new HttpError(403, 'ACCESS_DENIED', 'Access denied'));
       return;
     }
 
-    if (roles && roles.length > 0 && !hasIntersection(user.roles, roles)) {
-      next(new HttpError(403, 'Insufficient role privileges'));
-      return;
-    }
-
-    if (permissions && permissions.length > 0 && !hasIntersection(user.permissions, permissions)) {
-      next(new HttpError(403, 'Insufficient permissions'));
+    if (requiredRoles.length > 0 && !hasRequiredRole(user.roles, requiredRoles)) {
+      next(new HttpError(403, 'INSUFFICIENT_ROLE', 'User lacks required role'));
       return;
     }
 

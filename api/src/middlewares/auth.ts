@@ -1,4 +1,4 @@
-import type { RequestHandler } from 'express';
+import type { Request, RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
 
 import { HttpError } from './error';
@@ -17,27 +17,44 @@ export type AuthMiddlewareOptions = {
   optional?: boolean;
 };
 
+const ACCESS_TOKEN_COOKIE_NAMES = ['accessToken', 'access_token'] as const;
+
+const extractTokenFromRequest = (req: Request): string | undefined => {
+  for (const cookieName of ACCESS_TOKEN_COOKIE_NAMES) {
+    const tokenFromCookie = req.cookies?.[cookieName];
+    if (typeof tokenFromCookie === 'string' && tokenFromCookie.trim().length > 0) {
+      return tokenFromCookie.trim();
+    }
+  }
+
+  const authorizationHeader = req.headers.authorization;
+  if (authorizationHeader && authorizationHeader.trim().length > 0) {
+    return authorizationHeader.replace(/^Bearer\s+/i, '').trim();
+  }
+
+  return undefined;
+};
+
 export const authenticate = (options: AuthMiddlewareOptions = {}): RequestHandler => {
   const { optional = false } = options;
 
   return (req, _res, next) => {
-    const authorization = req.headers.authorization;
+    const token = extractTokenFromRequest(req);
 
-    if (!authorization) {
+    if (!token) {
       if (optional) {
         next();
         return;
       }
 
-      next(new HttpError(401, 'Authentication required'));
+      next(new HttpError(401, 'AUTHENTICATION_REQUIRED', 'Authentication required'));
       return;
     }
 
-    const token = authorization.replace(/^Bearer\s+/i, '');
     const secret = process.env.JWT_SECRET;
 
     if (!secret) {
-      next(new HttpError(500, 'JWT secret is not configured'));
+      next(new HttpError(500, 'JWT_SECRET_NOT_CONFIGURED', 'JWT secret is not configured'));
       return;
     }
 
@@ -51,7 +68,14 @@ export const authenticate = (options: AuthMiddlewareOptions = {}): RequestHandle
         return;
       }
 
-      next(new HttpError(401, 'Invalid or expired token', error instanceof Error ? error.message : undefined));
+      next(
+        new HttpError(
+          401,
+          'INVALID_TOKEN',
+          'Invalid or expired token',
+          error instanceof Error ? error.message : undefined,
+        ),
+      );
     }
   };
 };
