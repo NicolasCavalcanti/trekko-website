@@ -38,20 +38,38 @@ jobs:
 
       - name: Install root dependencies
         run: |
-          if [ -f package-lock.json ]; then
+          if [ ! -s package-lock.json ]; then
+            echo "package-lock.json not found or empty. Attempting to generate lockfile with 'npm install --package-lock-only'."
+            if npm install --package-lock-only; then
+              echo "Generated package-lock.json using 'npm install --package-lock-only'."
+            else
+              echo "'npm install --package-lock-only' failed. Will fall back to a full 'npm install' if no lockfile is available."
+            fi
+          fi
+
+          if [ -s package-lock.json ]; then
             npm ci
           else
-            echo "package-lock.json not found. Falling back to 'npm install'."
+            echo "package-lock.json is still missing after attempting generation. Running 'npm install' instead of 'npm ci'."
             npm install
           fi
 
       - name: Install API dependencies
         working-directory: api
         run: |
-          if [ -f package-lock.json ]; then
+          if [ ! -s package-lock.json ]; then
+            echo "package-lock.json not found or empty in ./api. Attempting to generate lockfile with 'npm install --package-lock-only'."
+            if npm install --package-lock-only; then
+              echo "Generated package-lock.json for ./api using 'npm install --package-lock-only'."
+            else
+              echo "'npm install --package-lock-only' failed in ./api. Will fall back to a full 'npm install' if no lockfile is available."
+            fi
+          fi
+
+          if [ -s package-lock.json ]; then
             npm ci
           else
-            echo "package-lock.json not found in ./api. Falling back to 'npm install'."
+            echo "package-lock.json is still missing in ./api after attempting generation. Running 'npm install' instead of 'npm ci'."
             npm install
           fi
 
