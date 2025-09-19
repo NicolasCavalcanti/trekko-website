@@ -37,11 +37,23 @@ jobs:
             api/package-lock.json
 
       - name: Install root dependencies
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            echo "package-lock.json not found. Falling back to 'npm install'."
+            npm install
+          fi
 
       - name: Install API dependencies
         working-directory: api
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            echo "package-lock.json not found in ./api. Falling back to 'npm install'."
+            npm install
+          fi
 
       - name: Prisma generate
         working-directory: api
