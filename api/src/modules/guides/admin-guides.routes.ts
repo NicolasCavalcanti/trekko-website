@@ -1,6 +1,8 @@
 import { GuideVerificationStatus } from '@prisma/client';
 import { Router } from 'express';
+import multer from 'multer';
 
+import { HttpError } from '../../middlewares/error';
 import { requireRole } from '../../middlewares/rbac';
 import { validate } from '../../middlewares/validation';
 import { adminGuideService } from './guide.service';
@@ -13,6 +15,7 @@ import {
 } from './guide.schemas';
 
 const router = Router();
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 const getActorRoles = (roles: unknown): string[] => {
   if (!Array.isArray(roles)) {
@@ -22,6 +25,23 @@ const getActorRoles = (roles: unknown): string[] => {
   return roles
     .map((role) => (typeof role === 'string' ? role.trim() : ''))
     .filter((role) => role.length > 0);
+};
+
+const parseBooleanFlag = (value: unknown): boolean => {
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    return normalized === '1' || normalized === 'true';
+  }
+
+  if (typeof value === 'number') {
+    return value === 1;
+  }
+
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  return false;
 };
 
 router.get(
@@ -40,6 +60,42 @@ router.get(
       });
 
       res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+router.post(
+  '/import-cadastur',
+  requireRole('ADMIN', 'EDITOR', 'OPERADOR'),
+  upload.single('file'),
+  async (req, res, next) => {
+    try {
+      const file = req.file;
+
+      if (!file) {
+        throw new HttpError(400, 'FILE_REQUIRED', 'Arquivo CSV é obrigatório');
+      }
+
+      const confirm = parseBooleanFlag(req.body?.confirm);
+
+      if (confirm) {
+        const actorRoles = getActorRoles(req.user?.roles);
+        const result = await adminGuideService.importCadasturFromCsv(
+          { actorId: req.user?.sub, roles: actorRoles },
+          file.buffer,
+          file.originalname,
+          { ip: req.ip, userAgent: req.get('user-agent') },
+        );
+
+        res.status(200).json(result);
+        return;
+      }
+
+      const preview = await adminGuideService.previewCadasturImport(file.buffer);
+
+      res.status(200).json(preview);
     } catch (error) {
       next(error);
     }
