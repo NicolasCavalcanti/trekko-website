@@ -38,22 +38,20 @@ jobs:
 
       - name: Install root dependencies
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            echo "package-lock.json not found. Falling back to 'npm install'."
-            npm install
+          if [ ! -s package-lock.json ]; then
+            echo "package-lock.json not found or empty. Generating lockfile with 'npm install --package-lock-only'."
+            npm install --package-lock-only
           fi
+          npm ci
 
       - name: Install API dependencies
         working-directory: api
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            echo "package-lock.json not found in ./api. Falling back to 'npm install'."
-            npm install
+          if [ ! -s package-lock.json ]; then
+            echo "package-lock.json not found or empty in ./api. Generating lockfile with 'npm install --package-lock-only'."
+            npm install --package-lock-only
           fi
+          npm ci
 
       - name: Prisma generate
         working-directory: api
