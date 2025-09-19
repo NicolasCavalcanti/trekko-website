@@ -40,10 +40,13 @@ Thumbs.db
 
 
 /generated/prisma
-
-# Backend database files
-trekko_auth_backend/src/database/
-
-# API build artifacts
-/api/node_modules/
-/api/dist/
+.venv/
+.venv/
+node_modules/
+.next/
+.turbo/
+.vercel/
+coverage/
+dist/
+.env
+.env.*
