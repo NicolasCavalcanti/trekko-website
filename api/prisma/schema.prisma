@@ -41,6 +41,33 @@ enum ReservationStatus {
   EXPIRED
 }
 
+enum PaymentProvider {
+  STRIPE
+  PAGSEGURO
+  MERCADO_PAGO
+  PAYPAL
+  MANUAL
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  PIX
+  BOLETO
+  BANK_TRANSFER
+  CASH
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  PAID
+  REFUNDED
+  FAILED
+  CANCELLED
+  CHARGEBACK
+}
+
 enum Region {
   NORTH
   NORTHEAST
@@ -295,8 +322,55 @@ model Reservation {
 
   expedition Expedition @relation(fields: [expeditionId], references: [id])
   user       User       @relation(fields: [userId], references: [id])
+  payments   Payment[]
 
   @@index([expeditionId])
   @@index([userId])
+  @@index([status])
+}
+
+model Payment {
+  id                String          @id @default(uuid())
+  reservationId     String
+  provider          PaymentProvider @default(MANUAL)
+  method            PaymentMethod   @default(PIX)
+  status            PaymentStatus   @default(PENDING)
+  amountCents       Int
+  feeCents          Int             @default(0)
+  netAmountCents    Int?
+  currency          String          @default("BRL")
+  transactionId     String?
+  externalReference String?
+  metadata          Json?
+  paidAt            DateTime?
+  capturedAt        DateTime?
+  cancelledAt       DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  deletedAt         DateTime?
+
+  reservation Reservation     @relation(fields: [reservationId], references: [id])
+  refunds     PaymentRefund[]
+
+  @@index([reservationId])
+  @@index([status])
+  @@index([transactionId])
+  @@index([provider])
+  @@index([method])
+}
+
+model PaymentRefund {
+  id          String        @id @default(uuid())
+  paymentId   String
+  amountCents Int
+  reason      String?
+  status      PaymentStatus @default(PENDING)
+  processedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  payment Payment @relation(fields: [paymentId], references: [id])
+
+  @@index([paymentId])
   @@index([status])
 }
