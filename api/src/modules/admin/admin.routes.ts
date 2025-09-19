@@ -17,6 +17,7 @@ import { adminExpeditionsRouter } from '../expeditions/admin-expeditions.routes'
 import { adminReservationsRouter } from '../reservations/admin-reservations.routes';
 import { adminPaymentsRouter } from '../payments/admin-payments.routes';
 import { adminDashboardRouter } from '../dashboard/admin-dashboard.routes';
+import { adminReviewsRouter } from '../reviews/admin-reviews.routes';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -47,6 +48,7 @@ router.use('/expeditions', adminExpeditionsRouter);
 router.use('/reservations', adminReservationsRouter);
 router.use('/payments', adminPaymentsRouter);
 router.use('/dashboard', adminDashboardRouter);
+router.use('/reviews', adminReviewsRouter);
 
 router.post(
   '/cadastur/import',

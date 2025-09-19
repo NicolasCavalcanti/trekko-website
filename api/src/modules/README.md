@@ -14,3 +14,4 @@ This folder groups the domain-driven modules that will hold controllers, service
 - **reviews** — user reviews and ratings.
 - **audit** — auditing and activity logs.
 - **dashboard** — analytics and operational dashboards.
+- **public** — read-only endpoints for the marketing site.
