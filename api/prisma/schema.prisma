@@ -24,6 +24,23 @@ enum GuideVerificationStatus {
   REJECTED
 }
 
+enum ExpeditionStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  WAITLISTED
+  EXPIRED
+}
+
 enum Region {
   NORTH
   NORTHEAST
@@ -45,6 +62,8 @@ model User {
   sessions     AuthSession[]
   auditLogs    AuditLog[]
   guideProfile GuideProfile?
+  reservations Reservation[]
+  expeditions  Expedition[]  @relation("ExpeditionCreator")
 }
 
 model AuthSession {
@@ -97,6 +116,7 @@ model GuideProfile {
   updatedAt                DateTime                @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leadExpeditions Expedition[]
 }
 
 model State {
@@ -184,6 +204,7 @@ model Trail {
   state  State?  @relation(fields: [stateId], references: [id])
   city   City?   @relation(fields: [cityId], references: [id])
   medias Media[]
+  expeditions Expedition[]
 
   @@index([stateId])
   @@index([cityId])
@@ -212,4 +233,70 @@ model Media {
   @@index([trailId])
   @@index([deletedAt])
   @@index([trailId, order])
+}
+
+model Expedition {
+  id             String           @id @default(uuid())
+  slug           String           @unique
+  title          String
+  description    String?
+  status         ExpeditionStatus @default(DRAFT)
+  difficulty     TrailDifficulty?
+  startDate      DateTime
+  endDate        DateTime
+  priceCents     Int
+  currency       String           @default("BRL")
+  maxParticipants Int
+  availableSpots Int?
+  trailId        String?
+  leadGuideId    String?
+  createdById    String
+  publishedAt    DateTime?
+  cancelledAt    DateTime?
+  cancellationReason String?
+  notes          String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+
+  trail      Trail?        @relation(fields: [trailId], references: [id])
+  leadGuide  GuideProfile? @relation(fields: [leadGuideId], references: [id])
+  createdBy  User          @relation("ExpeditionCreator", fields: [createdById], references: [id])
+  reservations Reservation[]
+
+  @@index([status])
+  @@index([startDate])
+  @@index([leadGuideId])
+  @@index([createdById])
+}
+
+model Reservation {
+  id                    String            @id @default(uuid())
+  code                  String            @unique
+  expeditionId          String
+  userId                String
+  status                ReservationStatus @default(PENDING)
+  headcount             Int               @default(1)
+  totalCents            Int
+  feeCents              Int               @default(0)
+  discountCents         Int               @default(0)
+  currency              String            @default("BRL")
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  notes                 String?
+  internalNotes         String?
+  cancellationReason    String?
+  bookedAt              DateTime          @default(now())
+  confirmedAt           DateTime?
+  cancelledAt           DateTime?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  deletedAt             DateTime?
+
+  expedition Expedition @relation(fields: [expeditionId], references: [id])
+  user       User       @relation(fields: [userId], references: [id])
+
+  @@index([expeditionId])
+  @@index([userId])
+  @@index([status])
 }

@@ -6,13 +6,15 @@ import { authenticate } from '../../middlewares/auth';
 import { HttpError } from '../../middlewares/error';
 import { requireRole } from '../../middlewares/rbac';
 import { audit } from '../audit/audit.service';
-import { adminGuidesRouter } from '../guides/admin-guides.routes';
 import { adminCitiesRouter } from '../geo/admin-cities.routes';
 import { adminParksRouter } from '../geo/admin-parks.routes';
 import { adminStatesRouter } from '../geo/admin-states.routes';
+import { adminGuidesRouter } from '../guides/admin-guides.routes';
 import { adminUsersRouter } from '../users/admin-users.routes';
 import { adminTrailsRouter } from '../trails/admin-trails.routes';
 import { adminMediaRouter } from '../media/admin-media.routes';
+import { adminExpeditionsRouter } from '../expeditions/admin-expeditions.routes';
+import { adminReservationsRouter } from '../reservations/admin-reservations.routes';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -39,6 +41,8 @@ router.use('/cities', adminCitiesRouter);
 router.use('/parks', adminParksRouter);
 router.use('/trails', adminTrailsRouter);
 router.use('/media', adminMediaRouter);
+router.use('/expeditions', adminExpeditionsRouter);
+router.use('/reservations', adminReservationsRouter);
 
 router.post(
   '/cadastur/import',
