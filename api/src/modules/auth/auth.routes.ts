@@ -1,6 +1,8 @@
 import type { CookieOptions, Request, Response } from 'express';
 import { Router } from 'express';
 
+import { authenticate } from '../../middlewares/auth';
+import { clearCsrfToken, ensureCsrfToken, rotateCsrfToken } from '../../middlewares/csrf';
 import { HttpError } from '../../middlewares/error';
 import { rateLimit } from '../../middlewares/rate-limit';
 import { validate } from '../../middlewares/validation';
@@ -11,47 +13,80 @@ import {
   authService,
 } from './auth.service';
 import { loginSchema, type LoginInput } from './auth.schemas';
+import { buildCookieOptions } from '../../services/cookies';
 
 const ACCESS_TOKEN_COOKIE_NAME = 'accessToken';
 const REFRESH_TOKEN_COOKIE_NAME = 'refreshToken';
 const ACCESS_TOKEN_COOKIE_ALIASES = [ACCESS_TOKEN_COOKIE_NAME, 'access_token'] as const;
 const REFRESH_TOKEN_COOKIE_ALIASES = [REFRESH_TOKEN_COOKIE_NAME, 'refresh_token'] as const;
 
-const isProduction = process.env.NODE_ENV === 'production';
-
-const resolveCookieDomain = (): string | undefined => {
-  const domain = process.env.AUTH_COOKIE_DOMAIN ?? process.env.COOKIE_DOMAIN;
-  if (domain && domain.trim().length > 0) {
-    return domain.trim();
-  }
-  return undefined;
+const ROLE_PERMISSIONS: Record<string, string[]> = {
+  ADMIN: ['*'],
+  EDITOR: ['CMS', 'TRILHAS', 'EXPEDICOES', 'GUIAS', 'CLIENTES', 'RESERVAS', 'INTEGRACOES', 'CONFIGURACOES'],
+  OPERADOR: ['EXPEDICOES', 'RESERVAS', 'CLIENTES', 'GUIAS'],
+  GUIA: ['EXPEDICOES', 'RESERVAS'],
 };
 
-const baseCookieOptions = (): CookieOptions => {
-  const options: CookieOptions = {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: 'lax',
-    path: '/',
-  };
+const normalizeRole = (role: string): string => role.trim().toUpperCase();
 
-  const domain = resolveCookieDomain();
-  if (domain) {
-    options.domain = domain;
+const normalizeRoles = (roles: unknown): string[] => {
+  if (!Array.isArray(roles)) {
+    return [];
   }
 
-  return options;
+  return roles
+    .map((role) => (typeof role === 'string' ? normalizeRole(role) : ''))
+    .filter((role) => role.length > 0);
 };
 
-const buildAccessCookieOptions = (): CookieOptions => ({
-  ...baseCookieOptions(),
-  maxAge: ACCESS_TOKEN_EXPIRATION_SECONDS * 1000,
-});
+const resolveUserRoles = (userRole: string | null | undefined, tokenRoles: unknown): string[] => {
+  const normalizedTokenRoles = normalizeRoles(tokenRoles);
+  if (normalizedTokenRoles.length > 0) {
+    return Array.from(new Set(normalizedTokenRoles));
+  }
 
-const buildRefreshCookieOptions = (): CookieOptions => ({
-  ...baseCookieOptions(),
-  maxAge: REFRESH_TOKEN_EXPIRATION_SECONDS * 1000,
-});
+  if (userRole && userRole.trim().length > 0) {
+    return [normalizeRole(userRole)];
+  }
+
+  return [];
+};
+
+const resolvePermissionsForRoles = (roles: string[]): string[] => {
+  if (roles.some((role) => normalizeRole(role) === 'ADMIN')) {
+    return ['*'];
+  }
+
+  const permissions = new Set<string>();
+
+  for (const role of roles) {
+    const normalized = normalizeRole(role);
+    const rolePermissions = ROLE_PERMISSIONS[normalized];
+    if (!rolePermissions) {
+      continue;
+    }
+
+    if (rolePermissions.includes('*')) {
+      permissions.clear();
+      permissions.add('*');
+      break;
+    }
+
+    if (!permissions.has('*')) {
+      rolePermissions.forEach((permission) => permissions.add(permission));
+    }
+  }
+
+  return permissions.has('*') ? ['*'] : Array.from(permissions);
+};
+
+const baseCookieOptions = (): CookieOptions => buildCookieOptions();
+
+const buildAccessCookieOptions = (): CookieOptions =>
+  buildCookieOptions({ maxAge: ACCESS_TOKEN_EXPIRATION_SECONDS * 1000 });
+
+const buildRefreshCookieOptions = (): CookieOptions =>
+  buildCookieOptions({ maxAge: REFRESH_TOKEN_EXPIRATION_SECONDS * 1000 });
 
 const getRefreshTokenFromRequest = (req: Request): string | undefined => {
   for (const name of REFRESH_TOKEN_COOKIE_ALIASES) {
@@ -87,6 +122,11 @@ const authRateLimiter = rateLimit({
 
 router.use(authRateLimiter);
 
+router.get('/csrf', (req, res) => {
+  const csrfToken = rotateCsrfToken(req, res);
+  res.status(200).json({ csrfToken });
+});
+
 router.post('/login', validate(loginSchema), async (req, res, next) => {
   const { email, password } = req.body as LoginInput;
 
@@ -94,6 +134,7 @@ router.post('/login', validate(loginSchema), async (req, res, next) => {
     const { user, accessToken, refreshToken } = await authService.login(email, password);
 
     setAuthCookies(res, { accessToken, refreshToken });
+    const csrfToken = rotateCsrfToken(req, res);
 
     await audit({
       userId: user.id,
@@ -107,6 +148,7 @@ router.post('/login', validate(loginSchema), async (req, res, next) => {
 
     res.status(200).json({
       user,
+      csrfToken,
     });
   } catch (error) {
     next(error);
@@ -126,11 +168,15 @@ router.post('/refresh', async (req, res, next) => {
 
     setAuthCookies(res, { accessToken, refreshToken: newRefreshToken });
 
+    const csrfToken = rotateCsrfToken(req, res);
+
     res.status(200).json({
       user,
+      csrfToken,
     });
   } catch (error) {
     clearAuthCookies(res);
+    clearCsrfToken(res);
     next(error);
   }
 });
@@ -146,7 +192,42 @@ router.post('/logout', async (req, res, next) => {
   }
 
   clearAuthCookies(res);
+  clearCsrfToken(res);
   res.status(204).send();
+});
+
+router.get('/me', authenticate({ optional: true }), async (req, res, next) => {
+  const payload = req.user;
+
+  if (!payload?.sub) {
+    const csrfToken = ensureCsrfToken(req, res);
+    res.status(200).json({ authenticated: false, csrfToken });
+    return;
+  }
+
+  try {
+    const profile = await authService.getUserProfile(payload.sub);
+
+    if (!profile) {
+      const csrfToken = ensureCsrfToken(req, res);
+      res.status(200).json({ authenticated: false, csrfToken });
+      return;
+    }
+
+    const roles = resolveUserRoles(profile.role, payload.roles);
+    const permissions = resolvePermissionsForRoles(roles);
+    const csrfToken = ensureCsrfToken(req, res);
+
+    res.status(200).json({
+      authenticated: true,
+      user: profile,
+      roles,
+      permissions,
+      csrfToken,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 export const authRouter = router;

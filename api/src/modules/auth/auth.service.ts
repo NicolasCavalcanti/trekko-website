@@ -193,6 +193,18 @@ export class AuthService {
     };
   }
 
+  async getUserProfile(userId: string): Promise<BasicUserProfile | null> {
+    if (!userId) {
+      return null;
+    }
+
+    const user = await this.prismaClient.user.findUnique({
+      where: { id: userId },
+    });
+
+    return user ? toBasicProfile(user) : null;
+  }
+
   async logout(refreshToken: string | undefined): Promise<void> {
     if (!refreshToken) {
       return;

@@ -5,7 +5,10 @@
 const DASHBOARD_SLA_SECONDS = 4;
 const DASHBOARD_TIMEOUT = DASHBOARD_SLA_SECONDS * 1000;
 
-const DASHBOARD_API_BASE = resolveDashboardApiBase();
+const DASHBOARD_API_BASE =
+  typeof window !== 'undefined' && window.trekkoAdminApi?.API_BASE
+    ? window.trekkoAdminApi.API_BASE
+    : resolveDashboardApiBase();
 
 const DASHBOARD_ENDPOINTS = {
   metrics: `${DASHBOARD_API_BASE}/admin/dashboard/metrics`,
@@ -142,8 +145,12 @@ if (typeof window !== 'undefined') {
   window.__TREKKO_ADMIN_API_BASE__ = DASHBOARD_API_BASE;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const user = typeof AdminGuard !== 'undefined' ? AdminGuard.requireAuth() : null;
+document.addEventListener('DOMContentLoaded', async () => {
+  if (typeof AdminGuard === 'undefined') {
+    return;
+  }
+
+  const user = await AdminGuard.requireAuth();
   if (!user) {
     return;
   }
@@ -183,6 +190,23 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshStatus.classList.toggle('hidden', !inProgress);
   }
 
+  function handleUnauthorizedResponse(response) {
+    if (!response) return false;
+    if (response.status === 401 || response.status === 403) {
+      if (typeof AdminGuard !== 'undefined' && typeof AdminGuard.handleUnauthorized === 'function') {
+        AdminGuard.handleUnauthorized(new Error(`HTTP_${response.status}`));
+      }
+      return true;
+    }
+    return false;
+  }
+
+  function syncCsrfTokenFromPayload(payload) {
+    if (payload && typeof payload.csrfToken === 'string' && window.trekkoAdminApi) {
+      window.trekkoAdminApi.setCsrfToken(payload.csrfToken);
+    }
+  }
+
   async function loadMetrics() {
     const start = performance.now();
     hideElement(metricsError);
@@ -199,10 +223,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const response = await fetchWithTimeout(DASHBOARD_ENDPOINTS.metrics);
+      if (handleUnauthorizedResponse(response)) {
+        return;
+      }
       if (!response.ok) {
         throw new Error(`Falha ao buscar métricas (${response.status})`);
       }
       const payload = await parseJsonSafely(response);
+      syncCsrfTokenFromPayload(payload);
       const normalized = normalizeMetrics(payload);
       applyMetricValues(normalized);
       metricsState.values = normalized;
@@ -269,10 +297,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const response = await fetchWithTimeout(DASHBOARD_ENDPOINTS.events);
+      if (handleUnauthorizedResponse(response)) {
+        return;
+      }
       if (!response.ok) {
         throw new Error(`Falha ao buscar eventos (${response.status})`);
       }
       const payload = await parseJsonSafely(response);
+      syncCsrfTokenFromPayload(payload);
       const events = normalizeEvents(payload);
       renderEvents(events);
       if (eventsSkeleton) hideElement(eventsSkeleton);
@@ -571,10 +603,14 @@ document.addEventListener('DOMContentLoaded', () => {
           },
           currentAction.timeout || DASHBOARD_TIMEOUT,
         );
+        if (handleUnauthorizedResponse(response)) {
+          return;
+        }
         if (!response.ok) {
           throw new Error(`Falha ao enviar dados (${response.status})`);
         }
         const result = await parseJsonSafely(response);
+        syncCsrfTokenFromPayload(result);
         if (modalFeedback) {
           modalFeedback.textContent = result?.message || currentAction.successMessage || 'Operação concluída com sucesso.';
           modalFeedback.className = 'text-sm text-emerald-600';
@@ -620,7 +656,12 @@ function fetchWithTimeout(url, options = {}, timeout = DASHBOARD_TIMEOUT) {
   const signal = controller.signal;
   const timer = setTimeout(() => controller.abort(), timeout);
 
-  return fetch(url, { ...options, signal })
+  const fetcher =
+    typeof window !== 'undefined' && window.trekkoAdminApi?.fetch
+      ? window.trekkoAdminApi.fetch.bind(window.trekkoAdminApi)
+      : fetch;
+
+  return fetcher(url, { ...options, signal })
     .finally(() => clearTimeout(timer));
 }
 
@@ -1019,78 +1060,18 @@ function toggleElement(element, shouldShow) {
 }
 
 function resolveDashboardApiBase() {
-  const fallback = 'https://p9hwiqcldgkm.manus.space/api';
   if (typeof window === 'undefined') {
-    return fallback;
+    return 'http://localhost:3000/api';
   }
 
-  const candidates = [];
-
-  const globalCandidates = [
-    window.__TREKKO_ADMIN_API_BASE__,
-    window.API_BASE_URL,
-    window.__API_BASE__,
-  ];
-  globalCandidates.forEach((candidate) => {
-    if (candidate) candidates.push(candidate);
-  });
-
-  try {
-    const stored = localStorage.getItem('trekko.apiBase');
-    if (stored) candidates.push(stored);
-  } catch (error) {
-    console.warn('Não foi possível ler a configuração local da API', error);
+  if (window.trekkoAdminApi?.API_BASE) {
+    return window.trekkoAdminApi.API_BASE;
   }
 
-  const host = (window.location?.hostname || '').toLowerCase();
-  if (host) {
-    if (host.includes('localhost') || host.startsWith('127.')) {
-      candidates.push('http://localhost:5000/api');
-    }
-    if (host.includes('manus.space')) {
-      candidates.push(`https://${host}/api`);
-    }
-    if (host.includes('staging') || host.includes('preview') || host.includes('vercel')) {
-      candidates.push('https://g8h3ilcvjnlq.manus.space/api');
-    }
-    if (host.endsWith('trekko.com.br')) {
-      candidates.push('https://p9hwiqcldgkm.manus.space/api');
-    }
+  const { location } = window;
+  if (location?.origin) {
+    return `${location.origin.replace(/\/$/, '')}/api`;
   }
 
-  candidates.push('https://p9hwiqcldgkm.manus.space/api');
-  candidates.push('https://g8h3ilcvjnlq.manus.space/api');
-
-  for (const candidate of candidates) {
-    const normalized = normalizeApiBase(candidate);
-    if (normalized) {
-      return normalized;
-    }
-  }
-
-  return fallback;
-}
-
-function normalizeApiBase(base) {
-  if (!base || typeof base !== 'string') return null;
-  let candidate = base.trim();
-  if (!candidate) return null;
-
-  if (!/^https?:\/\//i.test(candidate)) {
-    candidate = `https://${candidate.replace(/^\/+/, '')}`;
-  }
-
-  try {
-    const url = new URL(candidate);
-    const segments = url.pathname.split('/').filter(Boolean);
-    const apiIndex = segments.indexOf('api');
-    const baseSegments = apiIndex >= 0 ? segments.slice(0, apiIndex + 1) : [...segments, 'api'];
-    url.pathname = `/${baseSegments.join('/')}`;
-    url.search = '';
-    url.hash = '';
-    return url.toString().replace(/\/$/, '');
-  } catch (error) {
-    console.warn('Não foi possível normalizar a URL da API', base, error);
-    return null;
-  }
+  return '/api';
 }
