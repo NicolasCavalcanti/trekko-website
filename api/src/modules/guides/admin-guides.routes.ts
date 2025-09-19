@@ -3,6 +3,7 @@ import { Router } from 'express';
 import multer from 'multer';
 
 import { HttpError } from '../../middlewares/error';
+import { rateLimit } from '../../middlewares/rate-limit';
 import { requireRole } from '../../middlewares/rbac';
 import { validate } from '../../middlewares/validation';
 import { adminGuideService } from './guide.service';
@@ -16,6 +17,7 @@ import {
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
+const importCadasturRateLimiter = rateLimit({ windowMs: 5 * 60_000, max: 5 });
 
 const getActorRoles = (roles: unknown): string[] => {
   if (!Array.isArray(roles)) {
@@ -68,6 +70,7 @@ router.get(
 
 router.post(
   '/import-cadastur',
+  importCadasturRateLimiter,
   requireRole('ADMIN', 'EDITOR', 'OPERADOR'),
   upload.single('file'),
   async (req, res, next) => {

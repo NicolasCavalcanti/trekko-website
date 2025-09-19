@@ -45,7 +45,6 @@ export const audit = async (input: AuditInput): Promise<void> => {
     });
   } catch (error) {
     // Auditing must never block main operations. Log and continue.
-    // eslint-disable-next-line no-console
     console.error('Failed to write audit log entry', error);
   }
 };

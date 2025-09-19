@@ -12,6 +12,7 @@ import { prisma } from './services/prisma';
 import { authRouter } from './modules/auth/auth.routes';
 import { adminRouter } from './modules/admin/admin.routes';
 import { publicRouter } from './modules/public/public.routes';
+import { csrfProtection } from './middlewares/csrf';
 
 const logger = pino({
   level: process.env.LOG_LEVEL ?? 'info',
@@ -66,6 +67,7 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(csrfProtection);
 app.get('/api/healthz', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
