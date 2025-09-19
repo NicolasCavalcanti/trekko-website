@@ -7,6 +7,9 @@ import { HttpError } from '../../middlewares/error';
 import { requireRole } from '../../middlewares/rbac';
 import { audit } from '../audit/audit.service';
 import { adminGuidesRouter } from '../guides/admin-guides.routes';
+import { adminCitiesRouter } from '../geo/admin-cities.routes';
+import { adminParksRouter } from '../geo/admin-parks.routes';
+import { adminStatesRouter } from '../geo/admin-states.routes';
 import { adminUsersRouter } from '../users/admin-users.routes';
 
 const router = Router();
@@ -29,6 +32,9 @@ const parseBooleanFlag = (value: unknown): boolean => {
 
 router.use('/users', adminUsersRouter);
 router.use('/guides', adminGuidesRouter);
+router.use('/states', adminStatesRouter);
+router.use('/cities', adminCitiesRouter);
+router.use('/parks', adminParksRouter);
 
 router.post(
   '/cadastur/import',
