@@ -41,6 +41,13 @@ enum ReservationStatus {
   EXPIRED
 }
 
+enum ReviewStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+  FLAGGED
+}
+
 enum PaymentProvider {
   STRIPE
   PAGSEGURO
@@ -91,6 +98,8 @@ model User {
   guideProfile GuideProfile?
   reservations Reservation[]
   expeditions  Expedition[]  @relation("ExpeditionCreator")
+  reviews      Review[]       @relation("UserReviews")
+  reviewResponses Review[]    @relation("ReviewResponses")
 }
 
 model AuthSession {
@@ -144,6 +153,7 @@ model GuideProfile {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   leadExpeditions Expedition[]
+  reviews Review[] @relation("GuideReviews")
 }
 
 model State {
@@ -232,6 +242,7 @@ model Trail {
   city   City?   @relation(fields: [cityId], references: [id])
   medias Media[]
   expeditions Expedition[]
+  reviews Review[] @relation("TrailReviews")
 
   @@index([stateId])
   @@index([cityId])
@@ -289,6 +300,7 @@ model Expedition {
   trail      Trail?        @relation(fields: [trailId], references: [id])
   leadGuide  GuideProfile? @relation(fields: [leadGuideId], references: [id])
   createdBy  User          @relation("ExpeditionCreator", fields: [createdById], references: [id])
+  reviews    Review[]      @relation("ExpeditionReviews")
   reservations Reservation[]
 
   @@index([status])
@@ -323,6 +335,7 @@ model Reservation {
   expedition Expedition @relation(fields: [expeditionId], references: [id])
   user       User       @relation(fields: [userId], references: [id])
   payments   Payment[]
+  reviews    Review[]   @relation("ReservationReviews")
 
   @@index([expeditionId])
   @@index([userId])
@@ -373,4 +386,38 @@ model PaymentRefund {
 
   @@index([paymentId])
   @@index([status])
+}
+
+model Review {
+  id            String       @id @default(uuid())
+  reservationId String?
+  expeditionId  String?
+  trailId       String?
+  guideId       String?
+  userId        String
+  rating        Int
+  title         String?
+  comment       String?
+  status        ReviewStatus @default(PENDING)
+  response      String?
+  respondedAt   DateTime?
+  responseById  String?
+  publishedAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  deletedAt     DateTime?
+
+  reservation Reservation?  @relation("ReservationReviews", fields: [reservationId], references: [id])
+  expedition  Expedition?   @relation("ExpeditionReviews", fields: [expeditionId], references: [id])
+  trail       Trail?        @relation("TrailReviews", fields: [trailId], references: [id])
+  guide       GuideProfile? @relation("GuideReviews", fields: [guideId], references: [id])
+  user        User          @relation("UserReviews", fields: [userId], references: [id])
+  responseBy  User?         @relation("ReviewResponses", fields: [responseById], references: [id])
+
+  @@index([expeditionId])
+  @@index([trailId])
+  @@index([guideId])
+  @@index([userId])
+  @@index([status])
+  @@index([reservationId])
 }

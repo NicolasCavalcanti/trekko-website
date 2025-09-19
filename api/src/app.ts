@@ -11,6 +11,7 @@ import { requestId } from './middlewares/request-id';
 import { prisma } from './services/prisma';
 import { authRouter } from './modules/auth/auth.routes';
 import { adminRouter } from './modules/admin/admin.routes';
+import { publicRouter } from './modules/public/public.routes';
 
 const logger = pino({
   level: process.env.LOG_LEVEL ?? 'info',
@@ -88,6 +89,7 @@ app.get('/api/healthz', async (_req: Request, res: Response, next: NextFunction)
 
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/public', publicRouter);
 
 app.use(errorHandler);
 
