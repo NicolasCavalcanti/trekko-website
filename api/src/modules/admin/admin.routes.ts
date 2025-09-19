@@ -15,6 +15,8 @@ import { adminTrailsRouter } from '../trails/admin-trails.routes';
 import { adminMediaRouter } from '../media/admin-media.routes';
 import { adminExpeditionsRouter } from '../expeditions/admin-expeditions.routes';
 import { adminReservationsRouter } from '../reservations/admin-reservations.routes';
+import { adminPaymentsRouter } from '../payments/admin-payments.routes';
+import { adminDashboardRouter } from '../dashboard/admin-dashboard.routes';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -43,6 +45,8 @@ router.use('/trails', adminTrailsRouter);
 router.use('/media', adminMediaRouter);
 router.use('/expeditions', adminExpeditionsRouter);
 router.use('/reservations', adminReservationsRouter);
+router.use('/payments', adminPaymentsRouter);
+router.use('/dashboard', adminDashboardRouter);
 
 router.post(
   '/cadastur/import',
