@@ -13,12 +13,17 @@ import { authRouter } from './modules/auth/auth.routes';
 import { adminRouter } from './modules/admin/admin.routes';
 import { publicRouter } from './modules/public/public.routes';
 import { csrfProtection } from './middlewares/csrf';
+import { ensureDefaultAdmins } from './bootstrap/admin';
 
 const logger = pino({
   level: process.env.LOG_LEVEL ?? 'info',
 });
 
 const app = express();
+
+void ensureDefaultAdmins().catch((error) => {
+  logger.error({ err: error }, 'Failed to ensure default admin users');
+});
 
 const corsOrigins = process.env.CORS_ORIGIN
   ?.split(',')
