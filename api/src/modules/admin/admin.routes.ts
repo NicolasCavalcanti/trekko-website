@@ -11,6 +11,8 @@ import { adminCitiesRouter } from '../geo/admin-cities.routes';
 import { adminParksRouter } from '../geo/admin-parks.routes';
 import { adminStatesRouter } from '../geo/admin-states.routes';
 import { adminUsersRouter } from '../users/admin-users.routes';
+import { adminTrailsRouter } from '../trails/admin-trails.routes';
+import { adminMediaRouter } from '../media/admin-media.routes';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -35,6 +37,8 @@ router.use('/guides', adminGuidesRouter);
 router.use('/states', adminStatesRouter);
 router.use('/cities', adminCitiesRouter);
 router.use('/parks', adminParksRouter);
+router.use('/trails', adminTrailsRouter);
+router.use('/media', adminMediaRouter);
 
 router.post(
   '/cadastur/import',
