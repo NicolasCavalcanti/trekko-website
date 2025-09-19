@@ -108,6 +108,7 @@ model State {
   updatedAt DateTime @updatedAt
 
   cities City[]
+  trails Trail[]
 
   @@index([name])
   @@index([region])
@@ -124,8 +125,9 @@ model City {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  state State @relation(fields: [stateId], references: [id])
-  parks Park[]
+  state  State   @relation(fields: [stateId], references: [id])
+  parks  Park[]
+  trails Trail[]
 
   @@unique([stateId, slug])
   @@index([stateId, name])
@@ -144,4 +146,70 @@ model Park {
 
   @@unique([cityId, slug])
   @@index([cityId, name])
+}
+
+enum TrailDifficulty {
+  EASY
+  MODERATE
+  HARD
+  EXTREME
+}
+
+model Trail {
+  id              String          @id @default(uuid())
+  slug            String          @unique
+  name            String
+  summary         String?
+  description     String?
+  difficulty      TrailDifficulty @default(MODERATE)
+  distanceKm      Decimal?        @db.Decimal(6, 2)
+  durationMinutes Int?
+  elevationGain   Int?
+  elevationLoss   Int?
+  maxAltitude     Int?
+  minAltitude     Int?
+  stateId         Int?
+  cityId          Int?
+  hasWaterPoints  Boolean         @default(false)
+  hasCamping      Boolean         @default(false)
+  paidEntry       Boolean         @default(false)
+  entryFeeCents   Int?
+  guideFeeCents   Int?
+  meetingPoint    String?
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  deletedAt       DateTime?
+
+  state  State?  @relation(fields: [stateId], references: [id])
+  city   City?   @relation(fields: [cityId], references: [id])
+  medias Media[]
+
+  @@index([stateId])
+  @@index([cityId])
+  @@index([difficulty])
+  @@index([deletedAt])
+}
+
+model Media {
+  id          String    @id @default(uuid())
+  trailId     String?
+  key         String    @unique
+  fileName    String?
+  contentType String?
+  size        Int?
+  title       String?
+  description String?
+  order       Int?
+  publicUrl   String?
+  uploadedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  trail Trail? @relation(fields: [trailId], references: [id])
+
+  @@index([trailId])
+  @@index([deletedAt])
+  @@index([trailId, order])
 }
