@@ -12,7 +12,8 @@ import {
   REFRESH_TOKEN_EXPIRATION_SECONDS,
   authService,
 } from './auth.service';
-import { loginSchema, type LoginInput } from './auth.schemas';
+import { loginSchema, type LoginInput, validateCadasturSchema, type ValidateCadasturInput } from './auth.schemas';
+import { cadasturLookupService } from '../../services/cadastur-lookup';
 import { buildCookieOptions } from '../../services/cookies';
 
 const ACCESS_TOKEN_COOKIE_NAME = 'accessToken';
@@ -126,6 +127,41 @@ router.get('/csrf', (req, res) => {
   const csrfToken = rotateCsrfToken(req, res);
   res.status(200).json({ csrfToken });
 });
+
+router.post(
+  '/validate-cadastur',
+  validate(validateCadasturSchema),
+  async (req, res, next) => {
+    const { name, cadastur_number: cadasturNumber } = req.body as ValidateCadasturInput;
+    const trimmedName = name.trim();
+    const normalizedNumber = cadasturNumber.replace(/\D/g, '');
+
+    if (normalizedNumber.length !== 11) {
+      res.status(400).json({
+        valid: false,
+        message: 'Número CADASTUR deve conter 11 dígitos',
+      });
+      return;
+    }
+
+    try {
+      const isValid = await cadasturLookupService.isValid(trimmedName, normalizedNumber);
+
+      if (!isValid) {
+        res.status(404).json({
+          valid: false,
+          message:
+            'Nome ou número CADASTUR não encontrados na base oficial. Verifique seus dados ou entre em contato com suporte@trekko.com.br.',
+        });
+        return;
+      }
+
+      res.status(200).json({ valid: true });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 router.post('/login', validate(loginSchema), async (req, res, next) => {
   const { email, password } = req.body as LoginInput;
