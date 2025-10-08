@@ -12,6 +12,9 @@ class TrekkoAuth {
         // Fallback to production if the local API is unavailable
         this.apiUrl = isLocal ? this.localApi : this.productionApi;
         this.authToken = null;
+        this.cadasturDataCache = null;
+        this.cadasturDataPromise = null;
+        this.cadasturValidationToken = 0;
         this.injectStyles();
         this.init();
     }
@@ -161,11 +164,37 @@ class TrekkoAuth {
         const userTypeSelect = modal.querySelector('#register-user-type');
         const cadasturSection = modal.querySelector('#cadastur-section');
         const cadasturInput = modal.querySelector('#register-cadastur');
+        const nameInput = modal.querySelector('#register-name');
+
+        const triggerCadasturValidation = () => {
+            if (!cadasturInput) {
+                return;
+            }
+
+            if (userTypeSelect.value !== 'guia') {
+                this.clearValidation();
+                return;
+            }
+
+            const digits = cadasturInput.value.replace(/\D/g, '');
+            if (cadasturInput.value !== digits) {
+                cadasturInput.value = digits;
+            }
+
+            if (!digits) {
+                this.clearValidation();
+                return;
+            }
+
+            const currentName = nameInput?.value ?? '';
+            void this.validateCadastur(currentName, digits);
+        };
 
         userTypeSelect.addEventListener('change', () => {
             if (userTypeSelect.value === 'guia') {
                 cadasturSection.style.display = 'block';
                 cadasturInput.required = true;
+                triggerCadasturValidation();
             } else {
                 cadasturSection.style.display = 'none';
                 cadasturInput.required = false;
@@ -175,8 +204,18 @@ class TrekkoAuth {
         });
 
         cadasturInput.addEventListener('input', () => {
-            this.validateCadastur(cadasturInput.value);
+            triggerCadasturValidation();
         });
+
+        if (nameInput) {
+            nameInput.addEventListener('input', () => {
+                if (userTypeSelect.value === 'guia' && cadasturInput.value.trim().length > 0) {
+                    void this.validateCadastur(nameInput.value, cadasturInput.value);
+                } else if (cadasturInput.value.trim().length === 0) {
+                    this.clearValidation();
+                }
+            });
+        }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -256,7 +295,7 @@ class TrekkoAuth {
         }
 
         if (data.user_type === 'guia') {
-            const isValid = await this.validateCadastur(data.cadastur_number);
+            const isValid = await this.validateCadastur(data.name ?? '', data.cadastur_number);
             if (!isValid) {
                 return;
             }
@@ -319,66 +358,330 @@ class TrekkoAuth {
         }
     }
 
-    async validateCadastur(cadasturNumber) {
+    async validateCadastur(name, cadasturNumber) {
         const validationDiv = document.getElementById('cadastur-validation');
-        if (!validationDiv) return false;
+        this.cadasturValidationToken += 1;
+        const currentToken = this.cadasturValidationToken;
 
-        if (!cadasturNumber) {
-            validationDiv.innerHTML = '';
+        if (!validationDiv) {
             return false;
         }
 
-        const clean = cadasturNumber.replace(/\D/g, '');
-        if (!clean) {
+        const trimmedName = (name ?? '').trim();
+        const rawNumber = (cadasturNumber ?? '').toString().trim();
+
+        if (!trimmedName || !rawNumber) {
+            validationDiv.innerHTML = '<span class="trekko-validation-error">❌ Número CADASTUR e nome são obrigatórios</span>';
+            return false;
+        }
+
+        const digitsOnly = rawNumber.replace(/\D/g, '');
+        if (digitsOnly.length !== rawNumber.length) {
             validationDiv.innerHTML = '<span class="trekko-validation-error">❌ CADASTUR deve conter apenas números</span>';
             return false;
         }
 
-        if (clean.length !== 11) {
+        if (digitsOnly.length !== 11) {
             validationDiv.innerHTML = '<span class="trekko-validation-error">❌ CADASTUR deve conter 11 dígitos</span>';
             return false;
         }
 
         validationDiv.innerHTML = '<span>🔄 Validando...</span>';
-        return await this.validateCadasturAPI(clean);
-    }
 
-    async validateCadasturAPI(cadasturNumber) {
+        let cadasturData;
         try {
-            let response = await fetch(`${this.apiUrl}/validate-cadastur`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cadastur_number: cadasturNumber })
-            });
-
-            if (!response.ok && this.apiUrl === this.localApi) {
-                response = await fetch(`${this.productionApi}/validate-cadastur`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cadastur_number: cadasturNumber })
-                });
-                this.apiUrl = this.productionApi;
-            }
-
-            const result = await response.json();
-            const validationDiv = document.getElementById('cadastur-validation');
-
-            if (result.valid) {
-                validationDiv.innerHTML = '<span class="trekko-validation-success">✅ CADASTUR válido</span>';
-                return true;
-            } else {
-                validationDiv.innerHTML = `<span class="trekko-validation-error">❌ ${result.message}</span>`;
-                return false;
-            }
+            cadasturData = await this.loadCadasturData();
         } catch (error) {
-            const validationDiv = document.getElementById('cadastur-validation');
-            validationDiv.innerHTML = '<span class="trekko-validation-error">❌ Erro ao validar CADASTUR</span>';
-            this.handleFetchError(error);
+            console.error('Erro ao carregar base CADASTUR local:', error);
+            if (currentToken === this.cadasturValidationToken) {
+                validationDiv.innerHTML = '<span class="trekko-validation-error">❌ Não foi possível acessar a base oficial CADASTUR. Tente novamente.</span>';
+            }
             return false;
         }
+
+        if (currentToken !== this.cadasturValidationToken) {
+            return false;
+        }
+
+        const normalizedName = this.normalizeCadasturName(trimmedName);
+        const namesForNumber = cadasturData.namesByNumber.get(digitsOnly);
+
+        if (!namesForNumber || !namesForNumber.has(normalizedName)) {
+            validationDiv.innerHTML = '<span class="trekko-validation-error">❌ Nome ou número CADASTUR não encontrados na base oficial. Verifique seus dados ou entre em contato com suporte@trekko.com.br.</span>';
+            return false;
+        }
+
+        let serverResult;
+        try {
+            serverResult = await this.validateCadasturServer(trimmedName, digitsOnly);
+        } catch (error) {
+            console.error('Erro ao validar CADASTUR no servidor:', error);
+            if (currentToken === this.cadasturValidationToken) {
+                validationDiv.innerHTML = '<span class="trekko-validation-error">❌ Erro ao validar CADASTUR. Tente novamente.</span>';
+            }
+            return false;
+        }
+
+        if (currentToken !== this.cadasturValidationToken) {
+            return false;
+        }
+
+        if (!serverResult.valid) {
+            const message = serverResult.message || 'Nome ou número CADASTUR não encontrados na base oficial. Verifique seus dados ou entre em contato com suporte@trekko.com.br.';
+            validationDiv.innerHTML = `<span class="trekko-validation-error">❌ ${message}</span>`;
+            return false;
+        }
+
+        validationDiv.innerHTML = '<span class="trekko-validation-success">✅ CADASTUR válido e verificado</span>';
+        return true;
+    }
+
+    async validateCadasturServer(name, cadasturNumber) {
+        const payload = {
+            name: name.trim(),
+            cadastur_number: cadasturNumber,
+        };
+
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        };
+
+        let response;
+        let result = {};
+
+        try {
+            response = await fetch(`${this.apiUrl}/validate-cadastur`, requestOptions);
+        } catch (error) {
+            if (this.apiUrl !== this.productionApi) {
+                response = await fetch(`${this.productionApi}/validate-cadastur`, requestOptions);
+                this.apiUrl = this.productionApi;
+            } else {
+                throw error;
+            }
+        }
+
+        if (!response) {
+            return { valid: false };
+        }
+
+        try {
+            result = await response.json();
+        } catch {
+            result = {};
+        }
+
+        if (!response.ok && this.apiUrl === this.localApi) {
+            response = await fetch(`${this.productionApi}/validate-cadastur`, requestOptions);
+            this.apiUrl = this.productionApi;
+            try {
+                result = await response.json();
+            } catch {
+                result = {};
+            }
+        }
+
+        if (!response.ok) {
+            return {
+                valid: false,
+                message: result.message,
+            };
+        }
+
+        return {
+            valid: !!result.valid,
+            message: result.message,
+        };
+    }
+
+    async loadCadasturData() {
+        if (this.cadasturDataCache) {
+            return this.cadasturDataCache;
+        }
+
+        if (this.cadasturDataPromise) {
+            return this.cadasturDataPromise;
+        }
+
+        this.cadasturDataPromise = this.fetchCadasturCsv()
+            .then((csv) => this.parseCadasturCsv(csv))
+            .then((data) => {
+                if (!data || data.namesByNumber.size === 0) {
+                    throw new Error('Base oficial CADASTUR vazia ou inválida');
+                }
+                this.cadasturDataCache = data;
+                return data;
+            })
+            .catch((error) => {
+                this.cadasturDataCache = null;
+                throw error;
+            })
+            .finally(() => {
+                this.cadasturDataPromise = null;
+            });
+
+        return this.cadasturDataPromise;
+    }
+
+    async fetchCadasturCsv() {
+        const candidates = ['/BD_CADASTUR.csv', '/CADASTUR.csv'];
+        let lastError = null;
+
+        for (const candidate of candidates) {
+            try {
+                const response = await fetch(candidate, { cache: 'no-store' });
+                if (!response.ok) {
+                    lastError = new Error(`Falha ao carregar ${candidate}: ${response.status}`);
+                    continue;
+                }
+
+                const text = await response.text();
+                if (text && text.trim().length > 0) {
+                    return text;
+                }
+
+                lastError = new Error(`Arquivo ${candidate} vazio`);
+            } catch (error) {
+                lastError = error;
+            }
+        }
+
+        throw lastError || new Error('Não foi possível carregar a base CADASTUR');
+    }
+
+    parseCadasturCsv(csvContent) {
+        const sanitized = csvContent.replace(/\r/g, '\n');
+        const lines = sanitized.split('\n').map((line) => line.trim()).filter((line) => line.length > 0);
+
+        if (lines.length === 0) {
+            return { namesByNumber: new Map(), total: 0 };
+        }
+
+        const headerLine = lines.shift().replace(/^\uFEFF/, '');
+        const delimiter = this.detectCadasturDelimiter(headerLine);
+        const headers = this.parseCadasturLine(headerLine, delimiter).map((header) => this.normalizeCadasturHeader(header));
+        const nameIndex = this.findCadasturColumnIndex(headers, ['NOME_COMPLETO', 'NOME', 'NOME_COMPLETO_DO_GUIA', 'NOME_DO_GUIA']);
+        const numberIndex = this.findCadasturColumnIndex(headers, ['NUMERO_CADASTUR', 'NUMERO_DO_CERTIFICADO', 'NUMERO_DO_CADASTUR']);
+
+        if (nameIndex === -1 || numberIndex === -1) {
+            throw new Error('Colunas NOME_COMPLETO ou NUMERO_CADASTUR não encontradas na base CADASTUR');
+        }
+
+        const namesByNumber = new Map();
+        let total = 0;
+
+        for (const rawLine of lines) {
+            const values = this.parseCadasturLine(rawLine, delimiter);
+            if (values.length <= Math.max(nameIndex, numberIndex)) {
+                continue;
+            }
+
+            const rawName = values[nameIndex]?.trim();
+            const rawNumber = values[numberIndex]?.trim();
+            if (!rawName || !rawNumber) {
+                continue;
+            }
+
+            const normalizedNumber = this.normalizeCadasturNumber(rawNumber);
+            const normalizedName = this.normalizeCadasturName(rawName);
+
+            if (!normalizedNumber || !normalizedName) {
+                continue;
+            }
+
+            if (!namesByNumber.has(normalizedNumber)) {
+                namesByNumber.set(normalizedNumber, new Set());
+            }
+
+            namesByNumber.get(normalizedNumber).add(normalizedName);
+            total += 1;
+        }
+
+        return { namesByNumber, total };
+    }
+
+    detectCadasturDelimiter(headerLine) {
+        const candidates = [',', ';', '\t', '|'];
+        let bestDelimiter = ';';
+        let bestCount = -1;
+
+        for (const candidate of candidates) {
+            const count = headerLine.split(candidate).length - 1;
+            if (count > bestCount) {
+                bestCount = count;
+                bestDelimiter = candidate;
+            }
+        }
+
+        return bestDelimiter;
+    }
+
+    parseCadasturLine(line, delimiter) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+
+        for (let index = 0; index < line.length; index += 1) {
+            const char = line[index];
+
+            if (char === '"') {
+                if (inQuotes && line[index + 1] === '"') {
+                    current += '"';
+                    index += 1;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+                continue;
+            }
+
+            if (char === delimiter && !inQuotes) {
+                result.push(current);
+                current = '';
+                continue;
+            }
+
+            current += char;
+        }
+
+        result.push(current);
+        return result;
+    }
+
+    normalizeCadasturHeader(value) {
+        return value
+            .replace(/^\uFEFF/, '')
+            .trim()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toUpperCase()
+            .replace(/[^A-Z0-9]+/g, '_');
+    }
+
+    findCadasturColumnIndex(headers, candidates) {
+        for (const candidate of candidates) {
+            const index = headers.indexOf(candidate);
+            if (index !== -1) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    normalizeCadasturName(value) {
+        return value
+            .replace(/^\uFEFF/, '')
+            .trim()
+            .replace(/\s+/g, ' ')
+            .toLowerCase();
+    }
+
+    normalizeCadasturNumber(value) {
+        return value.replace(/\D/g, '');
     }
 
     clearValidation() {
+        this.cadasturValidationToken += 1;
         const validationDiv = document.getElementById('cadastur-validation');
         if (validationDiv) {
             validationDiv.innerHTML = '';

@@ -8,3 +8,12 @@ export const loginSchema = {
 };
 
 export type LoginInput = z.infer<(typeof loginSchema)['body']>;
+
+export const validateCadasturSchema = {
+  body: z.object({
+    name: z.string().trim().min(1, 'Nome é obrigatório'),
+    cadastur_number: z.string().trim().min(1, 'Número CADASTUR é obrigatório'),
+  }),
+};
+
+export type ValidateCadasturInput = z.infer<(typeof validateCadasturSchema)['body']>;
