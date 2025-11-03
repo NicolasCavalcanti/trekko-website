@@ -6,10 +6,13 @@ class TrekkoAuthManager {
         const localApi = 'http://localhost:5000/api';
         const productionApi = 'https://p9hwiqcldgkm.manus.space/api';
         // Detectar ambiente local (incluindo file://)
-        const isLocal = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) || 
+        const isLocal = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) ||
                        window.location.protocol === 'file:';
         this.apiUrl = isLocal ? localApi : productionApi;
-        // Base local de guias não é mais utilizada
+        // Cache da base CADASTUR carregada do arquivo estático
+        this.cadasturData = null;
+        this.cadasturIndexByNumber = null;
+        this.cadasturLoadPromise = null;
         this.currentUser = null;
         this.authToken = null;
         // Estado de validação do guia profissional
@@ -22,90 +25,175 @@ class TrekkoAuthManager {
     }
 
     // Base de dados de guias válidos com CADASTUR
-    loadGuidesDatabase() {
-        return [
-            {
-                name: "Carlos Silva Santos",
-                cadastur: "27123456789",
-                estado: "RJ",
-                especialidades: ["Montanha", "Trilhas"],
-                ativo: true
-            },
-            {
-                name: "Maria Fernanda Oliveira",
-                cadastur: "27987654321",
-                estado: "MG",
-                especialidades: ["Cachoeiras", "Ecoturismo"],
-                ativo: true
-            },
-            {
-                name: "João Pedro Montanha",
-                cadastur: "27456789123",
-                estado: "SP",
-                especialidades: ["Trekking", "Aventura"],
-                ativo: true
-            },
-            {
-                name: "Ana Carolina Rocha",
-                cadastur: "27789123456",
-                estado: "ES",
-                especialidades: ["Trilhas", "Natureza"],
-                ativo: true
-            },
-            {
-                name: "Roberto Carlos Lima",
-                cadastur: "27321654987",
-                estado: "BA",
-                especialidades: ["Montanha", "Expedições"],
-                ativo: true
-            },
-            {
-                name: "Fernanda Santos Costa",
-                cadastur: "27654987321",
-                estado: "PR",
-                especialidades: ["Ecoturismo", "Aventura"],
-                ativo: true
-            },
-            {
-                name: "Lucas Henrique Alves",
-                cadastur: "27147258369",
-                estado: "SC",
-                especialidades: ["Trilhas", "Montanha"],
-                ativo: true
-            },
-            {
-                name: "Juliana Pereira Souza",
-                cadastur: "27963852741",
-                estado: "GO",
-                especialidades: ["Natureza", "Trekking"],
-                ativo: true
-            },
-            {
-                name: "Rafael Augusto Ferreira",
-                cadastur: "27852741963",
-                estado: "RO",
-                especialidades: ["Expedições", "Aventura"],
-                ativo: true
-            },
-            {
-                name: "Camila Rodrigues Martins",
-                cadastur: "27741852963",
-                estado: "AM",
-                especialidades: ["Floresta", "Ecoturismo"],
-                ativo: true
-            },
-            {
-                name: "Julieli Ferrari dos Santos",
-                cadastur: "21467985879",
-                estado: "RS",
-                especialidades: [
-                    "Ecoturismo",
-                    "Turismo Cultural",
-                    "Turismo de Negócios e Eventos"
-                ],
-                ativo: true
+    async loadGuidesDatabase() {
+        if (this.cadasturData) {
+            return this.cadasturData;
+        }
+
+        if (this.cadasturLoadPromise) {
+            return this.cadasturLoadPromise;
+        }
+
+        this.cadasturLoadPromise = (async () => {
+            try {
+                const response = await fetch('BD_CADASTUR.csv', { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error('Não foi possível carregar a base do Cadastur.');
+                }
+
+                const csvText = await response.text();
+                const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
+
+                if (lines.length === 0) {
+                    throw new Error('Base do Cadastur vazia.');
+                }
+
+                const headerLine = lines.shift().replace(/^﻿/, '');
+                const headers = headerLine.split(';').map(h => h.trim());
+
+                const columnIndex = (label) => {
+                    const normalizedLabel = this.normalizeString(label);
+                    return headers.findIndex(h => this.normalizeString(h) === normalizedLabel);
+                };
+
+                const idxName = columnIndex('Nome Completo');
+                const idxNumber = columnIndex('Número do Certificado');
+                const idxUf = columnIndex('UF');
+                const idxCity = columnIndex('Município');
+                const idxValidity = columnIndex('Validade do Certificado');
+                const idxActivity = columnIndex('Atividade Turística');
+
+                const missingColumns = [
+                    ['Nome Completo', idxName],
+                    ['Número do Certificado', idxNumber],
+                    ['UF', idxUf],
+                    ['Município', idxCity],
+                    ['Validade do Certificado', idxValidity],
+                    ['Atividade Turística', idxActivity]
+                ].filter(([, idx]) => idx === -1);
+
+                if (missingColumns.length > 0) {
+                    throw new Error(`Colunas ausentes na base do Cadastur: ${missingColumns.map(([name]) => name).join(', ')}`);
+                }
+
+                const cadasturRecords = [];
+                const cadasturIndex = new Map();
+
+                const today = new Date();
+
+                for (const line of lines) {
+                    const parts = line.split(';');
+                    const rawNumber = (parts[idxNumber] || '').trim();
+                    if (!rawNumber) {
+                        continue;
+                    }
+
+                    const normalizedNumber = rawNumber.replace(/\D/g, '');
+                    const name = (parts[idxName] || '').trim();
+                    const normalizedName = this.normalizeNameForComparison(name);
+                    const uf = (parts[idxUf] || '').trim();
+                    const city = (parts[idxCity] || '').trim();
+                    const activity = (parts[idxActivity] || '').trim();
+                    const validityRaw = (parts[idxValidity] || '').trim();
+                    const { validityDate, validityDisplay } = this.parseCadasturValidity(validityRaw);
+                    const isActive = !validityDate || validityDate >= today;
+
+                    const record = {
+                        number: normalizedNumber,
+                        rawNumber,
+                        name,
+                        normalizedName,
+                        uf,
+                        city,
+                        activity,
+                        validityDate,
+                        validityDisplay,
+                        isActive
+                    };
+
+                    cadasturRecords.push(record);
+
+                    const existingEntries = cadasturIndex.get(normalizedNumber) || [];
+                    existingEntries.push(record);
+                    cadasturIndex.set(normalizedNumber, existingEntries);
+                }
+
+                if (cadasturRecords.length === 0) {
+                    throw new Error('Nenhum registro encontrado na base do Cadastur.');
+                }
+
+                this.cadasturData = cadasturRecords;
+                this.cadasturIndexByNumber = cadasturIndex;
+                return cadasturRecords;
+            } finally {
+                this.cadasturLoadPromise = null;
             }
-        ];
+        })();
+
+        return this.cadasturLoadPromise;
+    }
+
+    normalizeNameForComparison(name) {
+        if (!name) return '';
+        return this.normalizeString(name).replace(/\s+/g, ' ').trim();
+    }
+
+    parseCadasturValidity(rawValue) {
+        if (!rawValue) {
+            return {
+                validityDate: null,
+                validityDisplay: null
+            };
+        }
+
+        const trimmed = rawValue.trim();
+        if (!trimmed) {
+            return {
+                validityDate: null,
+                validityDisplay: null
+            };
+        }
+
+        let normalizedIso = null;
+
+        if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) {
+            const [datePart, timePartWithMillis] = trimmed.split(' ');
+            let timePart = '00:00:00';
+            let millisPart = '';
+
+            if (timePartWithMillis) {
+                const [time, millis] = timePartWithMillis.split(',');
+                if (time) {
+                    timePart = time.padEnd(8, '0');
+                }
+                if (millis) {
+                    millisPart = `.${millis}`;
+                }
+            }
+
+            normalizedIso = `${datePart}T${timePart}${millisPart}`;
+        } else {
+            const match = trimmed.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+            if (match) {
+                const [, day, month, year] = match;
+                normalizedIso = `${year}-${month}-${day}T00:00:00`;
+            }
+        }
+
+        let validityDate = null;
+        if (normalizedIso) {
+            const parsed = new Date(normalizedIso);
+            if (!Number.isNaN(parsed.getTime())) {
+                validityDate = parsed;
+            }
+        }
+
+        return {
+            validityDate,
+            validityDisplay: validityDate
+                ? validityDate.toLocaleDateString('pt-BR')
+                : trimmed
+        };
     }
 
     init() {
@@ -577,95 +665,128 @@ class TrekkoAuthManager {
             validationSummary.innerHTML = '';
         }
 
-        const maskedCadastur = this.maskCadastur(cadastur);
-        console.info('[CADASTUR] Iniciando validação', {
-            name,
-            cadastur: maskedCadastur
-        });
-
         try {
-            const response = await fetch(`${this.apiUrl}/auth/validate-cadastur`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name,
-                    cadastur_number: cadastur
-                })
-            });
+            await this.loadGuidesDatabase();
 
-            const result = await response.json();
-            const normalizedStatus = result.status ? String(result.status).toUpperCase() : undefined;
-
-            console.info('[CADASTUR] Resultado da validação', {
-                status: normalizedStatus,
-                reason: result.reason,
-                guideId: result.guide_id,
-                cadastur: maskedCadastur
-            });
-
-            if (!response.ok) {
-                throw new Error(result.message || 'Erro ao validar CADASTUR');
+            if (!this.cadasturIndexByNumber) {
+                throw new Error('Base do Cadastur não inicializada.');
             }
 
-            const isActive = result.valid && (!normalizedStatus || normalizedStatus === 'ATIVO');
+            const normalizedNumber = cadastur.replace(/\D/g, '');
+            const normalizedName = this.normalizeNameForComparison(name);
 
-            if (isActive) {
-                this.guideValidationState = 'success';
-                this.validatedGuideData = {
-                    guide_id: result.guide_id || null,
-                    status: normalizedStatus || 'ATIVO',
-                    reason: result.reason || null
-                };
+            if (!normalizedNumber) {
+                this.guideValidationState = 'error';
+                this.showValidationMessage(cadasturValidation, 'Informe apenas números no CADASTUR.', 'error');
+                cadasturInput.classList.add('error');
+                this.updateRegisterButtonState();
+                return false;
+            }
+
+            const entries = this.cadasturIndexByNumber.get(normalizedNumber) || [];
+
+            if (entries.length === 0) {
+                this.guideValidationState = 'error';
+                this.validatedGuideData = null;
                 this.showValidationMessage(
                     cadasturValidation,
-                    'Validação concluída. Guia encontrado e ativo.',
-                    'success'
+                    'Não encontramos esse número de cadastro na base do Cadastur.',
+                    'error'
                 );
-                cadasturInput.classList.remove('error');
-                cadasturInput.classList.add('success');
-
-                if (validationSummary) {
-                    const summaryItems = [];
-                    if (result.guide_id) {
-                        summaryItems.push(`<p><strong>ID:</strong> ${result.guide_id}</p>`);
-                    }
-                    if (normalizedStatus) {
-                        summaryItems.push(`<p><strong>Status:</strong> ${normalizedStatus}</p>`);
-                    }
-                    validationSummary.innerHTML = summaryItems.join('');
-                    if (summaryItems.length > 0) {
-                        validationSummary.classList.remove('hidden');
-                    }
-                }
-
+                cadasturInput.classList.remove('success');
+                cadasturInput.classList.add('error');
                 this.updateRegisterButtonState();
-                return true;
+                return false;
             }
 
-            this.guideValidationState = 'error';
-            this.validatedGuideData = null;
+            const isGuideActivity = (record) => this.normalizeString(record.activity) === this.normalizeString('Guia de Turismo');
+            const prioritizedEntries = entries.filter(isGuideActivity);
+            const candidates = prioritizedEntries.length > 0 ? prioritizedEntries : entries;
 
-            let message;
-            if (normalizedStatus === 'INATIVO') {
-                message = 'O cadastro informado está inativo. Verifique seus dados no Cadastur.';
-            } else if (result.reason === 'MISMATCH_NOME') {
-                message = 'Não encontramos correspondência entre nome e número de cadastro.';
-            } else if (['MISMATCH_CADASTRO', 'MISMATCH_CADASTUR', 'MISMATCH_NUMERO'].includes(result.reason)) {
-                message = 'Nome ou número de cadastro não coincidem.';
-            } else if (result.reason === 'NAO_ENCONTRADO') {
-                message = 'Não encontramos esse número de cadastro.';
-            } else if (result.reason === 'ERRO_INTERNO') {
-                message = 'Não foi possível validar agora. Tente novamente em instantes.';
-            } else {
-                message = result.message || 'Não foi possível validar agora. Tente novamente em instantes.';
+            const exactMatch = candidates.find(record => record.normalizedName === normalizedName);
+            const partialMatch = exactMatch
+                ? exactMatch
+                : candidates.find(record => record.normalizedName.includes(normalizedName) ||
+                    normalizedName.includes(record.normalizedName));
+
+            const matchedRecord = partialMatch || candidates[0];
+
+            if (!matchedRecord) {
+                this.guideValidationState = 'error';
+                this.validatedGuideData = null;
+                this.showValidationMessage(
+                    cadasturValidation,
+                    'Não encontramos correspondência entre nome e número de cadastro.',
+                    'error'
+                );
+                cadasturInput.classList.remove('success');
+                cadasturInput.classList.add('error');
+                this.updateRegisterButtonState();
+                return false;
             }
 
-            this.showValidationMessage(cadasturValidation, message, 'error');
-            cadasturInput.classList.remove('success');
-            cadasturInput.classList.add('error');
+            if (matchedRecord.normalizedName !== normalizedName) {
+                this.showValidationMessage(
+                    cadasturValidation,
+                    'Nome ou número de cadastro não coincidem exatamente. Verifique os dados informados.',
+                    'error'
+                );
+                this.guideValidationState = 'error';
+                this.validatedGuideData = null;
+                cadasturInput.classList.remove('success');
+                cadasturInput.classList.add('error');
+                this.updateRegisterButtonState();
+                return false;
+            }
+
+            if (!matchedRecord.isActive) {
+                this.guideValidationState = 'error';
+                this.validatedGuideData = null;
+                this.showValidationMessage(
+                    cadasturValidation,
+                    'O cadastro informado está inativo ou com validade expirada no Cadastur.',
+                    'error'
+                );
+                cadasturInput.classList.remove('success');
+                cadasturInput.classList.add('error');
+                this.updateRegisterButtonState();
+                return false;
+            }
+
+            this.guideValidationState = 'success';
+            this.validatedGuideData = {
+                guide_id: null,
+                status: 'ATIVO',
+                cadastur_number: matchedRecord.rawNumber || matchedRecord.number,
+                cadastur_valid_until: matchedRecord.validityDate ? matchedRecord.validityDate.toISOString() : null,
+                cadastur_official_name: matchedRecord.name,
+                cadastur_uf: matchedRecord.uf,
+                cadastur_city: matchedRecord.city
+            };
+
+            this.showValidationMessage(
+                cadasturValidation,
+                'Validação concluída. Guia encontrado e ativo na base do Cadastur.',
+                'success'
+            );
+            cadasturInput.classList.remove('error');
+            cadasturInput.classList.add('success');
+
+            if (validationSummary) {
+                const summaryItems = [];
+                summaryItems.push(`<p><strong>Nome oficial:</strong> ${matchedRecord.name}</p>`);
+                if (matchedRecord.uf || matchedRecord.city) {
+                    summaryItems.push(`<p><strong>Local:</strong> ${[matchedRecord.city, matchedRecord.uf].filter(Boolean).join(' - ')}</p>`);
+                }
+                if (matchedRecord.validityDisplay) {
+                    summaryItems.push(`<p><strong>Validade:</strong> ${matchedRecord.validityDisplay}</p>`);
+                }
+                validationSummary.innerHTML = summaryItems.join('');
+                validationSummary.classList.remove('hidden');
+            }
 
             this.updateRegisterButtonState();
-            return false;
+            return true;
         } catch (err) {
             console.error('Erro ao validar CADASTUR:', err);
             this.guideValidationState = 'error';
@@ -691,9 +812,6 @@ class TrekkoAuthManager {
             }
         }
     }
-
-    // (Descontinuado) Função de busca local de guias
-    // A validação agora é feita diretamente com o backend oficial
 
     // Normalizar string para comparação
     normalizeString(str) {
@@ -919,6 +1037,18 @@ class TrekkoAuthManager {
                 }
                 if (this.validatedGuideData && this.validatedGuideData.status) {
                     userData.cadastur_status = this.validatedGuideData.status;
+                }
+                if (this.validatedGuideData && this.validatedGuideData.cadastur_valid_until) {
+                    userData.cadastur_valid_until = this.validatedGuideData.cadastur_valid_until;
+                }
+                if (this.validatedGuideData && this.validatedGuideData.cadastur_official_name) {
+                    userData.cadastur_official_name = this.validatedGuideData.cadastur_official_name;
+                }
+                if (this.validatedGuideData && (this.validatedGuideData.cadastur_city || this.validatedGuideData.cadastur_uf)) {
+                    userData.cadastur_location = [
+                        this.validatedGuideData.cadastur_city || '',
+                        this.validatedGuideData.cadastur_uf || ''
+                    ].filter(Boolean).join(' - ');
                 }
             }
 
