@@ -26,12 +26,14 @@ class TrekkoAuth {
     }
 
     showLoginModal() {
-        const modal = this.createModal(\'login\', \'Entrar no Trekko\', this.getLoginForm());     document.body.appendChild(modal);
+        const modal = this.createModal('login', 'Entrar no Trekko', this.getLoginForm());
+        document.body.appendChild(modal);
         this.setupLoginHandlers(modal);
     }
 
     showRegisterModal() {
-        const modal = this.createModal(\'register\', \'Cadastrar no Trekko\', this.getRegisterForm());     document.body.appendChild(modal);
+        const modal = this.createModal('register', 'Cadastrar no Trekko', this.getRegisterForm());
+        document.body.appendChild(modal);
         this.setupRegisterHandlers(modal);
     }
 
@@ -195,8 +197,13 @@ class TrekkoAuth {
         const data = Object.fromEntries(formData);
 
         // Validate CADASTUR for guides
+        data.name = data.name ? data.name.trim() : '';
+        if (data.cadastur_number) {
+            data.cadastur_number = data.cadastur_number.trim();
+        }
+
         if (data.user_type === 'guia') {
-            const isValid = await this.validateCadasturAPI(data.cadastur_number);
+            const isValid = await this.validateCadasturAPI(data.cadastur_number, data.name);
             if (!isValid) {
                 return; // Validation message already shown
             }
@@ -253,28 +260,57 @@ class TrekkoAuth {
         }
     }
 
-    async validateCadasturAPI(cadasturNumber) {
+    async validateCadasturAPI(cadasturNumber, rawName) {
+        const validationDiv = document.getElementById('cadastur-validation');
+
+        if (!validationDiv) {
+            return false;
+        }
+
+        const name = (rawName ?? '').trim();
+        const cadasturValue = cadasturNumber ?? '';
+        const cleanedCadastur = cadasturValue.replace(/\D/g, '');
+
+        if (!name) {
+            validationDiv.innerHTML = '<span class="trekko-validation-error">❌ Informe seu nome completo para validar o CADASTUR</span>';
+            return false;
+        }
+
+        const isFormatValid = this.validateCadastur(cadasturValue);
+        if (isFormatValid === false) {
+            return false;
+        }
+
+        if (!cleanedCadastur) {
+            validationDiv.innerHTML = '<span class="trekko-validation-error">❌ Informe seu número CADASTUR</span>';
+            return false;
+        }
+
         try {
+            validationDiv.innerHTML = '<span class="trekko-validation-warning">⏳ Validando CADASTUR...</span>';
+
             const response = await fetch(`${this.apiUrl}/validate-cadastur`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ cadastur_number: cadasturNumber })
+                body: JSON.stringify({
+                    name,
+                    cadastur_number: cleanedCadastur,
+                })
             });
 
             const result = await response.json();
-            const validationDiv = document.getElementById('cadastur-validation');
-            
+
             if (result.valid) {
                 validationDiv.innerHTML = '<span class="trekko-validation-success">✅ CADASTUR válido</span>';
                 return true;
             } else {
-                validationDiv.innerHTML = `<span class="trekko-validation-error">❌ ${result.message}</span>`;
+                const message = result.message || 'Não foi possível validar o CADASTUR informado.';
+                validationDiv.innerHTML = `<span class="trekko-validation-error">❌ ${message}</span>`;
                 return false;
             }
         } catch (error) {
-            const validationDiv = document.getElementById('cadastur-validation');
             validationDiv.innerHTML = '<span class="trekko-validation-error">❌ Erro ao validar CADASTUR</span>';
             return false;
         }
@@ -377,4 +413,8 @@ class TrekkoAuth {
 document.addEventListener('DOMContentLoaded', () => {
     window.trekkoAuth = new TrekkoAuth();
 });
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = TrekkoAuth;
+}
 
