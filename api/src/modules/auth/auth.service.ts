@@ -1,4 +1,5 @@
 import type { User } from '@prisma/client';
+import { GuideVerificationStatus, UserStatus } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { createHash, randomUUID } from 'crypto';
 import jwt from 'jsonwebtoken';
@@ -28,6 +29,14 @@ type LoginResult = {
   user: BasicUserProfile;
   accessToken: string;
   refreshToken: string;
+};
+
+export type RegisterParams = {
+  name: string;
+  email: string;
+  password: string;
+  userType: 'trekker' | 'guia';
+  cadasturNumber?: string;
 };
 
 const hashToken = (token: string): string => {
@@ -141,6 +150,69 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new HttpError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
     }
+
+    const accessToken = this.signAccessToken(user);
+    const refreshToken = await this.createSession(user.id);
+
+    return {
+      user: toBasicProfile(user),
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async register(params: RegisterParams): Promise<LoginResult> {
+    const normalizedEmail = params.email.trim().toLowerCase();
+
+    const existingUser = await this.prismaClient.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (existingUser) {
+      throw new HttpError(
+        409,
+        'EMAIL_ALREADY_REGISTERED',
+        'Já existe um usuário cadastrado com este e-mail',
+      );
+    }
+
+    if (params.userType === 'guia' && params.cadasturNumber) {
+      const existingGuideProfile = await this.prismaClient.guideProfile.findUnique({
+        where: { cadasturNumber: params.cadasturNumber },
+      });
+
+      if (existingGuideProfile) {
+        throw new HttpError(
+          409,
+          'CADASTUR_ALREADY_REGISTERED',
+          'Este número CADASTUR já está vinculado a outra conta',
+        );
+      }
+    }
+
+    const passwordHash = await bcrypt.hash(params.password, 12);
+    const trimmedName = params.name.trim();
+    const role = params.userType === 'guia' ? 'GUIA' : 'MEMBER';
+
+    const user = await this.prismaClient.user.create({
+      data: {
+        email: normalizedEmail,
+        passwordHash,
+        name: trimmedName.length > 0 ? trimmedName : null,
+        role,
+        status: UserStatus.ACTIVE,
+        guideProfile:
+          params.userType === 'guia'
+            ? {
+                create: {
+                  displayName: trimmedName.length > 0 ? trimmedName : null,
+                  cadasturNumber: params.cadasturNumber ?? null,
+                  verificationStatus: GuideVerificationStatus.PENDING,
+                },
+              }
+            : undefined,
+      },
+    });
 
     const accessToken = this.signAccessToken(user);
     const refreshToken = await this.createSession(user.id);

@@ -12,7 +12,14 @@ import {
   REFRESH_TOKEN_EXPIRATION_SECONDS,
   authService,
 } from './auth.service';
-import { loginSchema, type LoginInput, validateCadasturSchema, type ValidateCadasturInput } from './auth.schemas';
+import {
+  loginSchema,
+  type LoginInput,
+  registerSchema,
+  type RegisterInput,
+  validateCadasturSchema,
+  type ValidateCadasturInput,
+} from './auth.schemas';
 import { cadasturLookupService } from '../../services/cadastur-lookup';
 import { buildCookieOptions } from '../../services/cookies';
 
@@ -128,6 +135,44 @@ router.get('/csrf', (req, res) => {
   res.status(200).json({ csrfToken });
 });
 
+router.post('/register', validate(registerSchema), async (req, res, next) => {
+  const { name, email, password, user_type: userType, cadastur_number: cadasturNumber } =
+    req.body as RegisterInput;
+
+  try {
+    const { user, accessToken, refreshToken } = await authService.register({
+      name,
+      email,
+      password,
+      userType,
+      cadasturNumber,
+    });
+
+    setAuthCookies(res, { accessToken, refreshToken });
+    const csrfToken = rotateCsrfToken(req, res);
+
+    await audit({
+      userId: user.id,
+      entity: 'user',
+      entityId: user.id,
+      action: 'REGISTER',
+      diff: { email: user.email, role: user.role },
+      ip: req.ip,
+      userAgent: req.get('user-agent'),
+    });
+
+    res.status(201).json({
+      success: true,
+      user,
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      csrfToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post(
   '/validate-cadastur',
   validate(validateCadasturSchema),
@@ -183,7 +228,10 @@ router.post('/login', validate(loginSchema), async (req, res, next) => {
     });
 
     res.status(200).json({
+      success: true,
       user,
+      access_token: accessToken,
+      refresh_token: refreshToken,
       csrfToken,
     });
   } catch (error) {
@@ -207,7 +255,10 @@ router.post('/refresh', async (req, res, next) => {
     const csrfToken = rotateCsrfToken(req, res);
 
     res.status(200).json({
+      success: true,
       user,
+      access_token: accessToken,
+      refresh_token: newRefreshToken,
       csrfToken,
     });
   } catch (error) {
