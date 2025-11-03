@@ -12,7 +12,12 @@ class TrekkoAuthManager {
         // Base local de guias não é mais utilizada
         this.currentUser = null;
         this.authToken = null;
-        
+        // Estado de validação do guia profissional
+        // idle | pending | success | error
+        this.guideValidationState = 'idle';
+        this.validatedGuideData = null;
+        this.debouncedCadasturValidation = this.debounce(this.validateCadastur.bind(this), 400);
+
         this.init();
     }
 
@@ -434,6 +439,8 @@ class TrekkoAuthManager {
         const nameInput = document.getElementById('registerName');
         const cadasturInput = document.getElementById('cadasturNumber');
 
+        this.resetGuideValidationState();
+
         closeBtn.addEventListener('click', () => modal.remove());
         switchBtn.addEventListener('click', () => {
             modal.remove();
@@ -453,15 +460,24 @@ class TrekkoAuthManager {
         // Validação em tempo real do nome
         nameInput.addEventListener('input', () => {
             this.validateName();
+            if (userTypeSelect.value === 'guia') {
+                this.resetGuideValidationState();
+                if (cadasturInput && cadasturInput.value.trim()) {
+                    this.debouncedCadasturValidation();
+                }
+            }
         });
 
         // Validação em tempo real do CADASTUR
         if (cadasturInput) {
             cadasturInput.addEventListener('input', () => {
                 this.formatCadastur(cadasturInput);
-                this.validateCadastur();
+                this.resetGuideValidationState();
+                this.debouncedCadasturValidation();
             });
         }
+
+        this.updateRegisterButtonState();
 
         // Fechar modal ao clicar no overlay
         modal.querySelector('.auth-modal-overlay').addEventListener('click', () => modal.remove());
@@ -471,16 +487,19 @@ class TrekkoAuthManager {
     toggleCadasturSection(userType) {
         const cadasturSection = document.getElementById('cadasturSection');
         const cadasturInput = document.getElementById('cadasturNumber');
-        
+
         if (userType === 'guia') {
             cadasturSection.classList.remove('hidden');
             cadasturInput.required = true;
+            this.resetGuideValidationState();
         } else {
             cadasturSection.classList.add('hidden');
             cadasturInput.required = false;
             cadasturInput.value = '';
             this.clearValidation();
         }
+
+        this.updateRegisterButtonState();
     }
 
     // Validar nome em tempo real
@@ -509,45 +528,167 @@ class TrekkoAuthManager {
 
     // Validar CADASTUR em tempo real
     async validateCadastur() {
+        const userTypeSelect = document.getElementById('userType');
         const cadasturInput = document.getElementById('cadasturNumber');
         const cadasturValidation = document.getElementById('cadasturValidation');
         const validationSummary = document.getElementById('validationSummary');
+        const nameInput = document.getElementById('registerName');
 
-        const cadastur = cadasturInput.value.trim();
-
-        if (!cadastur) {
-            this.showValidationMessage(cadasturValidation, 'CADASTUR é obrigatório para guias', 'error');
-            cadasturInput.classList.add('error');
-            validationSummary.classList.add('hidden');
+        if (!cadasturInput || (userTypeSelect && userTypeSelect.value !== 'guia')) {
+            this.guideValidationState = 'idle';
+            this.validatedGuideData = null;
+            this.updateRegisterButtonState();
             return false;
         }
 
+        const cadastur = cadasturInput.value.trim();
+        const name = nameInput ? nameInput.value.trim() : '';
+
+        if (!cadastur) {
+            this.guideValidationState = 'error';
+            this.validatedGuideData = null;
+            this.showValidationMessage(cadasturValidation, 'CADASTUR é obrigatório para guias', 'error');
+            cadasturInput.classList.add('error');
+        } else if (!name || name.length < 2) {
+            this.guideValidationState = 'error';
+            this.validatedGuideData = null;
+            this.showValidationMessage(cadasturValidation, 'Informe seu nome completo antes de validar o CADASTUR.', 'error');
+            cadasturInput.classList.add('error');
+            this.validateName();
+        } else {
+            this.guideValidationState = 'pending';
+            this.validatedGuideData = null;
+            cadasturInput.classList.remove('error', 'success');
+            this.showValidationMessage(cadasturValidation, 'Validando CADASTUR...', 'info');
+            this.updateRegisterButtonState();
+        }
+
+        if (!cadastur || !name || name.length < 2) {
+            if (validationSummary) {
+                validationSummary.classList.add('hidden');
+                validationSummary.innerHTML = '';
+            }
+            this.updateRegisterButtonState();
+            return false;
+        }
+
+        if (validationSummary) {
+            validationSummary.classList.add('hidden');
+            validationSummary.innerHTML = '';
+        }
+
+        const maskedCadastur = this.maskCadastur(cadastur);
+        console.info('[CADASTUR] Iniciando validação', {
+            name,
+            cadastur: maskedCadastur
+        });
+
         try {
-            const resp = await fetch(`${this.apiUrl}/auth/validate-cadastur`, {
+            const response = await fetch(`${this.apiUrl}/auth/validate-cadastur`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cadastur_number: cadastur })
+                body: JSON.stringify({
+                    name,
+                    cadastur_number: cadastur
+                })
             });
-            const result = await resp.json();
 
-            if (!result.valid) {
-                this.showValidationMessage(cadasturValidation, result.message || 'CADASTUR inválido', 'error');
-                cadasturInput.classList.add('error');
-                validationSummary.classList.add('hidden');
-                return false;
+            const result = await response.json();
+            const normalizedStatus = result.status ? String(result.status).toUpperCase() : undefined;
+
+            console.info('[CADASTUR] Resultado da validação', {
+                status: normalizedStatus,
+                reason: result.reason,
+                guideId: result.guide_id,
+                cadastur: maskedCadastur
+            });
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Erro ao validar CADASTUR');
             }
 
-            this.showValidationMessage(cadasturValidation, 'CADASTUR válido e verificado', 'success');
-            cadasturInput.classList.remove('error');
-            cadasturInput.classList.add('success');
-            validationSummary.classList.add('hidden');
-            return true;
+            const isActive = result.valid && (!normalizedStatus || normalizedStatus === 'ATIVO');
+
+            if (isActive) {
+                this.guideValidationState = 'success';
+                this.validatedGuideData = {
+                    guide_id: result.guide_id || null,
+                    status: normalizedStatus || 'ATIVO',
+                    reason: result.reason || null
+                };
+                this.showValidationMessage(
+                    cadasturValidation,
+                    'Validação concluída. Guia encontrado e ativo.',
+                    'success'
+                );
+                cadasturInput.classList.remove('error');
+                cadasturInput.classList.add('success');
+
+                if (validationSummary) {
+                    const summaryItems = [];
+                    if (result.guide_id) {
+                        summaryItems.push(`<p><strong>ID:</strong> ${result.guide_id}</p>`);
+                    }
+                    if (normalizedStatus) {
+                        summaryItems.push(`<p><strong>Status:</strong> ${normalizedStatus}</p>`);
+                    }
+                    validationSummary.innerHTML = summaryItems.join('');
+                    if (summaryItems.length > 0) {
+                        validationSummary.classList.remove('hidden');
+                    }
+                }
+
+                this.updateRegisterButtonState();
+                return true;
+            }
+
+            this.guideValidationState = 'error';
+            this.validatedGuideData = null;
+
+            let message;
+            if (normalizedStatus === 'INATIVO') {
+                message = 'O cadastro informado está inativo. Verifique seus dados no Cadastur.';
+            } else if (result.reason === 'MISMATCH_NOME') {
+                message = 'Não encontramos correspondência entre nome e número de cadastro.';
+            } else if (['MISMATCH_CADASTRO', 'MISMATCH_CADASTUR', 'MISMATCH_NUMERO'].includes(result.reason)) {
+                message = 'Nome ou número de cadastro não coincidem.';
+            } else if (result.reason === 'NAO_ENCONTRADO') {
+                message = 'Não encontramos esse número de cadastro.';
+            } else if (result.reason === 'ERRO_INTERNO') {
+                message = 'Não foi possível validar agora. Tente novamente em instantes.';
+            } else {
+                message = result.message || 'Não foi possível validar agora. Tente novamente em instantes.';
+            }
+
+            this.showValidationMessage(cadasturValidation, message, 'error');
+            cadasturInput.classList.remove('success');
+            cadasturInput.classList.add('error');
+
+            this.updateRegisterButtonState();
+            return false;
         } catch (err) {
             console.error('Erro ao validar CADASTUR:', err);
-            this.showValidationMessage(cadasturValidation, 'Erro ao validar CADASTUR', 'error');
+            this.guideValidationState = 'error';
+            this.validatedGuideData = null;
+            const fallbackMessage = err && err.message && err.message !== 'Failed to fetch'
+                ? err.message
+                : 'Não foi possível validar agora. Tente novamente em instantes.';
+            this.showValidationMessage(
+                cadasturValidation,
+                fallbackMessage,
+                'error'
+            );
+            cadasturInput.classList.remove('success');
             cadasturInput.classList.add('error');
-            validationSummary.classList.add('hidden');
+            this.updateRegisterButtonState();
             return false;
+        } finally {
+            if (validationSummary) {
+                validationSummary.classList.toggle('hidden', this.guideValidationState !== 'success');
+                if (this.guideValidationState !== 'success') {
+                    validationSummary.innerHTML = '';
+                }
+            }
         }
     }
 
@@ -566,9 +707,10 @@ class TrekkoAuthManager {
     showValidationMessage(element, message, type) {
         if (!element) return;
         
+        const icon = type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-circle';
         element.innerHTML = `
             <div class="validation-item ${type}">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <i class="fas fa-${icon}"></i>
                 <span>${message}</span>
             </div>
         `;
@@ -582,10 +724,15 @@ class TrekkoAuthManager {
         const nameInput = document.getElementById('registerName');
         const cadasturInput = document.getElementById('cadasturNumber');
 
+        this.resetGuideValidationState();
+
         if (nameValidation) nameValidation.innerHTML = '';
         if (cadasturValidation) cadasturValidation.innerHTML = '';
-        if (validationSummary) validationSummary.classList.add('hidden');
-        
+        if (validationSummary) {
+            validationSummary.classList.add('hidden');
+            validationSummary.innerHTML = '';
+        }
+
         // Remover classes de validação
         [nameInput, cadasturInput].forEach(input => {
             if (input) {
@@ -598,6 +745,67 @@ class TrekkoAuthManager {
     formatCadastur(input) {
         const value = input.value.replace(/\D/g, '');
         input.value = value;
+    }
+
+    // Repor estado e feedback da validação de guias
+    resetGuideValidationState() {
+        this.guideValidationState = 'idle';
+        this.validatedGuideData = null;
+
+        const cadasturInput = document.getElementById('cadasturNumber');
+        const cadasturValidation = document.getElementById('cadasturValidation');
+        const validationSummary = document.getElementById('validationSummary');
+
+        if (cadasturInput) {
+            cadasturInput.classList.remove('error', 'success');
+        }
+
+        if (cadasturValidation) {
+            cadasturValidation.innerHTML = '';
+        }
+
+        if (validationSummary) {
+            validationSummary.classList.add('hidden');
+            validationSummary.innerHTML = '';
+        }
+
+        this.updateRegisterButtonState();
+    }
+
+    // Atualizar estado do botão de cadastro conforme validação de guia
+    updateRegisterButtonState() {
+        const submitBtn = document.getElementById('registerSubmitBtn');
+        const userTypeSelect = document.getElementById('userType');
+
+        if (!submitBtn || (submitBtn.dataset && submitBtn.dataset.loading === 'true')) {
+            return;
+        }
+
+        if (userTypeSelect && userTypeSelect.value === 'guia') {
+            submitBtn.disabled = this.guideValidationState !== 'success';
+        } else {
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Mascarar número de CADASTUR para logs
+    maskCadastur(value) {
+        if (!value) return '';
+        const digits = value.replace(/\D/g, '');
+        if (digits.length <= 4) {
+            return digits;
+        }
+        const visible = digits.slice(-4);
+        return `${'*'.repeat(digits.length - 4)}${visible}`;
+    }
+
+    // Utilitário de debounce para evitar múltiplas requisições
+    debounce(fn, delay = 300) {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => fn(...args), delay);
+        };
     }
 
     // Processar login
@@ -677,20 +885,8 @@ class TrekkoAuthManager {
                 return;
             }
 
-            try {
-                const resp = await fetch(`${this.apiUrl}/auth/validate-cadastur`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cadastur_number: cadastur })
-                });
-                const result = await resp.json();
-                if (!result.valid) {
-                    this.showMessage(errorDiv, result.message || 'CADASTUR inválido', 'error');
-                    return;
-                }
-            } catch (err) {
-                console.error('Erro ao validar CADASTUR:', err);
-                this.showMessage(errorDiv, 'Erro ao validar CADASTUR. Tente novamente.', 'error');
+            if (this.guideValidationState !== 'success') {
+                this.showMessage(errorDiv, 'É necessário validar seu CADASTUR antes de prosseguir.', 'error');
                 return;
             }
         }
@@ -702,6 +898,7 @@ class TrekkoAuthManager {
         }
 
         submitBtn.disabled = true;
+        submitBtn.dataset.loading = 'true';
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cadastrando...';
         this.hideMessage(errorDiv);
         this.hideMessage(successDiv);
@@ -717,6 +914,12 @@ class TrekkoAuthManager {
             // Adicionar CADASTUR se for guia
             if (userType === 'guia') {
                 userData.cadastur_number = cadastur;
+                if (this.validatedGuideData && this.validatedGuideData.guide_id) {
+                    userData.cadastur_guide_id = this.validatedGuideData.guide_id;
+                }
+                if (this.validatedGuideData && this.validatedGuideData.status) {
+                    userData.cadastur_status = this.validatedGuideData.status;
+                }
             }
 
             const response = await fetch(`${this.apiUrl}/auth/register`, {
@@ -749,8 +952,10 @@ class TrekkoAuthManager {
             console.error('Erro no cadastro:', error);
             this.showMessage(errorDiv, 'Erro de conexão. Tente novamente.', 'error');
         } finally {
+            delete submitBtn.dataset.loading;
             submitBtn.disabled = false;
             submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Cadastrar';
+            this.updateRegisterButtonState();
         }
     }
 
