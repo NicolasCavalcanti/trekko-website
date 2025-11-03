@@ -432,7 +432,8 @@ class TrekkoAuth {
             return false;
         }
 
-        validationDiv.innerHTML = '<span class="trekko-validation-success">✅ CADASTUR válido e verificado</span>';
+        const successMessage = serverResult.message || 'CADASTUR válido e verificado';
+        validationDiv.innerHTML = `<span class="trekko-validation-success">✅ ${successMessage}</span>`;
         return true;
     }
 
@@ -489,9 +490,19 @@ class TrekkoAuth {
             };
         }
 
+        const status = typeof result?.status === 'string' ? result.status.toLowerCase() : '';
+        const isValid = Boolean(
+            result?.valid === true ||
+            result?.success === true ||
+            result?.data?.valid === true ||
+            status === 'success' ||
+            status === 'ok' ||
+            result?.data?.active === true
+        );
+
         return {
-            valid: !!result.valid,
-            message: result.message,
+            valid: isValid,
+            message: result?.message,
         };
     }
 
