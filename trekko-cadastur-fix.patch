@@ -1,0 +1,21 @@
+*** Begin Patch
+*** Update File: api/src/services/cadastur-lookup.ts
+@@
+ const resolveCadasturFile = async (): Promise<string> => {
++  // Permite definir explicitamente o caminho do CSV via variável de ambiente.
++  const customPath = process.env.CADASTUR_CSV_PATH;
++  if (customPath) {
++    try {
++      await access(customPath);
++      return path.resolve(customPath);
++    } catch {
++      // se o caminho definido não existir ou não for legível, continua a busca
++    }
++  }
+*** End Patch
+*** Update File: auth-enhanced.js
+@@
+-    const response = await fetch('BD_CADASTUR.csv', { cache: 'no-store' });
++    // utilizar caminho absoluto para garantir a resolução correta em produção
++    const response = await fetch('/BD_CADASTUR.csv', { cache: 'no-store' });
+*** End Patch
