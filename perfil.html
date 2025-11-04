@@ -131,13 +131,23 @@
                 <div id="atividades" class="tab-content">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-medium text-gray-900">Minhas Atividades Recentes</h3>
-                        <button id="addTrailBtn" onclick="openAddTrailModal()" class="hidden bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                            + Adicionar Trilha
+                        <button id="createExpeditionBtn" onclick="openCreateExpeditionModal()" class="hidden bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            + Criar Expedição
                         </button>
                     </div>
                     <div id="activitiesContainer" class="text-center py-8">
                         <p class="text-gray-500">Nenhuma atividade registrada ainda.</p>
                         <p id="activitySubtext" class="text-sm text-gray-400 mt-2">Suas atividades aparecerão aqui após realizar trilhas.</p>
+                    </div>
+
+                    <div id="guideExpeditionsSection" class="hidden border-t border-gray-200 pt-6 mt-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-900">Expedições</h4>
+                            <button type="button" onclick="openCreateExpeditionModal()" class="hidden text-sm font-medium text-green-600 hover:text-green-700" id="secondaryCreateExpeditionBtn">
+                                + Nova expedição
+                            </button>
+                        </div>
+                        <div id="guideExpeditionsList" class="space-y-4"></div>
                     </div>
                 </div>
 
@@ -250,12 +260,12 @@
         </div>
     </div>
 
-    <!-- Select Trail Modal -->
-    <div id="selectTrailModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-10 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white max-h-screen overflow-y-auto">
+    <!-- Create Expedition Modal -->
+    <div id="createExpeditionModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-10 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-3/5 shadow-lg rounded-md bg-white max-h-screen overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-gray-900">Adicionar Trilha ao Meu Perfil</h3>
-                <button onclick="closeSelectTrailModal()" class="text-gray-400 hover:text-gray-600">
+                <h3 class="text-lg font-bold text-gray-900">Criar nova expedição</h3>
+                <button onclick="closeCreateExpeditionModal()" class="text-gray-400 hover:text-gray-600">
                     <span class="sr-only">Fechar</span>
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -263,26 +273,22 @@
                 </button>
             </div>
 
-            <!-- Tabs -->
             <div class="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
-                <button id="selectTab" class="flex-1 py-2 px-3 text-sm font-medium rounded-md bg-white text-green-600 shadow-sm" onclick="showTrailSelection()">
-                    Selecionar Trilha Existente
+                <button id="expeditionSelectTab" class="flex-1 py-2 px-3 text-sm font-medium rounded-md bg-white text-green-600 shadow-sm" onclick="showCreateExpeditionTab('selection')">
+                    Selecionar trilha cadastrada
                 </button>
-                <button id="requestTab" class="flex-1 py-2 px-3 text-sm font-medium rounded-md text-gray-500 hover:text-gray-700" onclick="showRequestForm()">
-                    Solicitar Nova Trilha
+                <button id="expeditionRequestTabBtn" class="flex-1 py-2 px-3 text-sm font-medium rounded-md text-gray-500 hover:text-gray-700" onclick="showCreateExpeditionTab('request')">
+                    Solicitar nova trilha
                 </button>
             </div>
 
-            <!-- Trail Selection Tab -->
-            <div id="trailSelectionTab" class="tab-content">
-                <!-- Filtros Avançados -->
-                <div class="bg-gray-50 p-4 rounded-lg mb-4">
-                    <h4 class="text-sm font-medium text-gray-900 mb-3">🔍 Filtros de Busca</h4>
+            <div id="expeditionSelectionTab" class="space-y-4">
+                <form id="expeditionTrailSearchForm" class="bg-gray-50 p-4 rounded-lg space-y-4">
+                    <h4 class="text-sm font-medium text-gray-900">🔍 Busque trilhas disponíveis</h4>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Filtro por UF -->
                         <div>
                             <label for="filterUF" class="block text-xs font-medium text-gray-700 mb-1">Estado (UF)</label>
-                            <select id="filterUF" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" onchange="applyFilters()">
+                            <select id="filterUF" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
                                 <option value="">Todos os Estados</option>
                                 <option value="AC">Acre</option>
                                 <option value="AL">Alagoas</option>
@@ -313,55 +319,76 @@
                                 <option value="TO">Tocantins</option>
                             </select>
                         </div>
-                        
-                        <!-- Filtro por Cidade -->
                         <div>
                             <label for="filterCity" class="block text-xs font-medium text-gray-700 mb-1">Cidade</label>
-                            <input type="text" id="filterCity" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Digite a cidade..." onkeyup="applyFilters()">
+                            <input type="text" id="filterCity" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Digite a cidade...">
                         </div>
-                        
-                        <!-- Filtro por Nome da Trilha -->
                         <div>
                             <label for="filterTrailName" class="block text-xs font-medium text-gray-700 mb-1">Nome da Trilha</label>
-                            <input type="text" id="filterTrailName" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Digite o nome..." onkeyup="applyFilters()">
+                            <input type="text" id="filterTrailName" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Digite o nome da trilha...">
                         </div>
                     </div>
-                    
-                    <!-- Botão Limpar Filtros -->
-                    <div class="mt-3 flex justify-end">
-                        <button type="button" onclick="clearFilters()" class="text-xs text-gray-500 hover:text-gray-700 underline">
-                            🗑️ Limpar Filtros
-                        </button>
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <button type="button" id="clearTrailFiltersBtn" class="hover:text-gray-700">🗑️ Limpar filtros</button>
+                        <span id="expeditionTrailResultsInfo" class="hidden">0 trilhas encontradas</span>
                     </div>
+                </form>
+
+                <div id="expeditionTrailsList" class="space-y-2 max-h-60 overflow-y-auto border border-dashed border-gray-200 rounded-lg p-4">
+                    <div class="text-center py-4 text-gray-500">Use os filtros acima para localizar uma trilha na base do Trekko.</div>
                 </div>
-                
-                <div id="trailsList" class="space-y-2 max-h-60 overflow-y-auto mb-4">
-                    <div class="text-center py-4 text-gray-500">Carregando trilhas...</div>
+
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                    <span>As trilhas disponíveis utilizam as bases oficiais BD_TRILHAS e BD_CADASTUR.</span>
+                    <button type="button" class="text-green-600 hover:text-green-700" onclick="showCreateExpeditionTab('request')">Não encontrou? Solicitar nova trilha</button>
                 </div>
-                
-                <div id="selectedTrailInfo" class="hidden bg-green-50 p-4 rounded-lg">
-                    <h4 class="font-medium text-gray-900 mb-2">Trilha Selecionada:</h4>
-                    <div id="selectedTrailDetails" class="mb-4"></div>
+
+                <div id="selectedExpeditionTrail" class="hidden bg-green-50 border border-green-100 rounded-lg p-4">
+                    <h4 class="font-medium text-gray-900 mb-2">Trilha selecionada</h4>
+                    <div id="selectedExpeditionTrailDetails" class="text-sm text-gray-700 space-y-1"></div>
+                </div>
+
+                <form id="createExpeditionForm" class="hidden space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="expeditionStartDate" class="block text-sm font-medium text-gray-700">Data de início *</label>
+                            <input type="date" id="expeditionStartDate" name="start_date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
+                        </div>
+                        <div>
+                            <label for="expeditionEndDate" class="block text-sm font-medium text-gray-700">Data de término *</label>
+                            <input type="date" id="expeditionEndDate" name="end_date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="expeditionPrice" class="block text-sm font-medium text-gray-700">Preço por pessoa (R$) *</label>
+                            <input type="number" id="expeditionPrice" name="price" step="0.01" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="0,00" required>
+                        </div>
+                        <div>
+                            <label for="expeditionMaxParticipants" class="block text-sm font-medium text-gray-700">Vagas disponíveis *</label>
+                            <input type="number" id="expeditionMaxParticipants" name="max_participants" min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Número máximo de participantes" required>
+                        </div>
+                    </div>
+
                     <div>
-                        <label for="guidePrice" class="block text-sm font-medium text-gray-700">Valor do Seu Serviço (R$) *</label>
-                        <input type="number" id="guidePrice" step="0.01" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="0.00" required>
-                        <p class="text-xs text-gray-500 mt-1">Informe o valor que você cobra para guiar esta trilha</p>
+                        <label for="expeditionDescription" class="block text-sm font-medium text-gray-700">Descrição da expedição *</label>
+                        <textarea id="expeditionDescription" name="description" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Inclua detalhes sobre roteiro, equipamentos necessários e o que está incluso." required></textarea>
                     </div>
-                </div>
+                </form>
             </div>
 
-            <!-- Request Form Tab -->
-            <div id="requestFormTab" class="tab-content hidden">
+            <div id="expeditionRequestTab" class="hidden">
                 <div class="bg-blue-50 p-4 rounded-lg mb-4">
-                    <p class="text-sm text-blue-800">Não encontrou a trilha que você guia? Solicite a inclusão preenchendo as informações abaixo. Nossa equipe analisará e entrará em contato.</p>
+                    <p class="text-sm text-blue-800">Não encontrou a trilha que deseja conduzir? Solicite a inclusão preenchendo as informações abaixo. Nossa equipe validará a trilha antes de liberá-la.</p>
                 </div>
-                
+
                 <form id="requestTrailForm" class="space-y-4">
                     <div>
                         <label for="requestTrailName" class="block text-sm font-medium text-gray-700">Nome da Trilha *</label>
                         <input type="text" id="requestTrailName" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
                     </div>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label for="requestTrailLocation" class="block text-sm font-medium text-gray-700">Localização *</label>
@@ -372,7 +399,7 @@
                             <input type="number" id="requestTrailDistance" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
                         </div>
                     </div>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label for="requestTrailDifficulty" class="block text-sm font-medium text-gray-700">Nível de Dificuldade *</label>
@@ -389,31 +416,31 @@
                             <input type="text" id="requestTrailDuration" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Ex: 4 horas" required>
                         </div>
                     </div>
-                    
+
                     <div>
                         <label for="requestTrailDescription" class="block text-sm font-medium text-gray-700">Descrição da Trilha *</label>
-                        <textarea id="requestTrailDescription" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Descreva a trilha, pontos de interesse, dificuldades, equipamentos necessários..." required></textarea>
+                        <textarea id="requestTrailDescription" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Descreva a trilha, pontos de interesse, dificuldades e equipamentos necessários." required></textarea>
                     </div>
-                    
+
                     <div>
                         <label for="requestGuidePrice" class="block text-sm font-medium text-gray-700">Valor do Seu Serviço (R$) *</label>
                         <input type="number" id="requestGuidePrice" step="0.01" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="0.00" required>
                         <p class="text-xs text-gray-500 mt-1">Informe o valor que você cobra para guiar esta trilha</p>
                     </div>
-                    
+
                     <div>
                         <label for="requestAdditionalInfo" class="block text-sm font-medium text-gray-700">Informações Adicionais</label>
-                        <textarea id="requestAdditionalInfo" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Qualquer informação adicional sobre a trilha ou sua experiência guiando ela..."></textarea>
+                        <textarea id="requestAdditionalInfo" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Compartilhe detalhes sobre logística, pontos de encontro ou exigências específicas."></textarea>
                     </div>
                 </form>
             </div>
 
             <div class="flex justify-end space-x-3 mt-6">
-                <button type="button" onclick="closeSelectTrailModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <button type="button" onclick="closeCreateExpeditionModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
                     Cancelar
                 </button>
-                <button type="button" id="modalActionBtn" onclick="addSelectedTrail()" class="px-4 py-2 bg-green-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-green-700">
-                    Adicionar Trilha
+                <button type="button" id="expeditionModalActionBtn" onclick="handleExpeditionPrimaryAction()" class="px-4 py-2 bg-green-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-green-700">
+                    Salvar expedição
                 </button>
             </div>
         </div>
@@ -423,19 +450,60 @@
     <script>
         console.log('🚀 Sistema de Perfil carregado!');
 
+        const PUBLIC_API_BASE_URL = 'https://p9hwiqcldgkm.manus.space';
+        const PUBLIC_API_URL = `${PUBLIC_API_BASE_URL}/api`;
+        const EXPEDITION_STORAGE_PREFIX = 'guideExpeditions_';
+        const TRAIL_SEARCH_LIMIT = 50;
+
+        let currentUser = null;
+        let cachedTrailResults = [];
+        let selectedExpeditionTrail = null;
+        let expeditionCurrentTab = 'selection';
+        let expeditionSearchTimeout = null;
+
+        function normalizeUserType(userType) {
+            if (!userType) {
+                return 'trekker';
+            }
+
+            const normalized = userType.toString().trim().toLowerCase();
+
+            const guideAliases = ['guia', 'guide', 'guia profissional', 'guia_profissional', 'professional guide'];
+            const trekkerAliases = ['trekker', 'usuário', 'usuario', 'user', 'cliente'];
+
+            if (guideAliases.includes(normalized)) {
+                return 'guia';
+            }
+
+            if (trekkerAliases.includes(normalized)) {
+                return 'trekker';
+            }
+
+            return normalized || 'trekker';
+        }
+
+        function isGuide(userOrType) {
+            if (!userOrType) return false;
+            if (typeof userOrType === 'string') {
+                return normalizeUserType(userOrType) === 'guia';
+            }
+            return normalizeUserType(userOrType.user_type || userOrType.type) === 'guia';
+        }
+
         // Função para carregar dados do usuário do localStorage
         function loadUserData() {
             const userData = localStorage.getItem('userData');
             if (userData) {
                 try {
                     const user = JSON.parse(userData);
+                    user.user_type = normalizeUserType(user.user_type);
                     console.log('📊 Dados do usuário carregados:', user);
                     return user;
                 } catch (e) {
                     console.error('❌ Erro ao parsear dados do usuário:', e);
                 }
             }
-            
+
             // Dados padrão se não houver usuário
             return {
                 id: 'user_default',
@@ -450,7 +518,7 @@
         }
 
         // Variável global do usuário atual
-        let currentUser = loadUserData();
+        currentUser = loadUserData();
 
         // Função para atualizar a interface com os dados do usuário
         function updateUserInterface(user) {
@@ -490,7 +558,7 @@
             }
             
             // Atualizar avatar baseado no tipo de usuário
-            if (user.user_type === 'guia') {
+            if (isGuide(user)) {
                 avatar.className = 'guide-avatar w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold';
             } else {
                 avatar.className = 'profile-avatar w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold';
@@ -500,7 +568,7 @@
             const userTypeBadge = document.getElementById('userTypeBadge');
             const cadasturBadge = document.getElementById('cadasturBadge');
             
-            if (user.user_type === 'guia') {
+            if (isGuide(user)) {
                 userTypeBadge.textContent = '🧭 Guia Profissional';
                 userTypeBadge.className = 'bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium';
                 cadasturBadge.classList.remove('hidden');
@@ -510,8 +578,11 @@
                 document.getElementById('stat3Label').textContent = 'Clientes Atendidos';
                 document.getElementById('activitySubtext').textContent = 'Adicione as trilhas que você conduz.';
                 
-                // Mostrar botão de adicionar trilha
-                document.getElementById('addTrailBtn').classList.remove('hidden');
+                // Mostrar botões de criação de expedição
+                const primaryExpeditionBtn = document.getElementById('createExpeditionBtn');
+                const secondaryExpeditionBtn = document.getElementById('secondaryCreateExpeditionBtn');
+                if (primaryExpeditionBtn) primaryExpeditionBtn.classList.remove('hidden');
+                if (secondaryExpeditionBtn) secondaryExpeditionBtn.classList.remove('hidden');
             } else {
                 userTypeBadge.textContent = '🥾 Trekker';
                 userTypeBadge.className = 'bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium';
@@ -522,8 +593,11 @@
                 document.getElementById('stat3Label').textContent = 'Guias Contratados';
                 document.getElementById('activitySubtext').textContent = 'Suas atividades aparecerão aqui após realizar trilhas.';
                 
-                // Esconder botão de adicionar trilha
-                document.getElementById('addTrailBtn').classList.add('hidden');
+                // Esconder botões de criação de expedição
+                const primaryExpeditionBtn = document.getElementById('createExpeditionBtn');
+                const secondaryExpeditionBtn = document.getElementById('secondaryCreateExpeditionBtn');
+                if (primaryExpeditionBtn) primaryExpeditionBtn.classList.add('hidden');
+                if (secondaryExpeditionBtn) secondaryExpeditionBtn.classList.add('hidden');
             }
             
             // Atualizar nível de experiência
@@ -560,9 +634,9 @@
             const cadasturInput = document.getElementById('editCadastur');
             const locationInput = document.getElementById('editLocation');
             
-            if (currentUser.user_type === 'guia') {
+            if (isGuide(currentUser)) {
                 cadasturField.classList.remove('hidden');
-                
+
                 // Para guias, carregar dados do CADASTUR da API
                 if (currentUser.cadastur) {
                     console.log('🔍 Carregando dados do CADASTUR para guia:', currentUser.cadastur);
@@ -687,7 +761,7 @@
 
         function finalizeSaveProfile(updatedUser) {
             // Adicionar CADASTUR se for guia
-            if (currentUser.user_type === 'guia') {
+            if (isGuide(currentUser)) {
                 updatedUser.cadastur = document.getElementById('editCadastur').value;
             }
 
@@ -747,7 +821,10 @@
             
             // Configurar tabs
             setupTabs();
-            
+
+            // Preparar busca de trilhas para expedições
+            setupExpeditionSearch();
+
             // Carregar trilhas do usuário se for guia
             loadUserTrails();
             
@@ -756,439 +833,570 @@
 
         // Fechar modal ao clicar fora
         window.addEventListener('click', function(event) {
-            const modal = document.getElementById('editProfileModal');
-            if (event.target === modal) {
+            const editModal = document.getElementById('editProfileModal');
+            if (event.target === editModal) {
                 closeEditModal();
             }
-            
-            const trailModal = document.getElementById('addTrailModal');
-            if (event.target === trailModal) {
-                closeAddTrailModal();
+
+            const expeditionModal = document.getElementById('createExpeditionModal');
+            if (event.target === expeditionModal) {
+                closeCreateExpeditionModal();
             }
         });
 
-        // Variáveis globais para o sistema de trilhas
-        let selectedTrail = null;
-        let allTrails = [];
-        let currentTab = 'selection';
-
-        // Funções para o modal de seleção de trilha
-        function openAddTrailModal() {
-            console.log('🎯 Abrindo modal de seleção de trilha...');
-            const modal = document.getElementById('selectTrailModal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                loadAvailableTrails();
-                showTrailSelection();
-                console.log('✅ Modal de seleção aberto com sucesso!');
+        function openCreateExpeditionModal() {
+            console.log('🎯 Abrindo modal de criação de expedição...');
+            if (!isGuide(currentUser)) {
+                alert('A criação de expedições está disponível apenas para guias credenciados.');
+                return;
             }
+
+            const modal = document.getElementById('createExpeditionModal');
+            if (!modal) {
+                console.warn('⚠️ Modal de expedição não encontrado.');
+                return;
+            }
+
+            currentUser = loadUserData();
+            resetExpeditionModal();
+            modal.classList.remove('hidden');
+            triggerTrailSearch();
         }
 
-        function closeSelectTrailModal() {
-            console.log('🔒 Fechando modal de seleção...');
-            const modal = document.getElementById('selectTrailModal');
+        function closeCreateExpeditionModal() {
+            const modal = document.getElementById('createExpeditionModal');
             if (modal) {
                 modal.classList.add('hidden');
-                selectedTrail = null;
-                document.getElementById('selectedTrailInfo').classList.add('hidden');
-                document.getElementById('guidePrice').value = '';
             }
         }
 
-        // Função para alternar entre tabs
-        function showTrailSelection() {
-            currentTab = 'selection';
-            document.getElementById('trailSelectionTab').classList.remove('hidden');
-            document.getElementById('requestFormTab').classList.add('hidden');
-            
-            document.getElementById('selectTab').className = 'flex-1 py-2 px-3 text-sm font-medium rounded-md bg-white text-green-600 shadow-sm';
-            document.getElementById('requestTab').className = 'flex-1 py-2 px-3 text-sm font-medium rounded-md text-gray-500 hover:text-gray-700';
-            
-            document.getElementById('modalActionBtn').textContent = 'Adicionar Trilha';
-            document.getElementById('modalActionBtn').onclick = addSelectedTrail;
+        function resetExpeditionModal() {
+            selectedExpeditionTrail = null;
+            cachedTrailResults = [];
+
+            const form = document.getElementById('createExpeditionForm');
+            const selectedWrapper = document.getElementById('selectedExpeditionTrail');
+            const selectedDetails = document.getElementById('selectedExpeditionTrailDetails');
+            const trailList = document.getElementById('expeditionTrailsList');
+            const info = document.getElementById('expeditionTrailResultsInfo');
+
+            if (form) {
+                form.reset();
+                form.classList.add('hidden');
+            }
+
+            if (selectedWrapper) {
+                selectedWrapper.classList.add('hidden');
+            }
+
+            if (selectedDetails) {
+                selectedDetails.innerHTML = '';
+            }
+
+            if (trailList) {
+                trailList.innerHTML = '<div class="text-center py-4 text-gray-500">Use os filtros acima para localizar uma trilha na base do Trekko.</div>';
+            }
+
+            if (info) {
+                info.classList.add('hidden');
+                info.textContent = '';
+            }
+
+            showCreateExpeditionTab('selection');
         }
 
-        function showRequestForm() {
-            currentTab = 'request';
-            document.getElementById('trailSelectionTab').classList.add('hidden');
-            document.getElementById('requestFormTab').classList.remove('hidden');
-            
-            document.getElementById('selectTab').className = 'flex-1 py-2 px-3 text-sm font-medium rounded-md text-gray-500 hover:text-gray-700';
-            document.getElementById('requestTab').className = 'flex-1 py-2 px-3 text-sm font-medium rounded-md bg-white text-green-600 shadow-sm';
-            
-            document.getElementById('modalActionBtn').textContent = 'Enviar Solicitação';
-            document.getElementById('modalActionBtn').onclick = submitTrailRequest;
-        }
+        function showCreateExpeditionTab(tab) {
+            expeditionCurrentTab = tab;
 
-        // Função para carregar trilhas disponíveis
-        async function loadAvailableTrails() {
-            try {
-                console.log('📥 Carregando trilhas disponíveis...');
-                
-                // Simular trilhas da API (em produção seria fetch da API real)
-                const mockTrails = [
-                    {
-                        id: 1,
-                        name: 'Trilha da Pedra Bonita',
-                        location: 'Rio de Janeiro, RJ',
-                        distance: 2.5,
-                        difficulty: 'moderado',
-                        duration: '2 horas',
-                        description: 'Uma trilha clássica com vista panorâmica da cidade do Rio de Janeiro.'
-                    },
-                    {
-                        id: 2,
-                        name: 'Pico da Bandeira',
-                        location: 'Alto Caparaó, MG',
-                        distance: 9.0,
-                        difficulty: 'dificil',
-                        duration: '6 horas',
-                        description: 'O terceiro pico mais alto do Brasil, com paisagens deslumbrantes.'
-                    },
-                    {
-                        id: 3,
-                        name: 'Trilha do Morro do Elefante',
-                        location: 'Campos do Jordão, SP',
-                        distance: 1.8,
-                        difficulty: 'facil',
-                        duration: '1.5 horas',
-                        description: 'Trilha fácil com vista panorâmica de Campos do Jordão.'
-                    },
-                    {
-                        id: 4,
-                        name: 'Pico dos Três Estados',
-                        location: 'Itatiaia, RJ',
-                        distance: 12.0,
-                        difficulty: 'extremo',
-                        duration: '8 horas',
-                        description: 'Trilha desafiadora que passa pela divisa de três estados.'
-                    },
-                    {
-                        id: 5,
-                        name: 'Cachoeira do Tabuleiro',
-                        location: 'Conceição do Mato Dentro, MG',
-                        distance: 4.2,
-                        difficulty: 'moderado',
-                        duration: '3 horas',
-                        description: 'Trilha até uma das cachoeiras mais altas de Minas Gerais.'
-                    }
-                ];
+            const selectionTab = document.getElementById('expeditionSelectionTab');
+            const requestTab = document.getElementById('expeditionRequestTab');
+            const selectBtn = document.getElementById('expeditionSelectTab');
+            const requestBtn = document.getElementById('expeditionRequestTabBtn');
+            const actionBtn = document.getElementById('expeditionModalActionBtn');
 
-                allTrails = mockTrails;
-                displayTrails(allTrails);
-                console.log('✅ Trilhas carregadas:', allTrails.length);
-            } catch (error) {
-                console.error('❌ Erro ao carregar trilhas:', error);
-                document.getElementById('trailsList').innerHTML = '<div class="text-center py-4 text-red-500">Erro ao carregar trilhas</div>';
+            if (tab === 'selection') {
+                if (selectionTab) selectionTab.classList.remove('hidden');
+                if (requestTab) requestTab.classList.add('hidden');
+                if (selectBtn) {
+                    selectBtn.classList.add('bg-white', 'text-green-600', 'shadow-sm');
+                    selectBtn.classList.remove('text-gray-500');
+                }
+                if (requestBtn) {
+                    requestBtn.classList.remove('bg-white', 'text-green-600', 'shadow-sm');
+                    requestBtn.classList.add('text-gray-500');
+                }
+                if (actionBtn) actionBtn.textContent = 'Salvar expedição';
+            } else {
+                if (selectionTab) selectionTab.classList.add('hidden');
+                if (requestTab) requestTab.classList.remove('hidden');
+                if (requestBtn) {
+                    requestBtn.classList.add('bg-white', 'text-green-600', 'shadow-sm');
+                    requestBtn.classList.remove('text-gray-500');
+                }
+                if (selectBtn) {
+                    selectBtn.classList.remove('bg-white', 'text-green-600', 'shadow-sm');
+                    selectBtn.classList.add('text-gray-500');
+                }
+                if (actionBtn) actionBtn.textContent = 'Enviar solicitação';
             }
         }
 
-        // Função para aplicar filtros avançados
-        function applyFilters() {
-            const ufFilter = document.getElementById('filterUF').value.toLowerCase();
-            const cityFilter = document.getElementById('filterCity').value.toLowerCase();
-            const nameFilter = document.getElementById('filterTrailName').value.toLowerCase();
-            
-            console.log('🔍 Aplicando filtros:', { uf: ufFilter, city: cityFilter, name: nameFilter });
-            
-            let filteredTrails = allTrails.filter(trail => {
-                // Extrair UF e cidade da localização
-                const locationParts = trail.location.split(', ');
-                const city = locationParts[0] ? locationParts[0].toLowerCase() : '';
-                const uf = locationParts[1] ? locationParts[1].toLowerCase() : '';
-                
-                // Aplicar filtros com correspondência parcial
-                const matchesUF = !ufFilter || uf.includes(ufFilter);
-                const matchesCity = !cityFilter || city.includes(cityFilter);
-                const matchesName = !nameFilter || trail.name.toLowerCase().includes(nameFilter);
-                
-                return matchesUF && matchesCity && matchesName;
+        function setupExpeditionSearch() {
+            const ufSelect = document.getElementById('filterUF');
+            const cityInput = document.getElementById('filterCity');
+            const trailInput = document.getElementById('filterTrailName');
+            const clearBtn = document.getElementById('clearTrailFiltersBtn');
+            const searchForm = document.getElementById('expeditionTrailSearchForm');
+
+            [ufSelect, cityInput, trailInput].forEach(input => {
+                if (!input) return;
+                const eventName = input.tagName === 'SELECT' ? 'change' : 'input';
+                input.addEventListener(eventName, triggerTrailSearch);
             });
-            
-            console.log('📊 Trilhas filtradas:', filteredTrails.length, 'de', allTrails.length);
-            displayTrails(filteredTrails);
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    if (ufSelect) ufSelect.value = '';
+                    if (cityInput) cityInput.value = '';
+                    if (trailInput) trailInput.value = '';
+                    triggerTrailSearch();
+                });
+            }
+
+            if (searchForm) {
+                searchForm.addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    triggerTrailSearch();
+                });
+            }
         }
 
-        // Função para limpar todos os filtros
-        function clearFilters() {
-            document.getElementById('filterUF').value = '';
-            document.getElementById('filterCity').value = '';
-            document.getElementById('filterTrailName').value = '';
-            
-            console.log('🗑️ Filtros limpos, exibindo todas as trilhas');
-            displayTrails(allTrails);
+        function triggerTrailSearch() {
+            if (expeditionSearchTimeout) {
+                clearTimeout(expeditionSearchTimeout);
+            }
+
+            expeditionSearchTimeout = setTimeout(() => {
+                const ufField = document.getElementById('filterUF');
+                const cityField = document.getElementById('filterCity');
+                const nameField = document.getElementById('filterTrailName');
+
+                const filters = {
+                    uf: ufField ? ufField.value : '',
+                    city: cityField ? cityField.value : '',
+                    name: nameField ? nameField.value : ''
+                };
+                performTrailSearch(filters);
+            }, 300);
         }
 
-        // Função para exibir trilhas na lista
-        function displayTrails(trails) {
-            const trailsList = document.getElementById('trailsList');
-            
-            if (trails.length === 0) {
-                trailsList.innerHTML = `
-                    <div class="text-center py-8">
-                        <div class="text-gray-400 text-4xl mb-2">🔍</div>
-                        <p class="text-gray-500">Nenhuma trilha encontrada com os filtros aplicados</p>
-                        <button onclick="clearFilters()" class="mt-2 text-green-600 hover:text-green-700 text-sm underline">
-                            Limpar filtros e ver todas
-                        </button>
-                    </div>
-                `;
+        async function performTrailSearch(filters = {}) {
+            const list = document.getElementById('expeditionTrailsList');
+            const info = document.getElementById('expeditionTrailResultsInfo');
+
+            if (!list) return;
+
+            list.innerHTML = '<div class="text-center py-4 text-gray-500">Buscando trilhas cadastradas...</div>';
+
+            const params = new URLSearchParams();
+            params.append('limit', TRAIL_SEARCH_LIMIT);
+            if (filters.uf) params.append('state', filters.uf);
+            if (filters.city) params.append('city', filters.city);
+            if (filters.name) params.append('search', filters.name);
+
+            try {
+                const response = await fetch(`${PUBLIC_API_URL}/trails?${params.toString()}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const payload = await response.json();
+                let trails = [];
+                if (payload && Array.isArray(payload.trails)) {
+                    trails = payload.trails;
+                } else if (payload && Array.isArray(payload.data)) {
+                    trails = payload.data;
+                }
+
+                cachedTrailResults = trails;
+                renderTrailResults(trails);
+                if (info) {
+                    info.classList.remove('hidden');
+                    info.textContent = `${trails.length} trilha${trails.length === 1 ? '' : 's'} encontrada${trails.length === 1 ? '' : 's'}`;
+                }
+            } catch (error) {
+                console.error('❌ Erro ao buscar trilhas cadastradas:', error);
+                cachedTrailResults = [];
+                list.innerHTML = '<div class="text-center py-4 text-red-500">Não foi possível carregar as trilhas agora. Tente novamente em instantes.</div>';
+                if (info) info.classList.add('hidden');
+            }
+        }
+
+        function renderTrailResults(trails) {
+            const list = document.getElementById('expeditionTrailsList');
+            if (!list) return;
+
+            if (!trails.length) {
+                list.innerHTML = '<div class="text-center py-4 text-gray-500">Nenhuma trilha encontrada com os filtros informados.</div>';
                 return;
             }
-            
-            trailsList.innerHTML = trails.map(trail => {
-                const difficultyColors = {
-                    'facil': 'bg-green-100 text-green-800',
-                    'moderado': 'bg-yellow-100 text-yellow-800',
-                    'dificil': 'bg-orange-100 text-orange-800',
-                    'extremo': 'bg-red-100 text-red-800'
-                };
-                
-                const difficultyIcons = {
-                    'facil': '🟢',
-                    'moderado': '🟡',
-                    'dificil': '🟠',
-                    'extremo': '🔴'
-                };
-                
+
+            list.innerHTML = trails.map(trail => {
+                const distance = trail.distance || trail.total_distance_km || trail.km || 0;
+                const duration = trail.duration || trail.average_duration || trail.time || 'Duração não informada';
+                const difficulty = trail.difficulty || trail.level || 'moderado';
+                const city = trail.city || (trail.location ? trail.location.split(',')[0] : '');
+                const state = trail.state || trail.uf || (trail.location ? trail.location.split(',')[1] : '');
+                const locationLabel = trail.location || `${city}${state ? ', ' + state.trim() : ''}`;
+
                 return `
-                    <div class="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectTrail(${trail.id})">
-                        <div class="flex justify-between items-start">
-                            <div class="flex-1">
-                                <h5 class="font-medium text-gray-900">${trail.name}</h5>
-                                <p class="text-sm text-gray-600">📍 ${trail.location}</p>
-                                <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                                    <span>📏 ${trail.distance}km</span>
-                                    <span>⏱️ ${trail.duration}</span>
-                                </div>
+                    <button type="button" class="w-full text-left border border-gray-200 rounded-lg p-4 hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 transition" data-trail-id="${trail.id}">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h5 class="text-sm font-semibold text-gray-900">${trail.name}</h5>
+                                <p class="text-xs text-gray-500">📍 ${locationLabel || 'Local não informado'}</p>
                             </div>
-                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${difficultyColors[trail.difficulty]}">
-                                ${difficultyIcons[trail.difficulty]} ${trail.difficulty.charAt(0).toUpperCase() + trail.difficulty.slice(1)}
-                            </span>
+                            <span class="text-xs font-medium text-green-600">Selecionar</span>
                         </div>
-                    </div>
+                        <div class="mt-2 text-xs text-gray-500 flex flex-wrap gap-x-4 gap-y-1">
+                            <span>📏 ${Number(distance).toFixed(1)} km</span>
+                            <span>⏱️ ${duration}</span>
+                            <span>${getDifficultyIcon(difficulty)} ${getDifficultyLabel(difficulty)}</span>
+                        </div>
+                    </button>
                 `;
             }).join('');
+
+            const buttons = list.querySelectorAll('button[data-trail-id]');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const trailId = button.getAttribute('data-trail-id');
+                    selectTrailForExpedition(trailId);
+                });
+            });
         }
 
-        // Função para selecionar uma trilha
-        function selectTrail(trailId) {
-            selectedTrail = allTrails.find(trail => trail.id === trailId);
-            if (selectedTrail) {
-                console.log('🎯 Trilha selecionada:', selectedTrail.name);
-                
-                document.getElementById('selectedTrailDetails').innerHTML = `
-                    <div class="bg-white p-3 rounded border">
-                        <h5 class="font-medium text-gray-900">${selectedTrail.name}</h5>
-                        <p class="text-sm text-gray-600">📍 ${selectedTrail.location}</p>
-                        <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                            <span>📏 ${selectedTrail.distance}km</span>
-                            <span>⏱️ ${selectedTrail.duration}</span>
-                            <span class="capitalize">🎯 ${selectedTrail.difficulty}</span>
-                        </div>
-                        <p class="text-sm text-gray-600 mt-2">${selectedTrail.description}</p>
+        function selectTrailForExpedition(trailId) {
+            if (!trailId) return;
+            const trail = cachedTrailResults.find(item => String(item.id) === String(trailId));
+            if (!trail) return;
+
+            selectedExpeditionTrail = trail;
+            updateSelectedTrailView();
+            prepareExpeditionForm();
+        }
+
+        function updateSelectedTrailView() {
+            const wrapper = document.getElementById('selectedExpeditionTrail');
+            const details = document.getElementById('selectedExpeditionTrailDetails');
+
+            if (!wrapper || !details) return;
+
+            if (!selectedExpeditionTrail) {
+                wrapper.classList.add('hidden');
+                details.innerHTML = '';
+                return;
+            }
+
+            const distance = selectedExpeditionTrail.distance || selectedExpeditionTrail.total_distance_km || selectedExpeditionTrail.km || 0;
+            const duration = selectedExpeditionTrail.duration || selectedExpeditionTrail.average_duration || selectedExpeditionTrail.time || 'Duração não informada';
+            const difficulty = selectedExpeditionTrail.difficulty || selectedExpeditionTrail.level || 'moderado';
+            const city = selectedExpeditionTrail.city || (selectedExpeditionTrail.location ? selectedExpeditionTrail.location.split(',')[0] : '');
+            const state = selectedExpeditionTrail.state || selectedExpeditionTrail.uf || (selectedExpeditionTrail.location ? selectedExpeditionTrail.location.split(',')[1] : '');
+            const locationLabel = selectedExpeditionTrail.location || `${city}${state ? ', ' + state.trim() : ''}`;
+
+            details.innerHTML = `
+                <div class="bg-white border border-green-200 rounded-md p-3">
+                    <h5 class="text-sm font-semibold text-gray-900">${selectedExpeditionTrail.name}</h5>
+                    <p class="text-xs text-gray-500">📍 ${locationLabel || 'Local não informado'}</p>
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600 mt-2">
+                        <span>📏 ${Number(distance).toFixed(1)} km</span>
+                        <span>⏱️ ${duration}</span>
+                        <span>${getDifficultyIcon(difficulty)} ${getDifficultyLabel(difficulty)}</span>
                     </div>
-                `;
-                
-                document.getElementById('selectedTrailInfo').classList.remove('hidden');
-                document.getElementById('guidePrice').focus();
+                    ${selectedExpeditionTrail.description ? `<p class="mt-2 text-xs text-gray-600 leading-relaxed">${selectedExpeditionTrail.description}</p>` : ''}
+                </div>
+            `;
+
+            wrapper.classList.remove('hidden');
+        }
+
+        function prepareExpeditionForm() {
+            const form = document.getElementById('createExpeditionForm');
+            if (!form) return;
+
+            form.classList.remove('hidden');
+
+            const startInput = document.getElementById('expeditionStartDate');
+            const endInput = document.getElementById('expeditionEndDate');
+            const today = new Date().toISOString().split('T')[0];
+
+            if (startInput && !startInput.value) {
+                startInput.value = today;
+            }
+
+            if (endInput && !endInput.value) {
+                endInput.value = today;
+            }
+
+            if (startInput) startInput.focus();
+        }
+
+        function handleExpeditionPrimaryAction() {
+            if (expeditionCurrentTab === 'request') {
+                submitTrailRequest();
+            } else {
+                handleExpeditionSave();
             }
         }
 
-        // Função para adicionar trilha selecionada ao perfil do guia
-        function addSelectedTrail() {
-            if (!selectedTrail) {
-                alert('Por favor, selecione uma trilha primeiro.');
+        async function handleExpeditionSave() {
+            if (!selectedExpeditionTrail) {
+                alert('Selecione uma trilha cadastrada antes de salvar a expedição.');
                 return;
             }
 
-            const price = document.getElementById('guidePrice').value;
-            if (!price || parseFloat(price) <= 0) {
-                alert('Por favor, informe o valor do seu serviço.');
-                document.getElementById('guidePrice').focus();
+            const form = document.getElementById('createExpeditionForm');
+            if (!form) return;
+
+            if (!form.reportValidity()) {
                 return;
             }
 
-            // Criar objeto da trilha do guia
-            const guideTrail = {
-                id: `guide_trail_${Date.now()}`,
+            const startDate = document.getElementById('expeditionStartDate').value;
+            const endDate = document.getElementById('expeditionEndDate').value;
+            const price = parseFloat(document.getElementById('expeditionPrice').value);
+            const maxParticipants = parseInt(document.getElementById('expeditionMaxParticipants').value, 10);
+            const description = document.getElementById('expeditionDescription').value.trim();
+
+            if (new Date(endDate) < new Date(startDate)) {
+                alert('A data de término deve ser igual ou posterior à data de início.');
+                return;
+            }
+
+            if (Number.isNaN(price) || price <= 0) {
+                alert('Informe um preço válido para a expedição.');
+                return;
+            }
+
+            if (Number.isNaN(maxParticipants) || maxParticipants <= 0) {
+                alert('Informe o número máximo de participantes da expedição.');
+                return;
+            }
+
+            const locationParts = (selectedExpeditionTrail.location || '').split(',');
+            const city = (selectedExpeditionTrail.city || locationParts[0] || '').trim();
+            const state = (selectedExpeditionTrail.state || selectedExpeditionTrail.uf || locationParts[1] || '').trim();
+
+            const expedition = {
+                id: `expedition_${Date.now()}`,
                 guide_id: currentUser.id,
                 guide_name: currentUser.name,
-                trail_id: selectedTrail.id,
-                trail_name: selectedTrail.name,
-                trail_location: selectedTrail.location,
-                trail_distance: selectedTrail.distance,
-                trail_difficulty: selectedTrail.difficulty,
-                trail_duration: selectedTrail.duration,
-                trail_description: selectedTrail.description,
-                guide_price: parseFloat(price),
-                date_added: new Date().toISOString()
+                trail_id: selectedExpeditionTrail.id,
+                trail_name: selectedExpeditionTrail.name,
+                trail_location: selectedExpeditionTrail.location || `${city}${state ? ', ' + state : ''}`,
+                city,
+                state,
+                start_date: startDate,
+                end_date: endDate,
+                price,
+                max_participants: maxParticipants,
+                description,
+                created_at: new Date().toISOString(),
+                storage: 'local'
             };
 
-            // Salvar no localStorage
-            let guideTrails = JSON.parse(localStorage.getItem('guideTrails') || '[]');
-            
-            // Verificar se a trilha já foi adicionada por este guia
-            const existingTrail = guideTrails.find(gt => 
-                gt.guide_id === currentUser.id && gt.trail_id === selectedTrail.id
-            );
-            
-            if (existingTrail) {
-                alert('Você já adicionou esta trilha ao seu perfil.');
+            await persistExpedition(expedition);
+            closeCreateExpeditionModal();
+            loadGuideExpeditions();
+            alert('Expedição criada com sucesso! Ela aparecerá automaticamente na sua lista.');
+        }
+
+        async function persistExpedition(expedition) {
+            const token = currentUser && (currentUser.token || currentUser.access_token || currentUser.jwt);
+            let savedViaApi = false;
+            let expeditionToSave = { ...expedition };
+
+            if (token) {
+                try {
+                    const payload = {
+                        trail_id: expedition.trail_id,
+                        start_date: expedition.start_date,
+                        end_date: expedition.end_date,
+                        price_per_person: expedition.price,
+                        max_people: expedition.max_participants,
+                        description: expedition.description,
+                        status: 'draft'
+                    };
+
+                    const response = await fetch(`${PUBLIC_API_URL}/expeditions`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const apiExpedition = data && (data.expedition || data.data);
+                        if (apiExpedition) {
+                            expeditionToSave = {
+                                ...expeditionToSave,
+                                id: apiExpedition.id || expeditionToSave.id,
+                                storage: 'api',
+                                api_payload: apiExpedition
+                            };
+                            savedViaApi = true;
+                        }
+                    } else {
+                        console.warn('⚠️ Não foi possível salvar a expedição na API. Status:', response.status);
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Erro ao tentar integrar com a API de expedições:', error);
+                }
+            }
+
+            saveExpeditionLocally(expeditionToSave, savedViaApi);
+            return expeditionToSave;
+        }
+
+        function saveExpeditionLocally(expedition, synced = false) {
+            try {
+                const key = `${EXPEDITION_STORAGE_PREFIX}${currentUser.id}`;
+                const existing = JSON.parse(localStorage.getItem(key) || '[]');
+                const record = {
+                    ...expedition,
+                    storage: synced ? 'api' : 'local',
+                    updated_at: new Date().toISOString()
+                };
+
+                const index = existing.findIndex(item => item.id === record.id);
+                if (index >= 0) {
+                    existing[index] = record;
+                } else {
+                    existing.push(record);
+                }
+
+                localStorage.setItem(key, JSON.stringify(existing));
+                console.log('💾 Expedição salva localmente:', record);
+            } catch (error) {
+                console.error('❌ Erro ao salvar expedição no localStorage:', error);
+            }
+        }
+
+        function loadGuideExpeditions() {
+            const section = document.getElementById('guideExpeditionsSection');
+            const list = document.getElementById('guideExpeditionsList');
+            const primaryBtn = document.getElementById('createExpeditionBtn');
+            const secondaryBtn = document.getElementById('secondaryCreateExpeditionBtn');
+
+            if (!isGuide(currentUser)) {
+                if (primaryBtn) primaryBtn.classList.add('hidden');
+                if (secondaryBtn) secondaryBtn.classList.add('hidden');
+                if (section) section.classList.add('hidden');
+                if (list) list.innerHTML = '';
                 return;
             }
 
-            guideTrails.push(guideTrail);
-            localStorage.setItem('guideTrails', JSON.stringify(guideTrails));
+            if (primaryBtn) primaryBtn.classList.remove('hidden');
+            if (secondaryBtn) secondaryBtn.classList.remove('hidden');
+            if (section) section.classList.remove('hidden');
 
-            console.log('✅ Trilha adicionada ao perfil do guia!', guideTrail);
-            
-            // Fechar modal e atualizar lista
-            closeSelectTrailModal();
-            loadUserTrails();
-            
-            alert('Trilha adicionada com sucesso ao seu perfil!');
-        }
+            if (!list) {
+                return;
+            }
 
-        // Funções auxiliares para dificuldade
-        function getDifficultyIcon(difficulty) {
-            const icons = {
-                'facil': '🟢',
-                'moderado': '🟡', 
-                'dificil': '🟠',
-                'extremo': '🔴'
-            };
-            return icons[difficulty] || '⚪';
-        }
+            const key = `${EXPEDITION_STORAGE_PREFIX}${currentUser.id}`;
+            const expeditions = JSON.parse(localStorage.getItem(key) || '[]');
 
-        function getDifficultyLabel(difficulty) {
-            return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-        }
-
-        // Função para buscar trilhas (mantida para compatibilidade)
-        function searchTrails() {
-            const searchTerm = document.getElementById('trailSearch').value.toLowerCase();
-            const filteredTrails = allTrails.filter(trail => 
-                trail.name.toLowerCase().includes(searchTerm) ||
-                trail.location.toLowerCase().includes(searchTerm)
-            );
-            displayTrails(filteredTrails);
-        }
-
-        // Função para selecionar trilha
-        function selectTrail(trailId) {
-            selectedTrail = allTrails.find(trail => trail.id === trailId);
-            
-            if (selectedTrail) {
-                console.log('🎯 Trilha selecionada:', selectedTrail.name);
-                
-                // Mostrar detalhes da trilha selecionada
-                document.getElementById('selectedTrailDetails').innerHTML = `
-                    <div class="bg-white p-3 rounded border">
-                        <h5 class="font-medium">${selectedTrail.name}</h5>
-                        <p class="text-sm text-gray-600">📍 ${selectedTrail.location}</p>
-                        <div class="flex items-center space-x-3 mt-1 text-sm text-gray-500">
-                            <span>📏 ${selectedTrail.distance}km</span>
-                            <span>⏱️ ${selectedTrail.duration}</span>
-                            <span>${getDifficultyIcon(selectedTrail.difficulty)} ${getDifficultyLabel(selectedTrail.difficulty)}</span>
-                        </div>
-                        <p class="text-sm text-gray-600 mt-2">${selectedTrail.description}</p>
+            if (!expeditions.length) {
+                list.innerHTML = `
+                    <div class="text-center text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-lg p-6">
+                        <p class="font-medium text-gray-700 mb-1">Nenhuma expedição cadastrada ainda.</p>
+                        <p class="text-xs text-gray-500">Clique em “+ Criar Expedição” para planejar a sua primeira aventura.</p>
                     </div>
                 `;
-                
-                document.getElementById('selectedTrailInfo').classList.remove('hidden');
-                const priceField = document.getElementById('guidePrice');
-                if (priceField) {
-                    priceField.focus();
-                }
+                return;
             }
+
+            expeditions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            list.innerHTML = expeditions.map(renderExpeditionCard).join('');
         }
 
-        // Função para adicionar trilha selecionada
-        function addSelectedTrail() {
-            if (currentTab === 'selection') {
-                if (!selectedTrail) {
-                    alert('Por favor, selecione uma trilha.');
-                    return;
-                }
+        function renderExpeditionCard(expedition) {
+            const start = expedition.start_date ? new Date(expedition.start_date) : null;
+            const end = expedition.end_date ? new Date(expedition.end_date) : null;
+            const dateFormatter = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' });
+            const dateLabel = start && end ? `${dateFormatter.format(start)} - ${dateFormatter.format(end)}` : 'Datas a definir';
 
-                const guidePrice = document.getElementById('guidePrice').value;
-                if (!guidePrice || parseFloat(guidePrice) <= 0) {
-                    alert('Por favor, informe o valor do seu serviço.');
-                    return;
-                }
-
-                // Salvar trilha do guia
-                const guideTrail = {
-                    id: 'guide_trail_' + Date.now(),
-                    guide_id: currentUser.id,
-                    guide_name: currentUser.name,
-                    trail_id: selectedTrail.id,
-                    trail_name: selectedTrail.name,
-                    trail_location: selectedTrail.location,
-                    trail_distance: selectedTrail.distance,
-                    trail_difficulty: selectedTrail.difficulty,
-                    trail_duration: selectedTrail.duration,
-                    trail_description: selectedTrail.description,
-                    guide_price: parseFloat(guidePrice),
-                    created_at: new Date().toISOString()
-                };
-
-                // Salvar no localStorage
-                let userTrails = JSON.parse(localStorage.getItem('userTrails_' + currentUser.id)) || [];
-                userTrails.push(guideTrail);
-                localStorage.setItem('userTrails_' + currentUser.id, JSON.stringify(userTrails));
-
-                closeSelectTrailModal();
-                loadUserTrails();
-
-                console.log('✅ Trilha adicionada ao perfil do guia!', guideTrail);
-                alert('Trilha adicionada ao seu perfil com sucesso!');
-            }
+            return `
+                <article class="border border-gray-200 rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-2">
+                        <h5 class="text-base font-semibold text-gray-900">${expedition.trail_name}</h5>
+                        <span class="text-xs px-2 py-1 rounded-full ${expedition.storage === 'api' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
+                            ${expedition.storage === 'api' ? 'Sincronizado' : 'Rascunho local'}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">📍 ${expedition.trail_location || 'Local não informado'}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600 mb-3">
+                        <span>📅 ${dateLabel}</span>
+                        <span>👥 Máx. ${expedition.max_participants} participante${expedition.max_participants === 1 ? '' : 's'}</span>
+                        <span>💰 R$ ${Number(expedition.price || 0).toFixed(2)}</span>
+                        <span>🕒 Criada em ${new Date(expedition.created_at).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                    <p class="text-sm text-gray-700 leading-relaxed">${expedition.description}</p>
+                </article>
+            `;
         }
 
         // Função para enviar solicitação de nova trilha (será implementada na próxima fase)
         function submitTrailRequest() {
-            if (currentTab === 'request') {
-                // Validar campos obrigatórios
-                const requiredFields = [
-                    'requestTrailName',
-                    'requestTrailLocation', 
-                    'requestTrailDistance',
-                    'requestTrailDifficulty',
-                    'requestTrailDuration',
-                    'requestTrailDescription',
-                    'requestGuidePrice'
-                ];
-
-                for (let fieldId of requiredFields) {
-                    const field = document.getElementById(fieldId);
-                    if (!field.value.trim()) {
-                        alert('Por favor, preencha todos os campos obrigatórios.');
-                        field.focus();
-                        return;
-                    }
-                }
-
-                // Coletar dados do formulário
-                const requestData = {
-                    guide_name: currentUser.name,
-                    guide_email: currentUser.email,
-                    guide_cadastur: currentUser.cadastur,
-                    trail_name: document.getElementById('requestTrailName').value,
-                    trail_location: document.getElementById('requestTrailLocation').value,
-                    trail_distance: document.getElementById('requestTrailDistance').value,
-                    trail_difficulty: document.getElementById('requestTrailDifficulty').value,
-                    trail_duration: document.getElementById('requestTrailDuration').value,
-                    trail_description: document.getElementById('requestTrailDescription').value,
-                    guide_price: document.getElementById('requestGuidePrice').value,
-                    additional_info: document.getElementById('requestAdditionalInfo').value,
-                    request_date: new Date().toISOString()
-                };
-
-                // Enviar email
-                sendTrailRequestEmail(requestData);
+            if (expeditionCurrentTab !== 'request') {
+                showCreateExpeditionTab('request');
             }
+
+            const requiredFields = [
+                'requestTrailName',
+                'requestTrailLocation',
+                'requestTrailDistance',
+                'requestTrailDifficulty',
+                'requestTrailDuration',
+                'requestTrailDescription',
+                'requestGuidePrice'
+            ];
+
+            for (let fieldId of requiredFields) {
+                const field = document.getElementById(fieldId);
+                if (!field || !field.value.trim()) {
+                    alert('Por favor, preencha todos os campos obrigatórios.');
+                    if (field) field.focus();
+                    return;
+                }
+            }
+
+            const requestData = {
+                guide_name: currentUser.name,
+                guide_email: currentUser.email,
+                guide_cadastur: currentUser.cadastur,
+                trail_name: document.getElementById('requestTrailName').value,
+                trail_location: document.getElementById('requestTrailLocation').value,
+                trail_distance: document.getElementById('requestTrailDistance').value,
+                trail_difficulty: document.getElementById('requestTrailDifficulty').value,
+                trail_duration: document.getElementById('requestTrailDuration').value,
+                trail_description: document.getElementById('requestTrailDescription').value,
+                guide_price: document.getElementById('requestGuidePrice').value,
+                additional_info: document.getElementById('requestAdditionalInfo').value,
+                request_date: new Date().toISOString()
+            };
+
+            sendTrailRequestEmail(requestData);
         }
 
         // Função para enviar solicitação de nova trilha via email
@@ -1242,7 +1450,7 @@
                         saveTrailRequest(requestData);
                         
                         // Fechar modal e mostrar sucesso
-                        closeSelectTrailModal();
+                        closeCreateExpeditionModal();
                         
                         alert('Solicitação enviada com sucesso! Nossa equipe analisará e entrará em contato em até 48 horas.');
                         
@@ -1299,62 +1507,75 @@
         // Carregar trilhas do usuário
         function loadUserTrails() {
             console.log('📥 Carregando trilhas do usuário...');
-            
-            // Recarregar dados atuais do usuário
+
             currentUser = loadUserData();
-            
-            if (!currentUser || currentUser.user_type !== 'guia') {
-                console.log('ℹ️ Usuário não é guia, ocultando botão de adicionar trilha');
-                const addBtn = document.getElementById('addTrailBtn');
-                if (addBtn) addBtn.style.display = 'none';
+
+            const primaryBtn = document.getElementById('createExpeditionBtn');
+            const secondaryBtn = document.getElementById('secondaryCreateExpeditionBtn');
+            const activitiesContainer = document.getElementById('activitiesContainer');
+
+            if (!isGuide(currentUser)) {
+                console.log('ℹ️ Usuário não é guia, ocultando recursos de expedição');
+                if (primaryBtn) primaryBtn.classList.add('hidden');
+                if (secondaryBtn) secondaryBtn.classList.add('hidden');
+                if (activitiesContainer) {
+                    activitiesContainer.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <div class="text-4xl mb-2">🥾</div>
+                            <p>Nenhuma atividade registrada ainda.</p>
+                            <p class="text-sm mt-1">Salve trilhas favoritas ou reserve expedições para vê-las aqui.</p>
+                        </div>
+                    `;
+                }
+                loadGuideExpeditions();
                 return;
             }
 
-            // Mostrar botão de adicionar trilha para guias
-            const addBtn = document.getElementById('addTrailBtn');
-            if (addBtn) addBtn.style.display = 'block';
+            if (primaryBtn) primaryBtn.classList.remove('hidden');
+            if (secondaryBtn) secondaryBtn.classList.remove('hidden');
 
-            // Carregar trilhas salvas
             const userTrails = JSON.parse(localStorage.getItem('userTrails_' + currentUser.id)) || [];
-            
-            const activitiesContainer = document.getElementById('activitiesContainer');
-            if (!activitiesContainer) return;
+
+            if (!activitiesContainer) {
+                loadGuideExpeditions();
+                return;
+            }
 
             if (userTrails.length === 0) {
                 activitiesContainer.innerHTML = `
                     <div class="text-center py-8 text-gray-500">
                         <div class="text-4xl mb-2">🏔️</div>
-                        <p>Nenhuma atividade registrada ainda.</p>
-                        <p class="text-sm mt-1">Suas atividades aparecerão aqui após realizar trilhas.</p>
+                        <p>Nenhuma trilha cadastrada ainda.</p>
+                        <p class="text-sm mt-1">Use o botão “+ Criar Expedição” para registrar suas aventuras guiadas.</p>
                     </div>
                 `;
-                return;
+            } else {
+                const trailsHtml = userTrails.map(trail => `
+                    <div class="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-medium text-gray-900">${trail.trail_name || trail.name}</h4>
+                            <span class="text-xs text-gray-500">${new Date(trail.created_at).toLocaleDateString('pt-BR')}</span>
+                        </div>
+
+                        <div class="flex items-center space-x-4 text-sm text-gray-600 mb-2">
+                            <span>📍 ${trail.trail_location || trail.location}</span>
+                            <span>📏 ${trail.trail_distance || trail.distance}km</span>
+                            <span>${getDifficultyIcon(trail.trail_difficulty || trail.difficulty)} ${getDifficultyLabel(trail.trail_difficulty || trail.difficulty)}</span>
+                        </div>
+
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">⏱️ ${trail.trail_duration || trail.duration}</span>
+                            <span class="font-medium text-green-600">R$ ${(trail.guide_price || trail.price || 0).toFixed(2)}</span>
+                        </div>
+
+                        <p class="text-sm text-gray-700 mt-2">${trail.trail_description || trail.description}</p>
+                    </div>
+                `).join('');
+
+                activitiesContainer.innerHTML = trailsHtml;
             }
 
-            // Exibir trilhas
-            const trailsHtml = userTrails.map(trail => `
-                <div class="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-medium text-gray-900">${trail.trail_name || trail.name}</h4>
-                        <span class="text-xs text-gray-500">${new Date(trail.created_at).toLocaleDateString('pt-BR')}</span>
-                    </div>
-                    
-                    <div class="flex items-center space-x-4 text-sm text-gray-600 mb-2">
-                        <span>📍 ${trail.trail_location || trail.location}</span>
-                        <span>📏 ${trail.trail_distance || trail.distance}km</span>
-                        <span>${getDifficultyIcon(trail.trail_difficulty || trail.difficulty)} ${getDifficultyLabel(trail.trail_difficulty || trail.difficulty)}</span>
-                    </div>
-                    
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-600">⏱️ ${trail.trail_duration || trail.duration}</span>
-                        <span class="font-medium text-green-600">R$ ${(trail.guide_price || trail.price || 0).toFixed(2)}</span>
-                    </div>
-                    
-                    <p class="text-sm text-gray-700 mt-2 line-clamp-2">${trail.trail_description || trail.description}</p>
-                </div>
-            `).join('');
-
-            activitiesContainer.innerHTML = trailsHtml;
+            loadGuideExpeditions();
             console.log('✅ Trilhas carregadas:', userTrails.length);
         }
 

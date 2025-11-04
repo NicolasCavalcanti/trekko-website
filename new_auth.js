@@ -178,10 +178,15 @@ class TrekkoAuth {
             const result = await response.json();
 
             if (result.success) {
+                const normalizedUser = {
+                    ...result.user,
+                    user_type: this.normalizeUserType(result.user?.user_type)
+                };
+
                 this.showSuccess('Login realizado com sucesso!');
-                localStorage.setItem('userData', JSON.stringify(result.user));
+                localStorage.setItem('userData', JSON.stringify(normalizedUser));
                 modal.remove();
-                this.updateUIForLoggedUser(result.user);
+                this.updateUIForLoggedUser(normalizedUser);
             } else {
                 this.showError(result.message);
             }
@@ -223,10 +228,15 @@ class TrekkoAuth {
             const result = await response.json();
 
             if (result.success) {
+                const normalizedUser = {
+                    ...result.user,
+                    user_type: this.normalizeUserType(result.user?.user_type || data.user_type)
+                };
+
                 this.showSuccess('Cadastro realizado com sucesso!');
-                localStorage.setItem('userData', JSON.stringify(result.user));
+                localStorage.setItem('userData', JSON.stringify(normalizedUser));
                 modal.remove();
-                this.updateUIForLoggedUser(result.user);
+                this.updateUIForLoggedUser(normalizedUser);
             } else {
                 this.showError(result.message);
             }
@@ -401,6 +411,41 @@ class TrekkoAuth {
                 });
             }
         }
+    }
+
+    normalizeUserType(value) {
+        if (!value) {
+            return 'trekker';
+        }
+
+        const normalized = value.toString().trim().toLowerCase();
+
+        const guideAliases = new Set([
+            'guia',
+            'guide',
+            'guia profissional',
+            'guia_profissional',
+            'professional guide',
+            'professional_guide'
+        ]);
+
+        if (guideAliases.has(normalized)) {
+            return 'guia';
+        }
+
+        const trekkerAliases = new Set([
+            'trekker',
+            'usuário',
+            'usuario',
+            'user',
+            'cliente'
+        ]);
+
+        if (trekkerAliases.has(normalized)) {
+            return 'trekker';
+        }
+
+        return normalized || 'trekker';
     }
 
     logout() {
