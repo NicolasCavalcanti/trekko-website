@@ -16,12 +16,78 @@ class TrekkoAuthManager {
         this.currentUser = null;
         this.authToken = null;
         // Estado de validação do guia profissional
-        // idle | pending | success | error
+        // idle | pending | success | error | partial | partial_confirmed
         this.guideValidationState = 'idle';
         this.validatedGuideData = null;
+        this.partialMatchConfirmed = false;
+        this.partialMatchButton = null;
+        this.partialMatchHandler = null;
+        this.cadasturUtils = null;
+        this.cadasturUtilsPromise = null;
         this.debouncedCadasturValidation = this.debounce(this.validateCadastur.bind(this), 400);
 
+        this.ensureCadasturUtils().catch(err => {
+            console.warn('Falha ao pré-carregar utilitário de normalização CADASTUR:', err);
+        });
+
         this.init();
+    }
+
+    async ensureCadasturUtils() {
+        if (this.cadasturUtils && typeof this.cadasturUtils.normalizeNameForCadastur === 'function') {
+            return this.cadasturUtils;
+        }
+
+        if (typeof window !== 'undefined' && window.TrekkoCadasturUtils) {
+            this.cadasturUtils = window.TrekkoCadasturUtils;
+            return this.cadasturUtils;
+        }
+
+        if (!this.cadasturUtilsPromise) {
+            this.cadasturUtilsPromise = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'shared/normalizeCadastur.js';
+                script.async = true;
+                script.onload = () => {
+                    if (window.TrekkoCadasturUtils) {
+                        this.cadasturUtils = window.TrekkoCadasturUtils;
+                        resolve(this.cadasturUtils);
+                    } else {
+                        reject(new Error('Utilitário CADASTUR indisponível após carregamento.'));
+                    }
+                };
+                script.onerror = () => reject(new Error('Falha ao carregar utilitário CADASTUR.'));
+                document.head.appendChild(script);
+            }).catch(error => {
+                this.cadasturUtilsPromise = null;
+                throw error;
+            });
+        }
+
+        return this.cadasturUtilsPromise;
+    }
+
+    getCadasturUtilsSync() {
+        if (this.cadasturUtils && typeof this.cadasturUtils.normalizeNameForCadastur === 'function') {
+            return this.cadasturUtils;
+        }
+        if (typeof window !== 'undefined' && window.TrekkoCadasturUtils) {
+            this.cadasturUtils = window.TrekkoCadasturUtils;
+            return this.cadasturUtils;
+        }
+        return null;
+    }
+
+    fallbackNormalizeCadasturName(name) {
+        if (!name) return '';
+        return name
+            .replace(/^\uFEFF/, '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z\s]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
     }
 
     // Base de dados de guias válidos com CADASTUR
@@ -33,6 +99,17 @@ class TrekkoAuthManager {
         if (this.cadasturLoadPromise) {
             return this.cadasturLoadPromise;
         }
+
+        let normalizationUtils = null;
+        try {
+            normalizationUtils = await this.ensureCadasturUtils();
+        } catch (err) {
+            console.warn('Continuando sem utilitário compartilhado de normalização CADASTUR:', err);
+        }
+
+        const normalizeCadasturName = normalizationUtils && typeof normalizationUtils.normalizeNameForCadastur === 'function'
+            ? normalizationUtils.normalizeNameForCadastur
+            : this.fallbackNormalizeCadasturName;
 
         this.cadasturLoadPromise = (async () => {
             try {
@@ -90,7 +167,7 @@ class TrekkoAuthManager {
 
                     const normalizedNumber = rawNumber.replace(/\D/g, '');
                     const name = (parts[idxName] || '').trim();
-                    const normalizedName = this.normalizeNameForComparison(name);
+                    const normalizedName = normalizeCadasturName(name);
                     const uf = (parts[idxUf] || '').trim();
                     const city = (parts[idxCity] || '').trim();
                     const activity = (parts[idxActivity] || '').trim();
@@ -135,7 +212,11 @@ class TrekkoAuthManager {
 
     normalizeNameForComparison(name) {
         if (!name) return '';
-        return this.normalizeString(name).replace(/\s+/g, ' ').trim();
+        const utils = this.getCadasturUtilsSync();
+        const normalizeFn = utils && typeof utils.normalizeNameForCadastur === 'function'
+            ? utils.normalizeNameForCadastur
+            : this.fallbackNormalizeCadasturName;
+        return normalizeFn(name);
     }
 
     parseCadasturValidity(rawValue) {
@@ -625,12 +706,17 @@ class TrekkoAuthManager {
         if (!cadasturInput || (userTypeSelect && userTypeSelect.value !== 'guia')) {
             this.guideValidationState = 'idle';
             this.validatedGuideData = null;
+            this.partialMatchConfirmed = false;
+            this.detachPartialConfirmationHandler();
             this.updateRegisterButtonState();
             return false;
         }
 
         const cadastur = cadasturInput.value.trim();
         const name = nameInput ? nameInput.value.trim() : '';
+
+        this.detachPartialConfirmationHandler();
+        this.partialMatchConfirmed = false;
 
         if (!cadastur) {
             this.guideValidationState = 'error';
@@ -666,6 +752,13 @@ class TrekkoAuthManager {
         }
 
         try {
+            let normalizationUtils = null;
+            try {
+                normalizationUtils = await this.ensureCadasturUtils();
+            } catch (err) {
+                console.warn('Falha ao carregar utilitário compartilhado CADASTUR. Usando fallback.', err);
+            }
+
             await this.loadGuidesDatabase();
 
             if (!this.cadasturIndexByNumber) {
@@ -673,7 +766,10 @@ class TrekkoAuthManager {
             }
 
             const normalizedNumber = cadastur.replace(/\D/g, '');
-            const normalizedName = this.normalizeNameForComparison(name);
+            const normalizeNameFn = normalizationUtils && typeof normalizationUtils.normalizeNameForCadastur === 'function'
+                ? normalizationUtils.normalizeNameForCadastur
+                : this.fallbackNormalizeCadasturName.bind(this);
+            const normalizedName = normalizeNameFn(name);
 
             if (!normalizedNumber) {
                 this.guideValidationState = 'error';
@@ -683,63 +779,107 @@ class TrekkoAuthManager {
                 return false;
             }
 
-            const entries = this.cadasturIndexByNumber.get(normalizedNumber) || [];
-
-            if (entries.length === 0) {
+            if (normalizedNumber.length !== 11) {
                 this.guideValidationState = 'error';
-                this.validatedGuideData = null;
-                this.showValidationMessage(
-                    cadasturValidation,
-                    'Não encontramos esse número de cadastro na base do Cadastur.',
-                    'error'
-                );
-                cadasturInput.classList.remove('success');
+                this.showValidationMessage(cadasturValidation, 'Número CADASTUR deve conter 11 dígitos.', 'error');
                 cadasturInput.classList.add('error');
                 this.updateRegisterButtonState();
                 return false;
             }
 
+            const entries = this.cadasturIndexByNumber.get(normalizedNumber) || [];
             const isGuideActivity = (record) => this.normalizeString(record.activity) === this.normalizeString('Guia de Turismo');
             const prioritizedEntries = entries.filter(isGuideActivity);
             const candidates = prioritizedEntries.length > 0 ? prioritizedEntries : entries;
+            const looseMatchFn = normalizationUtils && typeof normalizationUtils.isNormalizedCadasturNameLooseMatch === 'function'
+                ? (candidateNormalized) => normalizationUtils.isNormalizedCadasturNameLooseMatch(normalizedName, candidateNormalized)
+                : (candidateNormalized) => normalizedName === candidateNormalized ||
+                    normalizedName.includes(candidateNormalized) ||
+                    candidateNormalized.includes(normalizedName);
 
-            const exactMatch = candidates.find(record => record.normalizedName === normalizedName);
-            const partialMatch = exactMatch
-                ? exactMatch
-                : candidates.find(record => record.normalizedName.includes(normalizedName) ||
-                    normalizedName.includes(record.normalizedName));
+            let matchedRecord = null;
+            let matchQuality = 'none';
 
-            const matchedRecord = partialMatch || candidates[0];
+            for (const candidate of candidates) {
+                if (candidate.normalizedName === normalizedName) {
+                    matchedRecord = candidate;
+                    matchQuality = 'exact';
+                    break;
+                }
 
-            if (!matchedRecord) {
+                if (!matchedRecord && looseMatchFn(candidate.normalizedName)) {
+                    matchedRecord = candidate;
+                    matchQuality = 'partial';
+                }
+            }
+
+            if (!matchedRecord && entries.length > 0) {
+                matchedRecord = entries[0];
+                if (matchQuality === 'none') {
+                    matchQuality = 'fallback';
+                }
+            }
+
+            const response = await fetch(`${this.apiUrl}/validate-cadastur`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, cadastur_number: cadastur })
+            });
+
+            let payload = {};
+            try {
+                payload = await response.json();
+            } catch (err) {
+                payload = {};
+            }
+
+            if (!response.ok || !payload || payload.valid === false) {
+                const suggestions = Array.isArray(payload?.suggestions) ? payload.suggestions : [];
+                let message = payload?.message || 'Não foi possível validar agora. Tente novamente em instantes.';
+
+                if (response.status === 400) {
+                    message = 'Número CADASTUR deve conter 11 dígitos.';
+                } else if (response.status === 404) {
+                    message = 'Número não encontrado na base oficial do Cadastur.';
+                } else if (response.status === 409) {
+                    message = 'Nome e número divergentes; verifique a grafia conforme o CADASTUR.';
+                    if (suggestions.length > 0) {
+                        message += ` <br><strong>Opções encontradas:</strong> ${suggestions.join(', ')}`;
+                    }
+                }
+
                 this.guideValidationState = 'error';
                 this.validatedGuideData = null;
-                this.showValidationMessage(
-                    cadasturValidation,
-                    'Não encontramos correspondência entre nome e número de cadastro.',
-                    'error'
-                );
+                this.showValidationMessage(cadasturValidation, message, 'error');
                 cadasturInput.classList.remove('success');
                 cadasturInput.classList.add('error');
+                if (validationSummary) {
+                    validationSummary.classList.add('hidden');
+                    validationSummary.innerHTML = '';
+                }
                 this.updateRegisterButtonState();
                 return false;
             }
 
-            if (matchedRecord.normalizedName !== normalizedName) {
-                this.showValidationMessage(
-                    cadasturValidation,
-                    'Nome ou número de cadastro não coincidem exatamente. Verifique os dados informados.',
-                    'error'
-                );
-                this.guideValidationState = 'error';
-                this.validatedGuideData = null;
-                cadasturInput.classList.remove('success');
-                cadasturInput.classList.add('error');
-                this.updateRegisterButtonState();
-                return false;
+            const exactMatch = Boolean(payload.exact_match);
+            const officialName = payload.official_name || (matchedRecord ? matchedRecord.name : name);
+            const normalizedOfficial = this.normalizeNameForComparison(officialName);
+
+            if ((!matchedRecord || matchQuality === 'fallback') && normalizedOfficial) {
+                const recordByOfficial = entries.find(entry => entry.normalizedName === normalizedOfficial);
+                if (recordByOfficial) {
+                    matchedRecord = recordByOfficial;
+                    matchQuality = exactMatch ? 'exact' : 'partial';
+                }
             }
 
-            if (!matchedRecord.isActive) {
+            if (matchedRecord && matchedRecord.validityDate && matchedRecord.validityDate < new Date()) {
+                matchedRecord.isActive = false;
+            }
+
+            if (matchedRecord && !matchedRecord.isActive) {
                 this.guideValidationState = 'error';
                 this.validatedGuideData = null;
                 this.showValidationMessage(
@@ -749,40 +889,94 @@ class TrekkoAuthManager {
                 );
                 cadasturInput.classList.remove('success');
                 cadasturInput.classList.add('error');
+                if (validationSummary) {
+                    const summaryItems = [`<p><strong>Nome oficial:</strong> ${officialName}</p>`];
+                    validationSummary.innerHTML = summaryItems.join('');
+                    validationSummary.classList.remove('hidden');
+                }
                 this.updateRegisterButtonState();
                 return false;
             }
 
-            this.guideValidationState = 'success';
-            this.validatedGuideData = {
-                guide_id: null,
-                status: 'ATIVO',
-                cadastur_number: matchedRecord.rawNumber || matchedRecord.number,
-                cadastur_valid_until: matchedRecord.validityDate ? matchedRecord.validityDate.toISOString() : null,
-                cadastur_official_name: matchedRecord.name,
-                cadastur_uf: matchedRecord.uf,
-                cadastur_city: matchedRecord.city
-            };
-
-            this.showValidationMessage(
-                cadasturValidation,
-                'Validação concluída. Guia encontrado e ativo na base do Cadastur.',
-                'success'
-            );
-            cadasturInput.classList.remove('error');
-            cadasturInput.classList.add('success');
+            const summaryItems = [];
+            summaryItems.push(`<p><strong>Nome oficial:</strong> ${officialName}</p>`);
+            if (matchedRecord && (matchedRecord.city || matchedRecord.uf)) {
+                summaryItems.push(`<p><strong>Local:</strong> ${[matchedRecord.city, matchedRecord.uf].filter(Boolean).join(' - ')}</p>`);
+            }
+            if (matchedRecord && matchedRecord.activity) {
+                summaryItems.push(`<p><strong>Atividade:</strong> ${matchedRecord.activity}</p>`);
+            }
+            if (matchedRecord && matchedRecord.validityDisplay) {
+                summaryItems.push(`<p><strong>Validade:</strong> ${matchedRecord.validityDisplay}</p>`);
+            }
 
             if (validationSummary) {
-                const summaryItems = [];
-                summaryItems.push(`<p><strong>Nome oficial:</strong> ${matchedRecord.name}</p>`);
-                if (matchedRecord.uf || matchedRecord.city) {
-                    summaryItems.push(`<p><strong>Local:</strong> ${[matchedRecord.city, matchedRecord.uf].filter(Boolean).join(' - ')}</p>`);
-                }
-                if (matchedRecord.validityDisplay) {
-                    summaryItems.push(`<p><strong>Validade:</strong> ${matchedRecord.validityDisplay}</p>`);
-                }
                 validationSummary.innerHTML = summaryItems.join('');
                 validationSummary.classList.remove('hidden');
+            }
+
+            const validatedData = {
+                guide_id: null,
+                status: 'ATIVO',
+                cadastur_number: matchedRecord ? (matchedRecord.rawNumber || matchedRecord.number) : cadastur,
+                cadastur_valid_until: matchedRecord && matchedRecord.validityDate ? matchedRecord.validityDate.toISOString() : null,
+                cadastur_official_name: officialName,
+                cadastur_uf: matchedRecord ? matchedRecord.uf : null,
+                cadastur_city: matchedRecord ? matchedRecord.city : null,
+                cadastur_match_exact: exactMatch,
+                cadastur_match_confirmed: exactMatch,
+                cadastur_match_quality: exactMatch ? 'exact' : 'partial',
+            };
+
+            if (exactMatch) {
+                this.guideValidationState = 'success';
+                this.validatedGuideData = validatedData;
+                this.showValidationMessage(
+                    cadasturValidation,
+                    'Validação concluída. Guia encontrado e ativo na base do Cadastur.',
+                    'success'
+                );
+                cadasturInput.classList.remove('error');
+                cadasturInput.classList.add('success');
+            } else {
+                this.guideValidationState = 'partial';
+                validatedData.cadastur_match_confirmed = false;
+                validatedData.cadastur_match_quality = 'partial';
+                this.validatedGuideData = validatedData;
+                const partialMessage = `Encontramos seu cadastro com o nome oficial <strong>${officialName}</strong>, mas ele difere do nome informado. Confirme para continuar.`;
+                this.showValidationMessage(cadasturValidation, partialMessage, 'info');
+
+                const container = cadasturValidation ? cadasturValidation.querySelector('.validation-item') : null;
+                if (container) {
+                    const actionWrapper = document.createElement('div');
+                    actionWrapper.className = 'validation-actions';
+                    const confirmButton = document.createElement('button');
+                    confirmButton.type = 'button';
+                    confirmButton.className = 'cadastur-confirm-btn';
+                    confirmButton.textContent = 'Confirmar e continuar';
+                    const handler = () => {
+                        this.partialMatchConfirmed = true;
+                        this.guideValidationState = 'partial_confirmed';
+                        if (this.validatedGuideData) {
+                            this.validatedGuideData.cadastur_match_confirmed = true;
+                            this.validatedGuideData.cadastur_match_quality = 'partial_confirmed';
+                        }
+                        this.showValidationMessage(
+                            cadasturValidation,
+                            `Validação confirmada. Seguiremos com o nome oficial ${officialName}.`,
+                            'success'
+                        );
+                        cadasturInput.classList.remove('error');
+                        cadasturInput.classList.add('success');
+                        this.detachPartialConfirmationHandler();
+                        this.updateRegisterButtonState();
+                    };
+                    confirmButton.addEventListener('click', handler);
+                    this.partialMatchButton = confirmButton;
+                    this.partialMatchHandler = handler;
+                    actionWrapper.appendChild(confirmButton);
+                    container.appendChild(actionWrapper);
+                }
             }
 
             this.updateRegisterButtonState();
@@ -801,18 +995,22 @@ class TrekkoAuthManager {
             );
             cadasturInput.classList.remove('success');
             cadasturInput.classList.add('error');
+            if (validationSummary) {
+                validationSummary.classList.add('hidden');
+                validationSummary.innerHTML = '';
+            }
             this.updateRegisterButtonState();
             return false;
         } finally {
             if (validationSummary) {
-                validationSummary.classList.toggle('hidden', this.guideValidationState !== 'success');
-                if (this.guideValidationState !== 'success') {
+                const shouldHide = !['success', 'partial', 'partial_confirmed'].includes(this.guideValidationState);
+                validationSummary.classList.toggle('hidden', shouldHide);
+                if (shouldHide) {
                     validationSummary.innerHTML = '';
                 }
             }
         }
     }
-
     // Normalizar string para comparação
     normalizeString(str) {
         return str.toLowerCase()
@@ -869,6 +1067,8 @@ class TrekkoAuthManager {
     resetGuideValidationState() {
         this.guideValidationState = 'idle';
         this.validatedGuideData = null;
+        this.partialMatchConfirmed = false;
+        this.detachPartialConfirmationHandler();
 
         const cadasturInput = document.getElementById('cadasturNumber');
         const cadasturValidation = document.getElementById('cadasturValidation');
@@ -890,6 +1090,22 @@ class TrekkoAuthManager {
         this.updateRegisterButtonState();
     }
 
+    detachPartialConfirmationHandler() {
+        if (this.partialMatchButton && this.partialMatchHandler) {
+            this.partialMatchButton.removeEventListener('click', this.partialMatchHandler);
+        }
+        if (this.partialMatchButton) {
+            const parent = this.partialMatchButton.parentElement;
+            if (parent && parent.classList && parent.classList.contains('validation-actions')) {
+                parent.remove();
+            } else if (this.partialMatchButton.parentElement) {
+                this.partialMatchButton.parentElement.removeChild(this.partialMatchButton);
+            }
+        }
+        this.partialMatchButton = null;
+        this.partialMatchHandler = null;
+    }
+
     // Atualizar estado do botão de cadastro conforme validação de guia
     updateRegisterButtonState() {
         const submitBtn = document.getElementById('registerSubmitBtn');
@@ -900,7 +1116,7 @@ class TrekkoAuthManager {
         }
 
         if (userTypeSelect && userTypeSelect.value === 'guia') {
-            submitBtn.disabled = this.guideValidationState !== 'success';
+            submitBtn.disabled = !['success', 'partial_confirmed'].includes(this.guideValidationState);
         } else {
             submitBtn.disabled = false;
         }
@@ -1003,7 +1219,7 @@ class TrekkoAuthManager {
                 return;
             }
 
-            if (this.guideValidationState !== 'success') {
+            if (!['success', 'partial_confirmed'].includes(this.guideValidationState)) {
                 this.showMessage(errorDiv, 'É necessário validar seu CADASTUR antes de prosseguir.', 'error');
                 return;
             }

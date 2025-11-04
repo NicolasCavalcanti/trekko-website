@@ -190,18 +190,35 @@ router.post(
     }
 
     try {
-      const isValid = await cadasturLookupService.isValid(trimmedName, normalizedNumber);
+      const validation = await cadasturLookupService.validate(trimmedName, normalizedNumber);
 
-      if (!isValid) {
+      if (!validation.numberExists) {
         res.status(404).json({
           valid: false,
-          message:
-            'Nome ou número CADASTUR não encontrados na base oficial. Verifique seus dados ou entre em contato com suporte@trekko.com.br.',
+          message: 'Número CADASTUR não encontrado na base oficial.',
+          code: 'CADASTUR_NUMBER_NOT_FOUND',
         });
         return;
       }
 
-      res.status(200).json({ valid: true });
+      if (!validation.valid) {
+        res.status(409).json({
+          valid: false,
+          message:
+            'O nome informado não corresponde ao cadastro oficial. Verifique a grafia conforme CADASTUR.',
+          code: 'CADASTUR_NAME_MISMATCH',
+          suggestions: validation.availableNames,
+        });
+        return;
+      }
+
+      res.status(200).json({
+        valid: true,
+        exact_match: validation.exactMatch,
+        official_name: validation.matchedName,
+        normalized_official_name: validation.normalizedMatchedName,
+        suggestions: validation.availableNames,
+      });
     } catch (error) {
       next(error);
     }
