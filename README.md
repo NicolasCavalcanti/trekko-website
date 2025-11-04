@@ -2,6 +2,39 @@
 
 Este repositório contém a estrutura completa do banco de dados para gerenciamento de guias de turismo registrados no **CADASTUR** (Sistema de Cadastro de Pessoas Físicas e Jurídicas que atuam no setor do turismo).
 
+
+## 🔐 Autenticação e Fluxo de Guias
+
+O site agora utiliza o backend da API Express (`/api`) para cadastrar e autenticar guias profissionais. As funções críticas estão disponíveis mesmo em ambientes locais.
+
+### Endpoints principais
+- `POST /api/auth/register` – cria conta de trekker ou guia (valida CADASTUR para guias).
+- `POST /api/auth/login` – autentica o usuário e gera cookies httpOnly de sessão.
+- `POST /api/auth/logout` – encerra a sessão ativa.
+- `GET /api/auth/me` – retorna o perfil autenticado e o token CSRF.
+- `POST /api/admin/expeditions` – cria expedições vinculadas ao guia logado.
+- `GET /api/admin/expeditions?guideId=<GUIDE_ID>` – lista expedições do guia.
+- `GET /api/public/trails` – busca trilhas nas bases BD_CADASTUR/BD_TRILHAS.
+
+### Variáveis de ambiente obrigatórias
+Configure o arquivo `.env` da API com os valores abaixo:
+
+```
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/trekko"
+JWT_SECRET="altere-para-um-segredo-unico"
+REFRESH_SECRET="altere-para-outro-segredo"
+CORS_ORIGIN="http://localhost:3000,http://127.0.0.1:3000"
+```
+
+Em ambientes sem Postgres disponível a aplicação usa SQLite automaticamente.
+
+### Como testar rapidamente
+1. Instale dependências da API: `npm install --prefix api`.
+2. Aplique migrações: `npm run migrate --prefix api`.
+3. Inicie o servidor: `npm run dev --prefix api` (porta padrão 3000).
+4. Abra `index.html` no navegador e cadastre um guia com CADASTUR válido.
+5. No perfil do guia (`perfil.html`), utilize o botão **+ Criar Expedição** para buscar trilhas reais e salvar uma expedição.
+
 ## 📊 Informações do Dataset
 
 - **Total de registros**: 54.040 guias de turismo
