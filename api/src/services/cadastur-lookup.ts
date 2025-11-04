@@ -2,6 +2,10 @@ import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { HttpError } from '../middlewares/error';
+import {
+  isNormalizedCadasturNameLooseMatch,
+  normalizeNameForCadastur,
+} from '../../../shared/normalizeCadastur.js';
 
 const CACHE_TTL_MS = 15 * 60 * 1000;
 const FILE_NAMES = ['BD_CADASTUR.csv', 'CADASTUR.csv'] as const;
@@ -20,7 +24,7 @@ const NUMBER_HEADER_CANDIDATES = [
 ];
 
 export type CadasturLookup = {
-  namesByNumber: Map<string, Set<string>>;
+  namesByNumber: Map<string, CadasturNameRecord[]>;
   total: number;
   sourcePath: string;
 };
@@ -48,16 +52,6 @@ const normalizeHeader = (value: string): string =>
     .replace(/[\u0300-\u036f]/g, '')
     .toUpperCase()
     .replace(/[^A-Z0-9]+/g, '_');
-
-const normalizeName = (value: string): string =>
-  value
-    .replace(/^\uFEFF/, '')
-    .trim()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^A-Z0-9\s]/gi, ' ')
-    .replace(/\s+/g, ' ')
-    .toLowerCase();
 
 const normalizeNumber = (value: string): string => value.replace(/\D/g, '');
 
@@ -137,6 +131,11 @@ const resolveCadasturFile = async (): Promise<string> => {
   );
 };
 
+export type CadasturNameRecord = {
+  rawName: string;
+  normalizedName: string;
+};
+
 const parseCadasturCsv = (content: string, sourcePath: string): CadasturLookup => {
   const sanitized = content.replace(/\r/g, '\n');
   const lines = sanitized
@@ -162,7 +161,7 @@ const parseCadasturCsv = (content: string, sourcePath: string): CadasturLookup =
     throw new Error('Colunas obrigatórias ausentes na base CADASTUR');
   }
 
-  const namesByNumber = new Map<string, Set<string>>();
+  const namesByNumber = new Map<string, CadasturNameRecord[]>();
   let total = 0;
 
   for (const rawLine of lines) {
@@ -179,17 +178,20 @@ const parseCadasturCsv = (content: string, sourcePath: string): CadasturLookup =
     }
 
     const normalizedNumber = normalizeNumber(rawNumber);
-    const normalizedName = normalizeName(rawName);
+    const normalizedName = normalizeNameForCadastur(rawName);
 
     if (!normalizedNumber || !normalizedName) {
       continue;
     }
 
     if (!namesByNumber.has(normalizedNumber)) {
-      namesByNumber.set(normalizedNumber, new Set());
+      namesByNumber.set(normalizedNumber, []);
     }
 
-    namesByNumber.get(normalizedNumber)?.add(normalizedName);
+    namesByNumber.get(normalizedNumber)?.push({
+      rawName,
+      normalizedName,
+    });
     total += 1;
   }
 
@@ -241,18 +243,78 @@ const loadCadasturLookup = async (): Promise<CadasturLookup> => {
   return parsed;
 };
 
-export const cadasturLookupService = {
-  async isValid(name: string, cadasturNumber: string): Promise<boolean> {
-    const lookup = await loadCadasturLookup();
-    const normalizedName = normalizeName(name);
-    const normalizedNumber = normalizeNumber(cadasturNumber);
+export type CadasturValidationResult = {
+  valid: boolean;
+  exactMatch: boolean;
+  numberExists: boolean;
+  matchedName: string | null;
+  normalizedMatchedName: string | null;
+  availableNames: string[];
+};
 
-    if (!normalizedName || !normalizedNumber) {
-      return false;
+const createValidationResult = (
+  overrides: Partial<CadasturValidationResult>,
+): CadasturValidationResult => ({
+  valid: false,
+  exactMatch: false,
+  numberExists: false,
+  matchedName: null,
+  normalizedMatchedName: null,
+  availableNames: [],
+  ...overrides,
+});
+
+export const cadasturLookupService = {
+  async validate(name: string, cadasturNumber: string): Promise<CadasturValidationResult> {
+    const lookup = await loadCadasturLookup();
+    const normalizedNumber = normalizeNumber(cadasturNumber);
+    const normalizedInputName = normalizeNameForCadastur(name);
+
+    if (!normalizedNumber) {
+      return createValidationResult({ numberExists: false });
     }
 
-    const names = lookup.namesByNumber.get(normalizedNumber);
-    return names ? names.has(normalizedName) : false;
+    const entries = lookup.namesByNumber.get(normalizedNumber);
+
+    if (!entries || entries.length === 0) {
+      return createValidationResult({ numberExists: false });
+    }
+
+    const availableNames = entries.map((entry) => entry.rawName);
+
+    if (!normalizedInputName) {
+      return createValidationResult({ numberExists: true, availableNames });
+    }
+
+    const exactMatch = entries.find((entry) => entry.normalizedName === normalizedInputName);
+
+    if (exactMatch) {
+      return createValidationResult({
+        valid: true,
+        exactMatch: true,
+        numberExists: true,
+        matchedName: exactMatch.rawName,
+        normalizedMatchedName: exactMatch.normalizedName,
+        availableNames,
+      });
+    }
+
+    const partialMatch = entries.find((entry) =>
+      isNormalizedCadasturNameLooseMatch(normalizedInputName, entry.normalizedName),
+    );
+
+    if (partialMatch) {
+      return createValidationResult({
+        valid: true,
+        exactMatch: false,
+        numberExists: true,
+        matchedName: partialMatch.rawName,
+        normalizedMatchedName: partialMatch.normalizedName,
+        availableNames,
+      });
+    }
+
+    return createValidationResult({ numberExists: true, availableNames });
   },
   async refresh(): Promise<void> {
     cachedLookup = null;

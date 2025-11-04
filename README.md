@@ -43,6 +43,17 @@ Em ambientes sem Postgres disponível a aplicação usa SQLite automaticamente.
 - **Guias motoristas**: 1.474
 - **Fonte**: CADASTUR - Ministério do Turismo
 
+## 🔄 Atualização da base CADASTUR
+
+Para manter o arquivo `BD_CADASTUR.csv` alinhado com a base oficial do Ministério do Turismo:
+
+1. Acesse o [portal oficial do CADASTUR](https://cadastur.turismo.gov.br) e exporte a planilha completa de guias ativos.
+2. Substitua o arquivo `BD_CADASTUR.csv` na raiz do projeto pelo novo download mantendo o mesmo nome de arquivo.
+3. Confirme que registros sensíveis (ex.: `21467985879 - JULIELI FERRARI DOS SANTOS`) continuam presentes utilizando um editor de texto ou `rg '21467985879' BD_CADASTUR.csv`.
+4. Execute `npm test` para validar se a normalização e o endpoint `/api/auth/validate-cadastur` continuam aprovando o fluxo.
+
+> Sugestão: agende uma atualização semanal ou sempre que o Ministério anunciar mudanças significativas na base pública.
+
 ## ⚠️ Arquivos Divididos para GitHub
 
 Devido ao limite de 25MB do GitHub, o arquivo original de dados SQL (32MB) foi dividido em **4 partes menores**:
