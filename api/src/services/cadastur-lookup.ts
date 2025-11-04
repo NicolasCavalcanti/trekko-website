@@ -50,7 +50,14 @@ const normalizeHeader = (value: string): string =>
     .replace(/[^A-Z0-9]+/g, '_');
 
 const normalizeName = (value: string): string =>
-  value.replace(/^\uFEFF/, '').trim().replace(/\s+/g, ' ').toLowerCase();
+  value
+    .replace(/^\uFEFF/, '')
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^A-Z0-9\s]/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .toLowerCase();
 
 const normalizeNumber = (value: string): string => value.replace(/\D/g, '');
 
