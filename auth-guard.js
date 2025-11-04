@@ -1,125 +1,115 @@
-// auth-guard.js - Sistema de proteção de páginas para Guias
+// auth-guard.js - Proteção de páginas restritas a guias
 class AuthGuard {
     constructor() {
-        this.init();
+        this.ready = this.init();
     }
 
-    init() {
-        // Verificar se o usuário está logado e é um guia
-        this.checkGuideAccess();
+    async init() {
+        try {
+            if (window.trekkoAuth?.readyPromise) {
+                await window.trekkoAuth.readyPromise;
+            }
+            await this.checkGuideAccess();
+        } catch (error) {
+            console.error('Erro ao inicializar AuthGuard:', error);
+            this.redirectToLogin('Não foi possível validar sua sessão. Faça login novamente.');
+        }
     }
 
-    // Verificar acesso de guia
-    checkGuideAccess() {
-        const token = localStorage.getItem('authToken');
-        const userData = localStorage.getItem('userData');
-        
-        if (!token || !userData) {
+    async getSession() {
+        if (!window.trekkoAuth) {
+            return { authenticated: false };
+        }
+        if (window.trekkoAuth.readyPromise) {
+            await window.trekkoAuth.readyPromise;
+        }
+        return window.trekkoAuth.getSession();
+    }
+
+    async checkGuideAccess() {
+        const session = await this.getSession();
+        if (!session.authenticated || !session.user) {
             this.redirectToLogin('Você precisa estar logado para acessar esta página.');
             return;
         }
 
-        try {
-            const user = JSON.parse(userData);
-            
-            // Verificar se o usuário é um guia
-            if (user.role !== 'guide' && user.role !== 'guia') {
-                this.redirectToHome('Acesso restrito apenas para Guias certificados.');
-                return;
-            }
+        const isGuide = Array.isArray(session.roles)
+            ? session.roles.map((role) => role.toUpperCase()).includes('GUIA')
+            : session.user.user_type === 'guia';
 
-            // Se chegou até aqui, o usuário é um guia válido
-            this.showPageContent();
-            
-        } catch (error) {
-            console.error('Erro ao verificar dados do usuário:', error);
-            this.redirectToLogin('Erro na verificação de acesso. Faça login novamente.');
+        if (!isGuide) {
+            this.redirectToHome('Acesso restrito aos Guias credenciados.');
+            return;
         }
+
+        this.showPageContent();
     }
 
-    // Redirecionar para login
     redirectToLogin(message) {
         alert(message);
         window.location.href = 'https://www.trekko.com.br/';
     }
 
-    // Redirecionar para home
     redirectToHome(message) {
         alert(message);
         window.location.href = 'https://www.trekko.com.br/';
     }
 
-    // Mostrar conteúdo da página
     showPageContent() {
-        // Remove a classe hidden do body ou main content se existir
         const body = document.body;
         const mainContent = document.querySelector('main');
-        
-        if (body.classList.contains('hidden')) {
+
+        if (body?.classList.contains('hidden')) {
             body.classList.remove('hidden');
         }
-        
-        if (mainContent && mainContent.classList.contains('hidden')) {
+
+        if (mainContent?.classList.contains('hidden')) {
             mainContent.classList.remove('hidden');
         }
 
-        // Adiciona classe para indicar que o usuário é um guia autenticado
-        body.classList.add('guide-authenticated');
+        body?.classList.add('guide-authenticated');
     }
 
-    // Verificar se o usuário atual é um guia
-    static isGuide() {
-        const userData = localStorage.getItem('userData');
-        if (!userData) return false;
-        
-        try {
-            const user = JSON.parse(userData);
-            return user.role === 'guide' || user.role === 'guia';
-        } catch (error) {
-            return false;
+    static async currentSession() {
+        if (window.trekkoAuth?.readyPromise) {
+            await window.trekkoAuth.readyPromise;
         }
+        return window.trekkoAuth?.getSession?.();
     }
 
-    // Obter dados do guia atual
-    static getCurrentGuide() {
-        const userData = localStorage.getItem('userData');
-        if (!userData) return null;
-        
-        try {
-            const user = JSON.parse(userData);
-            if (user.role === 'guide' || user.role === 'guia') {
-                return user;
-            }
-            return null;
-        } catch (error) {
-            return null;
+    static async isGuide() {
+        const session = await AuthGuard.currentSession();
+        if (!session?.authenticated) return false;
+        if (Array.isArray(session.roles)) {
+            return session.roles.map((role) => role.toUpperCase()).includes('GUIA');
         }
+        return session.user?.user_type === 'guia';
+    }
+
+    static async getCurrentGuide() {
+        const session = await AuthGuard.currentSession();
+        if (!session?.authenticated) return null;
+        const isGuide = await AuthGuard.isGuide();
+        return isGuide ? session.user : null;
     }
 }
 
-// Inicializar proteção quando a página carregar
+const guardPages = ['admin-expeditions.html', 'nova-expedicao.html'];
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Aplicar a proteção se estivermos nas páginas de guia
-    if (window.location.pathname.includes('admin-expeditions.html') || 
-        window.location.pathname.includes('nova-expedicao.html')) {
+    const pathname = window.location.pathname || '';
+    if (guardPages.some((page) => pathname.includes(page))) {
         console.log('Aplicando proteção de acesso para Guias...');
+        // eslint-disable-next-line no-new
         new AuthGuard();
     }
 });
 
-// Função global para verificar se deve mostrar opções de guia
-function shouldShowGuideOptions() {
-    return AuthGuard.isGuide();
-}
-
-// Função para ocultar/mostrar elementos baseado no tipo de usuário
-function toggleGuideElements() {
-    const isGuide = AuthGuard.isGuide();
-    
-    // Elementos que só devem aparecer para guias
+async function toggleGuideElements() {
+    const isGuide = await AuthGuard.isGuide();
     const guideOnlyElements = document.querySelectorAll('.guide-only, [data-guide-only="true"]');
-    
-    guideOnlyElements.forEach(element => {
+
+    guideOnlyElements.forEach((element) => {
         if (isGuide) {
             element.style.display = '';
             element.classList.remove('hidden');
@@ -129,7 +119,6 @@ function toggleGuideElements() {
         }
     });
 
-    // Links do menu de navegação
     const organizeExpeditionsLink = document.querySelector('a[href="admin-expeditions.html"]');
     if (organizeExpeditionsLink) {
         if (isGuide) {
@@ -142,18 +131,27 @@ function toggleGuideElements() {
     }
 }
 
-// Executar quando o sistema de auth for carregado
 document.addEventListener('DOMContentLoaded', () => {
-    // Aguardar um pouco para garantir que o auth.js foi carregado
     setTimeout(() => {
-        toggleGuideElements();
+        void toggleGuideElements();
     }, 100);
 });
 
-// Também executar quando o estado de autenticação mudar
-window.addEventListener('storage', (e) => {
-    if (e.key === 'userData') {
-        toggleGuideElements();
+if (window.trekkoAuth?.onAuthStateChanged) {
+    window.trekkoAuth.onAuthStateChanged(() => {
+        void toggleGuideElements();
+    });
+}
+
+window.addEventListener('storage', (event) => {
+    if (event.key === 'userData') {
+        void toggleGuideElements();
     }
 });
 
+// Funções globais esperadas por outras partes do site
+window.shouldShowGuideOptions = async function shouldShowGuideOptions() {
+    return AuthGuard.isGuide();
+};
+
+window.toggleGuideElements = toggleGuideElements;
