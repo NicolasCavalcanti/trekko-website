@@ -89,16 +89,22 @@ describe('TrekkoAuth guide registration flow', () => {
     auth.apiUrl = 'https://example.test/api/auth';
 
     global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
       json: async () => ({ valid: true }),
     });
 
     const isValid = await auth.validateCadasturAPI('12345678901', 'Maria Guia');
 
-    expect(global.fetch).toHaveBeenCalledWith('https://example.test/api/auth/validate-cadastur', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: 'Maria Guia', cadastur_number: '12345678901' }),
-    });
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://example.test/api/auth/validate-cadastur',
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'include',
+        headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
+      }),
+    );
+    const requestBody = JSON.parse(global.fetch.mock.calls[0][1].body);
+    expect(requestBody).toEqual({ name: 'Maria Guia', cadastur_number: '12345678901' });
     expect(isValid).toBe(true);
     expect(validationElement.innerHTML).toContain('✅ CADASTUR válido');
   });
@@ -124,6 +130,7 @@ describe('TrekkoAuth guide registration flow', () => {
     };
 
     global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
       json: async () => ({ success: true, user: { id: '1', name: 'Maria Guia', user_type: 'guia' } }),
     });
 
@@ -134,7 +141,8 @@ describe('TrekkoAuth guide registration flow', () => {
     expect(auth.validateCadasturAPI).toHaveBeenCalledWith('12345678901', 'Maria Guia');
     expect(global.fetch).toHaveBeenCalledWith('https://example.test/api/auth/register', expect.objectContaining({
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
     }));
 
     const body = JSON.parse(global.fetch.mock.calls[0][1].body);
@@ -147,7 +155,11 @@ describe('TrekkoAuth guide registration flow', () => {
     });
 
     expect(auth.showSuccess).toHaveBeenCalled();
-    expect(auth.updateUIForLoggedUser).toHaveBeenCalledWith({ id: '1', name: 'Maria Guia', user_type: 'guia' });
+    expect(auth.session.user).toMatchObject({
+      id: '1',
+      name: 'Maria Guia',
+      user_type: 'guia',
+    });
     expect(modal.remove).toHaveBeenCalled();
   });
 });
