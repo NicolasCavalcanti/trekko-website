@@ -113,9 +113,17 @@ class TrekkoAuthManager {
 
         this.cadasturLoadPromise = (async () => {
             try {
-                const response = await fetch('BD_CADASTUR.csv', { cache: 'no-store' });
+                let response;
+                try {
+                    response = await fetch('/BD_CADASTUR.csv', { cache: 'no-store' });
+                } catch (error) {
+                    console.error('Falha ao buscar base CADASTUR:', error);
+                    throw new Error('Base CADASTUR não encontrada ou inacessível');
+                }
+
                 if (!response.ok) {
-                    throw new Error('Não foi possível carregar a base do Cadastur.');
+                    console.error('Resposta inválida ao buscar base CADASTUR:', response.status, response.statusText);
+                    throw new Error('Base CADASTUR não encontrada ou inacessível');
                 }
 
                 const csvText = await response.text();
