@@ -38,7 +38,10 @@ const uniqueDirectories = (paths: string[]): string[] => {
 
 const candidateDirectories = uniqueDirectories([
   process.cwd(),
+  path.resolve(process.cwd(), 'public'),
+  path.resolve(process.cwd(), 'static'),
   path.resolve(process.cwd(), '..'),
+  '/var/www/html',
   path.resolve(__dirname, '..'),
   path.resolve(__dirname, '../..'),
   path.resolve(__dirname, '../../..'),
@@ -112,11 +115,29 @@ const findColumnIndex = (headers: string[], candidates: string[]): number => {
 };
 
 const resolveCadasturFile = async (): Promise<string> => {
+  const customPath = process.env.CADASTUR_CSV_PATH;
+
+  if (customPath) {
+    const resolvedCustomPath = path.resolve(customPath);
+    try {
+      await access(resolvedCustomPath);
+      console.info('[cadasturLookupService] Base CADASTUR localizada via CADASTUR_CSV_PATH:', resolvedCustomPath);
+      return resolvedCustomPath;
+    } catch (error) {
+      console.warn(
+        '[cadasturLookupService] Caminho definido em CADASTUR_CSV_PATH indisponível:',
+        resolvedCustomPath,
+        error instanceof Error ? error.message : error,
+      );
+    }
+  }
+
   for (const directory of candidateDirectories) {
     for (const fileName of FILE_NAMES) {
       const candidate = path.resolve(directory, fileName);
       try {
         await access(candidate);
+        console.info('[cadasturLookupService] Base CADASTUR localizada em diretório candidato:', candidate);
         return candidate;
       } catch {
         // Continue searching in next candidate
@@ -237,6 +258,11 @@ const loadCadasturLookup = async (): Promise<CadasturLookup> => {
   if (parsed.namesByNumber.size === 0) {
     throw new HttpError(500, 'CADASTUR_DATA_EMPTY', 'Base oficial CADASTUR vazia');
   }
+
+  console.info(
+    '[cadasturLookupService] Base CADASTUR carregada com sucesso:',
+    JSON.stringify({ source: filePath, registros: parsed.total }),
+  );
 
   cachedLookup = parsed;
   cacheTimestamp = now;
