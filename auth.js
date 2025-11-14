@@ -530,6 +530,7 @@ class TrekkoAuth {
         } catch (error) {
             console.error('Erro ao encerrar sessão:', error);
         } finally {
+            this.csrfToken = null;
             await this.fetchSession();
             this.showSuccess('Sessão encerrada com sucesso.');
         }
